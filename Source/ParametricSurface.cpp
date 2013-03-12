@@ -6,7 +6,7 @@ void ParametricSurface::SetInterval(const ParametricInterval& interval)
     m_divisions = interval.Divisions;
     m_upperBound = interval.UpperBound;
     m_textureCount = interval.TextureCount;
-    m_slices = m_divisions - ivec2(1, 1);
+    m_slices = m_divisions - ci::Vec2i(1, 1);
 }
 
 int ParametricSurface::GetVertexCount() const
@@ -24,9 +24,9 @@ int ParametricSurface::GetTriangleIndexCount() const
     return 6 * m_slices.x * m_slices.y;
 }
 
-vec2 ParametricSurface::ComputeDomain(float x, float y) const
+ci::Vec2f ParametricSurface::ComputeDomain(float x, float y) const
 {
-    return vec2(x * m_upperBound.x / m_slices.x, y * m_upperBound.y / m_slices.y);
+    return ci::Vec2f(x * m_upperBound.x / m_slices.x, y * m_upperBound.y / m_slices.y);
 }
 
 void ParametricSurface::GenerateVertices(std::vector<float>& vertices, unsigned char flags) const
@@ -40,13 +40,17 @@ void ParametricSurface::GenerateVertices(std::vector<float>& vertices, unsigned 
     vertices.resize(GetVertexCount() * floatsPerVertex);
     float* attribute = &vertices[0];
 
+	int k = 0;
     for (int j = 0; j < m_divisions.y; j++) {
         for (int i = 0; i < m_divisions.x; i++) {
 
             // Compute Position
-            vec2 domain = ComputeDomain(i, j);
-            vec3 range = Evaluate(domain);
-            attribute = range.Write(attribute);
+            ci::Vec2f domain = ComputeDomain(i, j);
+            ci::Vec3f range = Evaluate(domain);
+            vertices[k+0] = range.x;
+            vertices[k+1] = range.y;
+            vertices[k+2] = range.z;
+			k+=3;
 
             // Compute Normal
             if (flags & VertexFlagsNormals) {
@@ -59,20 +63,26 @@ void ParametricSurface::GenerateVertices(std::vector<float>& vertices, unsigned 
                 if (j == m_divisions.y - 1) t -= 0.01f;
                 
                 // Compute the tangents and their cross product.
-                vec3 p = Evaluate(ComputeDomain(s, t));
-                vec3 u = Evaluate(ComputeDomain(s + 0.01f, t)) - p;
-                vec3 v = Evaluate(ComputeDomain(s, t + 0.01f)) - p;
-                vec3 normal = u.Cross(v).Normalized();
+                ci::Vec3f p = Evaluate(ComputeDomain(s, t));
+                ci::Vec3f u = Evaluate(ComputeDomain(s + 0.01f, t)) - p;
+                ci::Vec3f v = Evaluate(ComputeDomain(s, t + 0.01f)) - p;
+                ci::Vec3f normal = u.cross(v).normalized();
                 if (InvertNormal(domain))
                     normal = -normal;
-                attribute = normal.Write(attribute);
+				vertices[k+0] = normal.x;
+				vertices[k+1] = normal.y;
+				vertices[k+2] = normal.z;
+				k+=3;
             }
             
             // Compute Texture Coordinates
             if (flags & VertexFlagsTexCoords) {
                 float s = m_textureCount.x * i / m_slices.x;
                 float t = m_textureCount.y * j / m_slices.y;
-                attribute = vec2(s, t).Write(attribute);
+				ci::Vec2f texCoord = ci::Vec2f( s, t );
+				vertices[k+0] = texCoord.x;
+				vertices[k+1] = texCoord.y;
+				k+=2;
             }
         }
     }

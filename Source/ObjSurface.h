@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector.h"
+#include "cinder/Vector.h"
 #include "ISurface.h"
 
 #include <string>
@@ -18,7 +18,7 @@ public:
 	
 private:
 	std::string			m_name;
-	std::vector<ivec3>	m_faces;
+	std::vector<ci::Vec3i>	m_faces;
     mutable size_t		m_faceCount;
     mutable size_t		m_vertexCount;
     static const int	MaxLineSize = 128;

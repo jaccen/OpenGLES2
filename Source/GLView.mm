@@ -79,14 +79,14 @@
 {
     UITouch* touch = [touches anyObject];
     CGPoint location  = [touch locationInView: self];
-    m_applicationEngine->touchBegan(ivec2(location.x, location.y));
+    m_applicationEngine->touchBegan(ci::Vec2i(location.x, location.y));
 }
 
 - (void) touchesEnded: (NSSet*) touches withEvent: (UIEvent*) event
 {
     UITouch* touch = [touches anyObject];
     CGPoint location  = [touch locationInView: self];
-    m_applicationEngine->touchEnded(ivec2(location.x, location.y));
+    m_applicationEngine->touchEnded(ci::Vec2i(location.x, location.y));
 }
 
 - (void) touchesMoved: (NSSet*) touches withEvent: (UIEvent*) event
@@ -94,8 +94,8 @@
     UITouch* touch = [touches anyObject];
     CGPoint previous  = [touch previousLocationInView: self];
     CGPoint current = [touch locationInView: self];
-    m_applicationEngine->touchMoved(ivec2(previous.x, previous.y),
-                                      ivec2(current.x, current.y));
+    m_applicationEngine->touchMoved(ci::Vec2i(previous.x, previous.y),
+                                      ci::Vec2i(current.x, current.y));
 }
 
 @end

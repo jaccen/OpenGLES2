@@ -14,13 +14,13 @@ ObjSurface::ObjSurface(const string& name) :
 {
     m_faces.resize(GetTriangleIndexCount() / 3);
     ifstream objFile(m_name.c_str());
-    vector<ivec3>::iterator face = m_faces.begin();
+    vector<ci::Vec3i>::iterator face = m_faces.begin();
     while (objFile) {
         char c = objFile.get();
         if (c == 'f') {
             assert(face != m_faces.end() && "parse error");
             objFile >> face->x >> face->y >> face->z;
-            *face++ -= ivec3(1, 1, 1);
+            *face++ -= ci::Vec3i(1, 1, 1);
         }
         objFile.ignore(MaxLineSize, '\n');
     }
@@ -62,8 +62,8 @@ void ObjSurface::GenerateVertices(vector<float>& floats, unsigned char flags) co
     assert(flags == VertexFlagsNormals && "Unsupported flags.");
 
     struct Vertex {
-        vec3 Position;
-        vec3 Normal;
+        ci::Vec3f Position;
+        ci::Vec3f Normal;
     };
 
     // Read in the vertex positions and initialize lighting normals to (0, 0, 0).
@@ -73,8 +73,8 @@ void ObjSurface::GenerateVertices(vector<float>& floats, unsigned char flags) co
     while (objFile) {
         char c = objFile.get();
         if (c == 'v') {
-            vertex->Normal = vec3(0, 0, 0);
-            vec3& position = (vertex++)->Position;
+            vertex->Normal = ci::Vec3f(0, 0, 0);
+            ci::Vec3f& position = (vertex++)->Position;
             objFile >> position.x >> position.y >> position.z;
         }
         objFile.ignore(MaxLineSize, '\n');
@@ -82,13 +82,13 @@ void ObjSurface::GenerateVertices(vector<float>& floats, unsigned char flags) co
 
     vertex = (Vertex*) &floats[0];
     for (size_t faceIndex = 0; faceIndex < m_faces.size(); ++faceIndex) {
-        ivec3 face = m_faces[faceIndex];
+        ci::Vec3i face = m_faces[faceIndex];
 
         // Compute the facet normal.
-        vec3 a = vertex[face.x].Position;
-        vec3 b = vertex[face.y].Position;
-        vec3 c = vertex[face.z].Position;
-        vec3 facetNormal = (b - a).Cross(c - a);
+        ci::Vec3f a = vertex[face.x].Position;
+        ci::Vec3f b = vertex[face.y].Position;
+        ci::Vec3f c = vertex[face.z].Position;
+        ci::Vec3f facetNormal = (b - a).cross(c - a);
 
         // Add the facet normal to the lighting normal of each adjoining vertex.
         vertex[face.x].Normal += facetNormal;
@@ -98,14 +98,14 @@ void ObjSurface::GenerateVertices(vector<float>& floats, unsigned char flags) co
 
     // Normalize the normals.
     for (int v = 0; v < GetVertexCount(); ++v)
-        vertex[v].Normal.Normalize();
+        vertex[v].Normal.normalize();
 }
 
 void ObjSurface::GenerateTriangleIndices(vector<unsigned short>& indices) const
 {
     indices.resize(GetTriangleIndexCount());
     vector<unsigned short>::iterator index = indices.begin();
-    for (vector<ivec3>::const_iterator f = m_faces.begin(); f != m_faces.end(); ++f) {
+    for (vector<ci::Vec3i>::const_iterator f = m_faces.begin(); f != m_faces.end(); ++f) {
         *index++ = f->x;
         *index++ = f->y;
         *index++ = f->z;

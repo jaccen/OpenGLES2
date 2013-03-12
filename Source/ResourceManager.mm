@@ -30,7 +30,7 @@ void ResourceManager::LoadPngImage(const std::string& name)
 	return (void*) CFDataGetBytePtr(m_imageData);
 }
 
-ivec2 ResourceManager::GetImageSize()
+ci::Vec2i ResourceManager::GetImageSize()
 {
 	return m_imageSize;
 }

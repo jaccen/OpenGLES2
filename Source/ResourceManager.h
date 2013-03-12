@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector.h"
+#include "cinder/Vector.h"
 
 #include <string>
 
@@ -9,9 +9,9 @@ public:
     std::string GetResourcePath() const;
     void LoadPngImage(const std::string& name);
     /*void* GetImageData();
-    ivec2 GetImageSize();
+    ci::Vec2i GetImageSize();
     void UnloadImage();*/
 private:
     //CFDataRef m_imageData;
-    ivec2 m_imageSize;
+    ci::Vec2i m_imageSize;
 };

@@ -1,14 +1,15 @@
 #pragma once
 
-#include "Vector.h"
 #include "ISurface.h"
+
+#include "cinder/Vector.h"
 
 #include <vector>
 
 struct ParametricInterval {
-    ivec2			Divisions;
-    vec2			UpperBound;
-    vec2			TextureCount;
+    ci::Vec2i			Divisions;
+    ci::Vec2f			UpperBound;
+    ci::Vec2f			TextureCount;
 };
 
 class ParametricSurface : ISurface {
@@ -21,12 +22,12 @@ public:
     void			GenerateTriangleIndices( std::vector<unsigned short>& indices) const;
 protected:
     void			SetInterval(const ParametricInterval& interval);
-    virtual vec3	Evaluate(const vec2& domain) const = 0;
-    virtual bool	InvertNormal(const vec2& domain) const { return false; }
+    virtual ci::Vec3f	Evaluate(const ci::Vec2i& domain) const = 0;
+    virtual bool	InvertNormal(const ci::Vec2i& domain) const { return false; }
 private:
-    vec2			ComputeDomain(float i, float j) const;
-    ivec2			m_slices;
-    ivec2			m_divisions;
-    vec2			m_upperBound;
-	vec2			m_textureCount;
+    ci::Vec2f			ComputeDomain(float i, float j) const;
+    ci::Vec2f			m_slices;
+    ci::Vec2i			m_divisions;
+    ci::Vec2f			m_upperBound;
+	ci::Vec2f			m_textureCount;
 };

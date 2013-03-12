@@ -1,8 +1,8 @@
 #include "RenderingEngine.h"
 
 #define STRINGIFY(A)  #A
-#include "../Shaders/SimpleLighting.es2.vert"
-#include "../Shaders/SimpleLighting.es2.frag"
+#include "../Resources/Shaders/SimpleLighting.es2.vert"
+#include "../Resources/Shaders/SimpleLighting.es2.frag"
 
 RenderingEngine::RenderingEngine()
 {
@@ -69,6 +69,7 @@ void RenderingEngine::setup()
 	
     m_uniforms.Projection						= glGetUniformLocation(program, "Projection");
     m_uniforms.Modelview						= glGetUniformLocation(program, "Modelview");
+    m_uniforms.Transform						= glGetUniformLocation(program, "Transform");
     m_uniforms.NormalMatrix						= glGetUniformLocation(program, "NormalMatrix");
     m_uniforms.LightPosition					= glGetUniformLocation(program, "LightPosition");
     m_uniforms.AmbientMaterial					= glGetUniformLocation(program, "AmbientMaterial");
@@ -84,9 +85,11 @@ void RenderingEngine::setup()
     glEnableVertexAttribArray(m_attributes.Position);
     glEnableVertexAttribArray(m_attributes.Normal);
     glEnable(GL_DEPTH_TEST);
-
-    // Set up transforms.
-    m_translation = mat4::Translate(0, 0, -7);
+	
+	m_camera = ci::CameraPersp( width, height, 35.0f, 1.0f, 100.0f );
+	m_camera.setEyePoint( ci::Vec3f( 0, 0, 15 ) );
+	m_camera.setCenterOfInterestPoint( ci::Vec3f::zero() );
+	m_camera.setWorldUp( ci::Vec3f::yAxis() );
 }
 
 void RenderingEngine::draw( const Visual& visual ) const
@@ -95,36 +98,35 @@ void RenderingEngine::draw( const Visual& visual ) const
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	
 	// Set the viewport transform.
-	ivec2 size = visual.ViewportSize;
-	ivec2 lowerLeft = visual.LowerLeft;
+	ci::Vec2i size = visual.ViewportSize;
+	ci::Vec2i lowerLeft = visual.LowerLeft;
 	glViewport(lowerLeft.x, lowerLeft.y, size.x, size.y);
 	
 	// Set the light position.
-	vec4 lightPosition(0.25, 0.25, 1, 0);
-	glUniform3fv(m_uniforms.LightPosition, 1, lightPosition.Pointer());
+	ci::Vec4f lightPosition(0.0, 20.0, 0, 0);
+	glUniform3fv(m_uniforms.LightPosition, 1, lightPosition.ptr() );
 	
-	// Set the model-view transform.
-	mat4 rotation = visual.Orientation.ToMatrix();
-	mat4 modelview = rotation * m_translation;
-	glUniformMatrix4fv(m_uniforms.Modelview, 1, 0, modelview.Pointer());
+	// Set modelview matrix
+	glUniformMatrix4fv(m_uniforms.Modelview, 1, 0, m_camera.getModelViewMatrix().m );
+	
+	// Set projection matrix
+	glUniformMatrix4fv( m_uniforms.Projection, 1, 0, m_camera.getProjectionMatrix().m );
+	
+	// Set modelview matrix
+	glUniformMatrix4fv(m_uniforms.Transform, 1, 0, visual.Transform.m );
 	
 	// Set the normal matrix.
 	// It's orthogonal, so its Inverse-Transpose is itself!
-	mat3 normalMatrix = modelview.ToMat3();
-	glUniformMatrix3fv(m_uniforms.NormalMatrix, 1, 0, normalMatrix.Pointer());
-	
-	// Set the projection transform.
-	float h = 4.0f * size.y / size.x;
-	mat4 projectionMatrix = mat4::Frustum(-2, 2, -h / 2, h / 2, 5, 10);
-	glUniformMatrix4fv(m_uniforms.Projection, 1, 0, projectionMatrix.Pointer());
+	ci::Matrix33f normalMatrix = ci::Matrix33f::identity();
+	glUniformMatrix3fv(m_uniforms.NormalMatrix, 1, 0, normalMatrix.m );
 	
 	// Set the diffuse color.
-	vec3 color = visual.Color * 0.75f;
+	ci::Vec3f color = visual.Color * 0.75f;
 	glVertexAttrib4f(m_attributes.DiffuseMaterial, color.x, color.y, color.z, 1);
 	
 	// Draw the surface.
-	int stride = 2 * sizeof(vec3);
-	const GLvoid* offset = (const GLvoid*) sizeof(vec3);
+	int stride = 2 * sizeof(ci::Vec3f);
+	const GLvoid* offset = (const GLvoid*) sizeof(ci::Vec3f);
 	GLint position = m_attributes.Position;
 	GLint normal = m_attributes.Normal;
 	const VboMesh& vboData = mVboMeshes[0];

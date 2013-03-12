@@ -16,9 +16,9 @@ public:
     void draw() const;
     void update( const float deltaTime );
 	
-    void touchEnded( ivec2 location);
-    void touchBegan( ivec2 location);
-    void touchMoved( ivec2 oldLocation, ivec2 newLocation );
+    void touchEnded( ci::Vec2i location);
+    void touchBegan( ci::Vec2i location);
+    void touchMoved( ci::Vec2i oldLocation, ci::Vec2i newLocation );
 	
 private:
 	//std::list<Node*> mNodes;
@@ -26,5 +26,7 @@ private:
     RenderingEngine* m_renderingEngine;
     ResourceManager* m_resourceManager;
     
-	ivec2 m_screenSize;
+	ci::Vec2i m_screenSize;
+	
+	Visual mVisual;
 };

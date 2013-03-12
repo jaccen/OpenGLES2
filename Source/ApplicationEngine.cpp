@@ -18,10 +18,10 @@ ApplicationEngine::~ApplicationEngine()
 
 void ApplicationEngine::setup( int width, int height )
 {
-    m_screenSize = ivec2(width, height );
+    m_screenSize = ci::Vec2i(width, height );
 	
 	std::string path = m_resourceManager->GetResourcePath();
-	ObjSurface* model = new ObjSurface(path + "/micronapalmv2.obj");
+	ObjSurface* model = new ObjSurface(path + "/models/micronapalmv2.obj");
 	
      /*vector<ISurface*> surfaces(SurfaceCount);
    surfaces[0] = new ObjSurface(path + "/micronapalmv2.obj");
@@ -33,30 +33,31 @@ void ApplicationEngine::setup( int width, int height )
 	
     m_renderingEngine->setup();
     m_renderingEngine->createVbo( model );
+	
+    mVisual.Color = ci::Vec3f(0.25, 0.75, 1);
+    mVisual.LowerLeft = ci::Vec2i(0, 0);
+    mVisual.ViewportSize = ci::Vec2i(m_screenSize.x, m_screenSize.y);
+	mVisual.Transform = ci::Matrix44f::identity();
 }
 
 void ApplicationEngine::draw() const
-{
-	Visual visual;
-    visual.Color = vec3(0.25, 0.75, 1);
-    visual.LowerLeft = ivec2(0, 0);
-    visual.ViewportSize = ivec2(m_screenSize.x, m_screenSize.y);
-	
-    m_renderingEngine->draw( visual );
+{	
+    m_renderingEngine->draw( mVisual );
 }
 
 void ApplicationEngine::update( const float deltaTime )
 {
+	mVisual.Transform.rotate( ci::Vec3f::yAxis(), 1.0f * deltaTime );
 }
 
-void ApplicationEngine::touchEnded(ivec2 location)
+void ApplicationEngine::touchEnded(ci::Vec2i location)
 {
 }
 
-void ApplicationEngine::touchBegan(ivec2 location)
+void ApplicationEngine::touchBegan(ci::Vec2i location)
 {
 }
 
-void ApplicationEngine::touchMoved(ivec2 oldLocation, ivec2 location)
+void ApplicationEngine::touchMoved(ci::Vec2i oldLocation, ci::Vec2i location)
 {
 }

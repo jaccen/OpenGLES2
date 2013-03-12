@@ -1,8 +1,10 @@
 #pragma once
 
 #include "ParametricSurface.h"
-#include "Matrix.h"
-#include "Quaternion.h"
+
+#include "cinder/Matrix.h"
+#include "cinder/Quaternion.h"
+#include "cinder/Camera.h"
 
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
@@ -18,15 +20,16 @@ enum VertexFlags {
 };
 
 struct Visual {
-    vec3 Color;
-    ivec2 LowerLeft;
-    ivec2 ViewportSize;
-    Quaternion Orientation;
+    ci::Vec3f Color;
+    ci::Vec2i LowerLeft;
+    ci::Vec2i ViewportSize;
+	ci::Matrix44f Transform;
 };
 
 struct UniformHandles {
     GLuint					Modelview;
     GLuint					Projection;
+    GLuint					Transform;
     GLuint					NormalMatrix;
     GLuint					LightPosition;
     GLint					AmbientMaterial;
@@ -65,8 +68,8 @@ public:
 	Node() {}
 	ShaderProgram			mShader;
 	VboMesh					mMesh;
-    vec4					mColor;
-	mat4					mTransform;
+	ci::Vec4f					mColor;
+	ci::Matrix44f					mTransform;
 };
 
 class RenderingEngine {
@@ -82,7 +85,7 @@ private:
 	std::vector<VboMesh>	mVboMeshes;
     GLuint					m_colorRenderbuffer;
     GLuint					m_depthRenderbuffer;
-    mat4					m_translation;
+	ci::CameraPersp			m_camera;
     UniformHandles			m_uniforms;
     AttributeHandles		m_attributes;
 };
