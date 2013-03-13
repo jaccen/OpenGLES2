@@ -12,6 +12,7 @@
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
 		4D27E4840F9AD71900447247 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D27E4830F9AD71900447247 /* OpenGLES.framework */; };
 		4D27E4B50F9AD7D600447247 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D27E4B40F9AD7D600447247 /* QuartzCore.framework */; };
+		5A0BCF7016F10B5400E6FA13 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A0BCF6E16F10B5400E6FA13 /* ShaderProgram.cpp */; };
 		5A21220216EFB396001BF08B /* Default-568h.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A2121FE16EFB396001BF08B /* Default-568h.png */; };
 		5A21220316EFB396001BF08B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A2121FF16EFB396001BF08B /* Default-568h@2x.png */; };
 		5A21220416EFB396001BF08B /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A21220016EFB396001BF08B /* Default.png */; };
@@ -38,6 +39,8 @@
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		4D27E4830F9AD71900447247 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		4D27E4B40F9AD7D600447247 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		5A0BCF6E16F10B5400E6FA13 /* ShaderProgram.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderProgram.cpp; sourceTree = "<group>"; };
+		5A0BCF6F16F10B5400E6FA13 /* ShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderProgram.h; sourceTree = "<group>"; };
 		5A2121FE16EFB396001BF08B /* Default-568h.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h.png"; path = "Resources/Default-568h.png"; sourceTree = "<group>"; };
 		5A2121FF16EFB396001BF08B /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "Resources/Default-568h@2x.png"; sourceTree = "<group>"; };
 		5A21220016EFB396001BF08B /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = Resources/Default.png; sourceTree = "<group>"; };
@@ -148,6 +151,8 @@
 				5A21223716EFB469001BF08B /* RenderingEngine.h */,
 				5A21223816EFB469001BF08B /* ResourceManager.h */,
 				5A21223916EFB469001BF08B /* ResourceManager.mm */,
+				5A0BCF6E16F10B5400E6FA13 /* ShaderProgram.cpp */,
+				5A0BCF6F16F10B5400E6FA13 /* ShaderProgram.h */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -250,6 +255,7 @@
 				5A21224016EFB469001BF08B /* RenderingEngine.cpp in Sources */,
 				5A21224116EFB469001BF08B /* ResourceManager.mm in Sources */,
 				5AC0067F16EFBF2C0055177B /* Camera.cpp in Sources */,
+				5A0BCF7016F10B5400E6FA13 /* ShaderProgram.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -265,7 +271,10 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = Cinder/include/;
+				HEADER_SEARCH_PATHS = (
+					Cinder/include/,
+					"../cinder/boost\"",
+				);
 				INFOPLIST_FILE = Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = OpenGLES2;
@@ -282,7 +291,10 @@
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = Cinder/include/;
+				HEADER_SEARCH_PATHS = (
+					Cinder/include/,
+					"../cinder/boost\"",
+				);
 				INFOPLIST_FILE = Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = OpenGLES2;

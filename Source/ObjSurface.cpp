@@ -13,18 +13,18 @@ ObjSurface::ObjSurface(const string& name) :
     m_vertexCount(0)
 {
     m_faces.resize(GetTriangleIndexCount() / 3);
-    ifstream objFile(m_name.c_str());
+    ifstream objFile( m_name.c_str() );
     vector<ci::Vec3i>::iterator face = m_faces.begin();
-    while (objFile) {
+    while ( objFile ) {
         char c = objFile.get();
-        if (c == 'f') {
+        if ( c == 'f' ) {
             assert(face != m_faces.end() && "parse error");
             objFile >> face->x >> face->y >> face->z;
             *face++ -= ci::Vec3i(1, 1, 1);
         }
-        objFile.ignore(MaxLineSize, '\n');
+        objFile.ignore( MaxLineSize, '\n');
     }
-    assert(face == m_faces.end() && "parse error");
+    assert( face == m_faces.end() && "parse error");
 }
 
 int ObjSurface::GetVertexCount() const

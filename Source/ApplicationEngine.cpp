@@ -18,10 +18,10 @@ ApplicationEngine::~ApplicationEngine()
 
 void ApplicationEngine::setup( int width, int height )
 {
-    m_screenSize = ci::Vec2i(width, height );
+    m_screenSize = ci::Vec2i( width, height );
 	
 	std::string path = m_resourceManager->GetResourcePath();
-	ObjSurface* model = new ObjSurface(path + "/models/micronapalmv2.obj");
+	ObjSurface* model = new ObjSurface(path + "/models/Ninja.obj");
 	
      /*vector<ISurface*> surfaces(SurfaceCount);
    surfaces[0] = new ObjSurface(path + "/micronapalmv2.obj");
@@ -31,7 +31,7 @@ void ApplicationEngine::setup( int width, int height )
     surfaces[4] = new KleinBottle(0.2f);
     surfaces[5] = new MobiusStrip(1);*/
 	
-    m_renderingEngine->setup();
+    m_renderingEngine->setup( width, height );
     m_renderingEngine->createVbo( model );
 	
     mVisual.Color = ci::Vec3f(0.25, 0.75, 1);

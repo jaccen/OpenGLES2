@@ -22,8 +22,8 @@ void main(void)
     vec3 E = vec3(0, 0, 1);
     vec3 H = normalize(L + E);
 
-    float df = max( 0.0, dot(N, L) );
-    float sf = max( 0.0, dot(N, H) );
+    float df = max( 0.0, dot( N, L) );
+    float sf = max( 0.0, dot( N, H) );
     sf = pow(sf, Shininess);
 
     vec3 color = AmbientMaterial + df * DiffuseMaterial + sf * SpecularMaterial;
