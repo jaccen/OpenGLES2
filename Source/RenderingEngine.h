@@ -20,13 +20,6 @@ enum VertexFlags {
     VertexFlagsTexCoords = 1 << 1,
 };
 
-struct Visual {
-    ci::Vec3f Color;
-    ci::Vec2i LowerLeft;
-    ci::Vec2i ViewportSize;
-	ci::Matrix44f Transform;
-};
-
 struct VboMesh {
     GLuint					VertexBuffer;
     GLuint					IndexBuffer;
@@ -36,7 +29,7 @@ struct VboMesh {
 class Node {
 public:
 	Node() {}
-	ShaderProgram			mShader;
+	ShaderProgram*			mShader;
 	VboMesh					mMesh;
 	ci::Vec4f				mColor;
 	ci::Matrix44f			mTransform;
@@ -46,14 +39,13 @@ class RenderingEngine {
 public:
     RenderingEngine();
     void					setup( int width, int height );
-    void					draw( const Visual& visual );
-	void					createVbo( const ISurface* surface );
+    void					draw( const Node& visual );
+	VboMesh					createVbo( const ISurface* surface );
 	void					createFbo();
 	
 private:
 	ShaderProgram			mDefaultShader;
 	ci::Vec2i				m_windowSize;
-	std::vector<VboMesh>	mVboMeshes;
     GLuint					m_colorRenderbuffer;
     GLuint					m_depthRenderbuffer;
 	ci::CameraPersp			m_camera;

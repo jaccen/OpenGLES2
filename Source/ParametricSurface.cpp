@@ -38,7 +38,6 @@ void ParametricSurface::GenerateVertices(std::vector<float>& vertices, unsigned 
         floatsPerVertex += 2;
 
     vertices.resize(GetVertexCount() * floatsPerVertex);
-    float* attribute = &vertices[0];
 
 	int k = 0;
     for (int j = 0; j < m_divisions.y; j++) {
@@ -50,7 +49,6 @@ void ParametricSurface::GenerateVertices(std::vector<float>& vertices, unsigned 
             vertices[k+0] = range.x;
             vertices[k+1] = range.y;
             vertices[k+2] = range.z;
-			k+=3;
 
             // Compute Normal
             if (flags & VertexFlagsNormals) {
@@ -69,10 +67,9 @@ void ParametricSurface::GenerateVertices(std::vector<float>& vertices, unsigned 
                 ci::Vec3f normal = u.cross(v).normalized();
                 if (InvertNormal(domain))
                     normal = -normal;
-				vertices[k+0] = normal.x;
-				vertices[k+1] = normal.y;
-				vertices[k+2] = normal.z;
-				k+=3;
+				vertices[k+3] = normal.x;
+				vertices[k+4] = normal.y;
+				vertices[k+5] = normal.z;
             }
             
             // Compute Texture Coordinates
@@ -80,10 +77,10 @@ void ParametricSurface::GenerateVertices(std::vector<float>& vertices, unsigned 
                 float s = m_textureCount.x * i / m_slices.x;
                 float t = m_textureCount.y * j / m_slices.y;
 				ci::Vec2f texCoord = ci::Vec2f( s, t );
-				vertices[k+0] = texCoord.x;
-				vertices[k+1] = texCoord.y;
-				k+=2;
+				vertices[k+6] = texCoord.x;
+				vertices[k+7] = texCoord.y;
             }
+			k += floatsPerVertex;
         }
     }
 }

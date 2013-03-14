@@ -12,7 +12,7 @@ struct ParametricInterval {
     ci::Vec2f			TextureCount;
 };
 
-class ParametricSurface : ISurface {
+class ParametricSurface : public ISurface {
 public:
     int				GetVertexCount() const;
     int				GetLineIndexCount() const;

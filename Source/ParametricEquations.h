@@ -7,7 +7,7 @@ public:
         ParametricInterval interval = { ci::Vec2i(20, 20), ci::Vec2f(ci::toRadians(360.0), 1), ci::Vec2f(30, 20) };
         SetInterval(interval);
     }
-    ci::Vec3f Evaluate(const ci::Vec2f& domain) const
+    ci::Vec3f Evaluate(const ci::Vec2i& domain) const
     {
         float u = domain.x, v = domain.y;
         float x = m_radius * (1 - v) * cos(u);
@@ -27,7 +27,7 @@ public:
         ParametricInterval interval = { ci::Vec2i(20, 20), ci::Vec2f( ci::toRadians(180.0), ci::toRadians(360.0)), ci::Vec2f(20, 35) };
         SetInterval(interval);
     }
-    ci::Vec3f Evaluate(const ci::Vec2f& domain) const
+    ci::Vec3f Evaluate(const ci::Vec2i& domain) const
     {
         float u = domain.x, v = domain.y;
         float x = m_radius * sin(u) * cos(v);
@@ -48,7 +48,7 @@ public:
         ParametricInterval interval = { ci::Vec2i(20, 20), ci::Vec2f(ci::toRadians(360.0), ci::toRadians(360.0)), ci::Vec2f(40, 10) };
         SetInterval(interval);
     }
-    ci::Vec3f Evaluate(const ci::Vec2f& domain) const
+    ci::Vec3f Evaluate(const ci::Vec2i& domain) const
     {
         const float major = m_majorRadius;
         const float minor = m_minorRadius;
@@ -70,7 +70,7 @@ public:
         ParametricInterval interval = { ci::Vec2i(60, 15), ci::Vec2f(ci::toRadians(360.0), ci::toRadians(360.0)), ci::Vec2f(100, 8) };
         SetInterval(interval);
     }
-    ci::Vec3f Evaluate(const ci::Vec2f& domain) const
+    ci::Vec3f Evaluate(const ci::Vec2i& domain) const
     {
         const float a = 0.5f;
         const float b = 0.3f;
@@ -112,7 +112,7 @@ public:
         ParametricInterval interval = { ci::Vec2i(40, 20), ci::Vec2f(ci::toRadians(360.0), ci::toRadians(360.0)), ci::Vec2f(40, 15) };
         SetInterval(interval);
     }
-    ci::Vec3f Evaluate(const ci::Vec2f& domain) const
+    ci::Vec3f Evaluate(const ci::Vec2i& domain) const
     {
         float u = domain.x;
         float t = domain.y;
@@ -144,7 +144,7 @@ public:
         ParametricInterval interval = { ci::Vec2i(20, 20), ci::Vec2f(ci::toRadians(360.0), ci::toRadians(360.0)), ci::Vec2f(15, 50) };
         SetInterval(interval);
     }
-    ci::Vec3f Evaluate(const ci::Vec2f& domain) const
+    ci::Vec3f Evaluate(const ci::Vec2i& domain) const
     {
         float v = 1 - domain.x;
         float u = domain.y;
@@ -165,7 +165,7 @@ public:
         range.z = (-2 * (1 - cos(u) / 2)) * sin(v);
         return range * m_scale;
     }
-    bool InvertNormal(const ci::Vec2f& domain) const
+    bool InvertNormal(const ci::Vec2i& domain) const
     {
         return domain.y > 3 * ci::toRadians(180.0) / 2;
     }

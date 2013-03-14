@@ -28,5 +28,5 @@ private:
     
 	ci::Vec2i m_screenSize;
 	
-	Visual mVisual;
+	Node mNode;
 };
