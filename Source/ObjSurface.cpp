@@ -13,10 +13,8 @@ ObjSurface::ObjSurface(const string& name) :
     m_faceCount(0),
     m_vertexCount(0)
 {
-    m_faces.resize( GetTriangleIndexCount() / 3 );
-	
 	{
-		// Positions
+		// Normals
 		ifstream objFile(m_name.c_str());
 		while (objFile) {
 			char c[3];
@@ -24,49 +22,37 @@ ObjSurface::ObjSurface(const string& name) :
 			if ( c[0] == 'v' && c[1] != 'n' && c[1] != 't' ) {
 				Vec3f position;
 				objFile >> position.x >> position.y >> position.z;
-				//std::cout << position.x << ", " << position.y << ", " << position.z << std::endl;
 				m_positions.push_back( position );
 			}
-			objFile.ignore(MaxLineSize, '\n');
-		}
-		objFile.close();
-	}{
-		// Normals
-		ifstream objFile(m_name.c_str());
-		while (objFile) {
-			char c[3];
-			objFile.get( c, 3 );
-			if ( c[0] == 'v' && c[1] == 'n' ) {
+			else if ( c[0] == 'v' && c[1] == 'n' ) {
 				Vec3f normal;
 				objFile >> normal.x >> normal.y >> normal.z;
-				//std::cout << normal.x << ", " << normal.y << ", " << normal.z << std::endl;
 				m_normals.push_back( normal );
 			}
-			objFile.ignore(MaxLineSize, '\n');
-		}
-		objFile.close();
-	}{
-		// Texture Coordinates
-		ifstream objFile(m_name.c_str());
-		while (objFile) {
-			char c[3];
-			objFile.get( c, 3 );
-			if ( c[0] == 'v' && c[1] == 't' ) {
+			else if ( c[0] == 'v' && c[1] == 't' ) {
 				Vec3f texcoord;
 				objFile >> texcoord.x >> texcoord.y >> texcoord.z;
-				//std::cout << texcoord.x << ", " << texcoord.y << ", " << texcoord.z << std::endl;
 				m_texcoords.push_back( texcoord );
 			}
-			objFile.ignore(MaxLineSize, '\n');
-		}
-		objFile.close();
-	}{
-		// Faces
-		ifstream objFile(m_name.c_str());
-		while (objFile) {
-			char c = objFile.get();
-			if (c == 'f')
+			else if (c[0] == 'f') {
 				m_faceCount++;
+				
+				for( int i = 0; i < 3; i++ ) {
+					int v_index;
+					objFile >> v_index;
+					m_vertex_indices.push_back( v_index );
+					objFile.ignore( MaxLineSize, '/' );
+					
+					int t_index;
+					objFile >> t_index;
+					m_texcoord_indices.push_back( t_index );
+					objFile.ignore( MaxLineSize, '/' );
+					
+					int n_index;
+					objFile >> n_index;
+					m_normal_indices.push_back( n_index );
+				}
+			}
 			objFile.ignore(MaxLineSize, '\n');
 		}
 		objFile.close();
@@ -85,67 +71,65 @@ int ObjSurface::GetTriangleIndexCount() const
     return m_faceCount * 3;
 }
 
-void ObjSurface::GenerateVertices(vector<float>& floats, unsigned char flags) const
+void ObjSurface::GenerateVertices(vector<float>& floats ) const
 {
-    assert(flags == VertexFlagsNormals && "Unsupported flags.");
+	int size = m_faceCount * 3 * 3;
+	floats.resize( size );
+	int v = 0;
+	for( int i = 0; i < size; i+=3 ) {
+		int vi = m_vertex_indices[ v ]-1;
+		floats[ i+0 ] = m_positions[ vi ].x;
+		floats[ i+1 ] = m_positions[ vi ].y;
+		floats[ i+2 ] = m_positions[ vi ].z;
+		v++;
+	}
+}
 
-    struct Vertex {
-        Vec3f Position;
-        Vec3f Normal;
-        Vec2f TexCoord;
-    };
+void ObjSurface::GenerateTexCoords(vector<float>& floats ) const
+{
+	int size = m_faceCount * 3 * 2;
+	floats.resize( size );
+	int v = 0;
+	for( int i = 0; i < size; i+=2 ) {
+		int vi = m_texcoord_indices[ v ]-1;
+		floats[ i+0 ] = m_texcoords[ vi ].x;
+		floats[ i+1 ] = m_texcoords[ vi ].y;
+		v++;
+	}
+}
 
-	int floatsPerVertex = 8;
-	int v_index = 0;
-    floats.resize( GetVertexCount() );
-    ifstream objFile(m_name.c_str());
-    while (objFile) {
-        char c = objFile.get();
-        if ( c == 'f' ) {
-			for( int i = 0; i < 3; i++ ) {
-				
-				Vertex* vertex = (Vertex*) &floats[ v_index ];
-				
-				Vec3f& p = vertex->Position;
-				Vec3f& n = vertex->Normal;
-				Vec2f& t = vertex->TexCoord;
-				
-				int p_index;
-				objFile >> p_index;
-				p = m_positions[ p_index-1 ];
-				objFile.ignore( MaxLineSize, '/' );
-				
-				int n_index;
-				objFile >> n_index;
-				n = m_normals[ n_index-1 ];
-				objFile.ignore(MaxLineSize, '/');
-				
-				int t_index;
-				objFile >> t_index;
-				Vec3f texCoord = m_texcoords[ t_index-1 ];
-				t = texCoord.xy();
-				objFile.ignore(MaxLineSize, '/');
-				
-				std::cout << p.x << ", " << p.y << ", " << p.z << std::endl;
-				std::cout << n.x << ", " << n.y << ", " << n.z << std::endl;
-				std::cout << t.x << ", " << t.y << std::endl;
-				std::cout << std::endl;
-				
-				v_index += floatsPerVertex;
-			}
-        }
-		objFile.ignore(MaxLineSize, '\n');
-    }
-	objFile.close();
+void ObjSurface::GenerateNormals(vector<float>& floats ) const
+{
+	int size = m_faceCount * 3 * 3;
+	floats.resize( size );
+	int v = 0;
+	for( int i = 0; i < size; i+=3 ) {
+		int vi = m_normal_indices[ v ]-1;
+		floats[ i+0 ] = m_normals[ vi ].x;
+		floats[ i+1 ] = m_normals[ vi ].y;
+		floats[ i+2 ] = m_normals[ vi ].z;
+		v++;
+	}
 }
 
 void ObjSurface::GenerateTriangleIndices(vector<unsigned short>& indices) const
 {
-    indices.resize(GetTriangleIndexCount());
-    vector<unsigned short>::iterator index = indices.begin();
-    for (vector<Vec3i>::const_iterator f = m_faces.begin(); f != m_faces.end(); ++f) {
-        *index++ = f->x;
-        *index++ = f->y;
-        *index++ = f->z;
-    }
+	indices.resize( m_faceCount * 3 );
+    ifstream objFile(m_name.c_str());
+	int index = 0;
+    while (objFile) {
+        char c = objFile.get();
+        if ( c == 'f' ) {
+			for( int i = 0; i < 3; i++ ) {
+				int p_index;
+				objFile >> p_index;
+				std::cout << p_index << std::endl;
+				indices[ index++ ] = p_index-1;
+				objFile.ignore( MaxLineSize, '/' );
+				objFile.ignore( MaxLineSize, ' ' );
+			}
+		}
+		objFile.ignore(MaxLineSize, '\n');
+	}
+	objFile.close();
 }

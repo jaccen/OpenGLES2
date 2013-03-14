@@ -2,6 +2,7 @@
 
 #include "ParametricSurface.h"
 #include "ShaderProgram.h"
+#include "ObjSurface.h"
 
 #include "cinder/Matrix.h"
 #include "cinder/Quaternion.h"
@@ -22,6 +23,11 @@ enum VertexFlags {
 
 struct VboMesh {
     GLuint					VertexBuffer;
+	int						VertexCount;
+    GLuint					TexCoordBuffer;
+    int						TexCoordCount;
+    GLuint					NormalBuffer;
+    int						NormalCount;
     GLuint					IndexBuffer;
     int						IndexCount;
 };
@@ -29,10 +35,12 @@ struct VboMesh {
 class Node {
 public:
 	Node() {}
-	ShaderProgram*			mShader;
+	std::string				mShader;
 	VboMesh					mMesh;
 	ci::Vec4f				mColor;
+	ci::Vec4f				mSpecularColor;
 	ci::Matrix44f			mTransform;
+	float					mShininess;
 };
 
 class RenderingEngine {
@@ -40,11 +48,12 @@ public:
     RenderingEngine();
     void					setup( int width, int height );
     void					draw( const Node& visual );
-	VboMesh					createVbo( const ISurface* surface );
+	VboMesh					createVbo( const ObjSurface* surface );
 	void					createFbo();
+	void					addShader( std::string key, const char* vShader, const char* fShader );
 	
 private:
-	ShaderProgram			mDefaultShader;
+	std::map<std::string, ShaderProgram> mShaders;
 	ci::Vec2i				m_windowSize;
     GLuint					m_colorRenderbuffer;
     GLuint					m_depthRenderbuffer;

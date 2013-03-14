@@ -1,10 +1,11 @@
 #include "RenderingEngine.h"
 
-#define STRINGIFY(A)  #A
-#include "../Resources/Shaders/vertex_lighting.vert"
-#include "../Resources/Shaders/vertex_lighting.frag"
-//#include "../Resources/Shaders/pixel_lighting.vert"
-//#include "../Resources/Shaders/pixel_lighting.frag"
+
+const static int kNormalAttribLoc		= 0;
+const static int kPositionAttribLoc		= 1;
+const static int kColorAttribLoc		= 2;
+const static int kTexCoordAttribLoc		= 3;
+
 
 using namespace ci;
 
@@ -14,30 +15,35 @@ RenderingEngine::RenderingEngine()
     glBindRenderbuffer( GL_RENDERBUFFER, m_colorRenderbuffer );
 }
 
-VboMesh RenderingEngine::createVbo( const ISurface* surface )
+VboMesh RenderingEngine::createVbo( const ObjSurface* surface )
 {
-	// output
-	VboMesh vboData2;
-	
 	// Create the VBO for the vertices.
-	std::vector<float> vertices;
-	surface->GenerateVertices(vertices, VertexFlagsNormals);
 	GLuint vertexBuffer;
 	glGenBuffers(1, &vertexBuffer);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	
-	return vboData2;
+	std::vector<float> vertices;
+	surface->GenerateVertices( vertices );
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer );
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), &vertices[0], GL_STATIC_DRAW);
 	
-	// Create a new VBO for the indices if needed.
-	GLuint indexBuffer;
-	std::vector<GLushort> indices;
-	surface->GenerateTriangleIndices(indices);
-	glGenBuffers(1, &indexBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLushort), &indices[0], GL_STATIC_DRAW);
-	VboMesh vboData = { vertexBuffer, indexBuffer, indices.size() };
+	GLuint texCoordBuffer;
+	glGenBuffers(1, &texCoordBuffer);
+	std::vector<float> texCoords;
+	surface->GenerateTexCoords( texCoords );
+    glBindBuffer(GL_ARRAY_BUFFER, texCoordBuffer );
+    glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(texCoords[0]), &texCoords[0], GL_STATIC_DRAW);
+	
+	GLuint normalBuffer;
+	std::vector<float> normals;
+	surface->GenerateNormals( normals );
+	glGenBuffers(1, &normalBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, normalBuffer ) ;
+    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(normals[0]), &normals[0], GL_STATIC_DRAW );
+	
+	VboMesh vboData = {
+		vertexBuffer,		vertices.size() / 3,
+		texCoordBuffer,		texCoords.size() / 2,
+		normalBuffer,		normals.size() / 3
+	};
 	return vboData;
 }
 
@@ -54,6 +60,11 @@ void RenderingEngine::createFbo()
 	glGenFramebuffers( 1, &colorFramebuffer );
 	glBindFramebuffer( GL_FRAMEBUFFER, colorFramebuffer );
 	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorFramebuffer );
+}
+
+void RenderingEngine::addShader( std::string key, const char* vShader, const char* fShader )
+{
+	mShaders[ key ] = ShaderProgram( vShader, fShader );
 }
 
 void RenderingEngine::setup( int width, int height )
@@ -74,9 +85,6 @@ void RenderingEngine::setup( int width, int height )
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthRenderbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, m_colorRenderbuffer);
 	
-    // Create the GLSL program.
-	mDefaultShader = ShaderProgram( SimpleVertexShader, SimpleFragmentShader );
-	
 	m_camera = CameraPersp( width, height, 35.0f, 1.0f, 100.0f );
 	m_camera.setEyePoint( Vec3f( 0, 0, 15 ) );
 	m_camera.setCenterOfInterestPoint( Vec3f::zero() );
@@ -91,44 +99,36 @@ void RenderingEngine::draw( const Node& node )
 	// Set the viewport transform.
 	glViewport( 0, 0, m_windowSize.x, m_windowSize.y );
     
-	glUseProgram( mDefaultShader.getHandle() );
+	ShaderProgram& shader = mShaders[ node.mShader ];
 	
-	mDefaultShader.uniform( "Ambient",				Vec3f( 0.04f, 0.04f, 0.04f ) );
-	mDefaultShader.uniform( "SpecularMaterial",		Vec3f( 0.5, 0.5, 0.5 ) );
-	mDefaultShader.uniform( "Shininess",			50.f );
-	mDefaultShader.uniform( "LightPosition",		Vec3f( 0.0, 20.0, 0 ) );
-	mDefaultShader.uniform( "Modelview",			m_camera.getModelViewMatrix() );
-	mDefaultShader.uniform( "Projection",			m_camera.getProjectionMatrix() );
-	mDefaultShader.uniform( "Transform",			node.mTransform );
+	glUseProgram( shader.getHandle() );
+	shader.uniform( "AmbientMaterial",		Vec4f( 0.25f, 0.25f, 0.25f, 1.0f ) );
+	shader.uniform( "LightPosition",		Vec3f( 0.0, 20.0, 5.0 ) );
+	shader.uniform( "SpecularMaterial",		node.mSpecularColor );
+	shader.uniform( "DiffuseMaterial",		node.mColor );
+	shader.uniform( "Shininess",			node.mShininess );
+	shader.uniform( "Modelview",			m_camera.getModelViewMatrix() );
+	shader.uniform( "Projection",			m_camera.getProjectionMatrix() );
+	shader.uniform( "Transform",			node.mTransform );
 	
-	GLint colorLoc			= mDefaultShader.getAttribLocation( "DiffuseMaterial" );
-	GLint positionLoc		= mDefaultShader.getAttribLocation( "Position" );
-	GLint normalLoc			= mDefaultShader.getAttribLocation( "Normal" );
-	//GLint texCoordLoc		= mDefaultShader.getAttribLocation( "TextureCoord" );
-	
-    glEnableVertexAttribArray( positionLoc );
-    glEnableVertexAttribArray( normalLoc );
-    //glEnableVertexAttribArray( texCoordLoc );
+	//GLint colorLoc		= shader.getAttribLocation( "DiffuseMaterial" );
+	//GLint positionLoc		= shader.getAttribLocation( "Position" );
+	//GLint normalLoc		= shader.getAttribLocation( "Normal" );
+	//GLint texCoordLoc		= shader.getAttribLocation( "TextureCoord" );
 	
     glEnable(GL_DEPTH_TEST);
 	
-	// Set the diffuse color.
-	Vec4f color = node.mColor;
-	glVertexAttrib4f( colorLoc, color.x, color.y, color.z, color.w );
+	int strideVec3f = sizeof(Vec3f);
 	
-	// Set vertex, normal and texcoord attributes
-	int stride = 2 * sizeof(Vec3f);
-	const GLvoid* offsetNormal = (const GLvoid*) sizeof(Vec3f);
-	//const GLvoid* offsetTexCoord = (const GLvoid*) (sizeof(Vec3f) + sizeof(Vec2f) );
-	const VboMesh& vboData = node.mMesh;
-	glBindBuffer( GL_ARRAY_BUFFER, vboData.VertexBuffer );
-	glVertexAttribPointer( positionLoc, 3, GL_FLOAT, GL_FALSE, stride, 0 );
-	glVertexAttribPointer( normalLoc, 3, GL_FLOAT, GL_FALSE, stride, offsetNormal );
-	//glVertexAttribPointer( texCoordLoc, 2, GL_FLOAT, GL_FALSE, stride, offsetTexCoord );
+	glBindBuffer( GL_ARRAY_BUFFER, node.mMesh.VertexBuffer );
+    glEnableVertexAttribArray( kPositionAttribLoc );
+	glVertexAttribPointer( kPositionAttribLoc, 3, GL_FLOAT, GL_FALSE, strideVec3f, 0 );
 	
-	// Draw
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, vboData.IndexBuffer );
-	glDrawElements( GL_TRIANGLES, vboData.IndexCount, GL_UNSIGNED_SHORT, 0 );
+	glBindBuffer( GL_ARRAY_BUFFER, node.mMesh.NormalBuffer );
+    glEnableVertexAttribArray( kNormalAttribLoc );
+	glVertexAttribPointer( kNormalAttribLoc, 3, GL_FLOAT, GL_FALSE, strideVec3f, 0 );
+	
+	glDrawArrays( GL_TRIANGLES, 0, node.mMesh.VertexCount );
 }
 
 
