@@ -3,39 +3,47 @@
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 
-std::string ResourceManager::GetResourcePath() const
+
+Texture::Texture( void* imageData, ci::Vec2i imageSize )
+{
+	mImageSize = imageSize;
+	mImageData = imageData;
+}
+
+Texture::~Texture()
+{
+	free( mImageData );
+}
+
+std::string ResourceManager::getResourcePath() const
 {
 	NSString* bundlePath = [[NSBundle mainBundle] resourcePath];
 	return [bundlePath UTF8String];
 }
 
-void ResourceManager::LoadPngImage(const std::string& name)
+Texture* ResourceManager::loadImage( const std::string& name )
 {
-    CFDataRef m_imageData;
-	
 	NSString* basePath = [[NSString alloc] initWithUTF8String:name.c_str()];
 	NSBundle* mainBundle = [NSBundle mainBundle];
 	NSString* fullPath = [mainBundle pathForResource:basePath ofType:@"png"];
+	if ( fullPath == nil ) {
+		std::cout << "Error loading image: Does not exist." << std::endl;
+	}
 	UIImage* uiImage = [[UIImage alloc] initWithContentsOfFile:fullPath];
 	CGImageRef cgImage = uiImage.CGImage;
-	m_imageSize.x = CGImageGetWidth(cgImage);
-	m_imageSize.y = CGImageGetHeight(cgImage);
-	m_imageData = CGDataProviderCopyData(CGImageGetDataProvider(cgImage));
+	CFDataRef imageData = CGDataProviderCopyData( CGImageGetDataProvider( cgImage ) );
+	
+	int width = CGImageGetWidth( cgImage );
+	int height = CGImageGetHeight( cgImage );
+	
+	void* textureData = (void*) malloc( width * height * 4 * sizeof(GLubyte) );
+	memcpy( textureData, CFDataGetBytePtr( imageData ), width * height * 4 * sizeof(GLubyte) );
+	
+	Texture* texture = new Texture( textureData, ci::Vec2i( width, height ) );
+	
+	CFRelease( imageData );
 	[uiImage release];
 	[basePath release];
+	
+	return texture;
 }
-
-/*void* ResourceManager::GetImageData()
-{
-	return (void*) CFDataGetBytePtr(m_imageData);
-}
-
-ci::Vec2i ResourceManager::GetImageSize()
-{
-	return m_imageSize;
-}
-
-void ResourceManager::UnloadImage()
-{
-	CFRelease(m_imageData);
-}*/

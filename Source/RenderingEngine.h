@@ -3,6 +3,7 @@
 #include "ParametricSurface.h"
 #include "ShaderProgram.h"
 #include "ObjSurface.h"
+#include "ResourceManager.h"
 
 #include "cinder/Matrix.h"
 #include "cinder/Quaternion.h"
@@ -15,6 +16,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <list>
 
 enum VertexFlags {
     VertexFlagsNormals = 1 << 0,
@@ -34,25 +36,31 @@ struct VboMesh {
 
 class Node {
 public:
-	Node() {}
+	Node() : mTexture(NULL) {}
+	
 	std::string				mShader;
 	VboMesh					mMesh;
 	ci::Vec4f				mColor;
 	ci::Vec4f				mSpecularColor;
 	ci::Matrix44f			mTransform;
 	float					mShininess;
+	Texture*				mTexture;
 };
 
 class RenderingEngine {
 public:
     RenderingEngine();
     void					setup( int width, int height );
-    void					draw( const Node& visual );
+    void					draw();
 	VboMesh					createVbo( const ObjSurface* surface );
 	void					createFbo();
+	bool					createTexture( Texture* texture );
+	void					addNode( Node* node );
+	void					removeNode( Node* node );
 	void					addShader( std::string key, const char* vShader, const char* fShader );
 	
 private:
+	std::list<Node*>		mNodes;
 	std::map<std::string, ShaderProgram> mShaders;
 	ci::Vec2i				m_windowSize;
     GLuint					m_colorRenderbuffer;

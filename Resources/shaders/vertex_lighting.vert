@@ -15,6 +15,7 @@ uniform vec4		SpecularMaterial;
 uniform float		Shininess;
 
 varying vec4		DestinationColor;
+varying vec2		TexCoord;
 
 void main(void)
 {
@@ -27,6 +28,8 @@ void main(void)
     float df = max( 0.0, dot( N, L) );
     float sf = max( 0.0, dot( N, H) );
     sf = pow(sf, Shininess);
+	
+	TexCoord = TextureCoord;
 
     DestinationColor = AmbientMaterial * DiffuseMaterial + df * DiffuseMaterial + sf * SpecularMaterial;
 	

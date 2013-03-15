@@ -1,11 +1,9 @@
 #include "RenderingEngine.h"
 
-
 const static int kNormalAttribLoc		= 0;
 const static int kPositionAttribLoc		= 1;
-const static int kColorAttribLoc		= 2;
-const static int kTexCoordAttribLoc		= 3;
-
+const static int kTexCoordAttribLoc		= 2;
+const static int kColorAttribLoc		= 3;
 
 using namespace ci;
 
@@ -47,6 +45,42 @@ VboMesh RenderingEngine::createVbo( const ObjSurface* surface )
 	return vboData;
 }
 
+bool RenderingEngine::createTexture( Texture* texture )
+{
+	glGenTextures( 1, &texture->mHandle );
+	
+	
+	// 2 x 2 Image, 3 bytes per pixel(R, G, B)
+	
+	glBindTexture( GL_TEXTURE_2D, texture->mHandle );
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	
+	int width = texture->getImageSize().x;
+	int height = texture->getImageSize().y;
+	
+	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture->getImageData() );
+	glGenerateMipmap(GL_TEXTURE_2D);
+	
+	//ci:Vec2i size = texture->getImageSize();
+	//glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture->getImageData() );
+	//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	//glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	
+	// Unbind texture
+	glBindTexture( GL_TEXTURE_2D, 0 );
+	
+	// When the time comes:
+	//glDeleteTextures( 1, &texture->mHandle );
+	
+	// TODO: Check errors more ways than this:
+	return texture->mHandle != 0;
+}
+
 void RenderingEngine::createFbo()
 {
 	// Create renderbuffer object
@@ -86,12 +120,22 @@ void RenderingEngine::setup( int width, int height )
     glBindRenderbuffer(GL_RENDERBUFFER, m_colorRenderbuffer);
 	
 	m_camera = CameraPersp( width, height, 35.0f, 1.0f, 100.0f );
-	m_camera.setEyePoint( Vec3f( 0, 0, 15 ) );
+	m_camera.setEyePoint( Vec3f( 0, 0, 5 ) );
 	m_camera.setCenterOfInterestPoint( Vec3f::zero() );
 	m_camera.setWorldUp( Vec3f::yAxis() );
 }
 
-void RenderingEngine::draw( const Node& node )
+void RenderingEngine::addNode( Node* node )
+{
+	mNodes.push_back( node );
+}
+
+void RenderingEngine::removeNode( Node* node )
+{
+	
+}
+
+void RenderingEngine::draw()
 {
     glClearColor(0.5f, 0.5f, 0.5f, 1);
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -99,36 +143,49 @@ void RenderingEngine::draw( const Node& node )
 	// Set the viewport transform.
 	glViewport( 0, 0, m_windowSize.x, m_windowSize.y );
     
-	ShaderProgram& shader = mShaders[ node.mShader ];
-	
-	glUseProgram( shader.getHandle() );
-	shader.uniform( "AmbientMaterial",		Vec4f( 0.25f, 0.25f, 0.25f, 1.0f ) );
-	shader.uniform( "LightPosition",		Vec3f( 0.0, 20.0, 5.0 ) );
-	shader.uniform( "SpecularMaterial",		node.mSpecularColor );
-	shader.uniform( "DiffuseMaterial",		node.mColor );
-	shader.uniform( "Shininess",			node.mShininess );
-	shader.uniform( "Modelview",			m_camera.getModelViewMatrix() );
-	shader.uniform( "Projection",			m_camera.getProjectionMatrix() );
-	shader.uniform( "Transform",			node.mTransform );
-	
-	//GLint colorLoc		= shader.getAttribLocation( "DiffuseMaterial" );
-	//GLint positionLoc		= shader.getAttribLocation( "Position" );
-	//GLint normalLoc		= shader.getAttribLocation( "Normal" );
-	//GLint texCoordLoc		= shader.getAttribLocation( "TextureCoord" );
-	
-    glEnable(GL_DEPTH_TEST);
-	
-	int strideVec3f = sizeof(Vec3f);
-	
-	glBindBuffer( GL_ARRAY_BUFFER, node.mMesh.VertexBuffer );
-    glEnableVertexAttribArray( kPositionAttribLoc );
-	glVertexAttribPointer( kPositionAttribLoc, 3, GL_FLOAT, GL_FALSE, strideVec3f, 0 );
-	
-	glBindBuffer( GL_ARRAY_BUFFER, node.mMesh.NormalBuffer );
-    glEnableVertexAttribArray( kNormalAttribLoc );
-	glVertexAttribPointer( kNormalAttribLoc, 3, GL_FLOAT, GL_FALSE, strideVec3f, 0 );
-	
-	glDrawArrays( GL_TRIANGLES, 0, node.mMesh.VertexCount );
+	for( std::list<Node*>::iterator iter = mNodes.begin(); iter != mNodes.end(); iter++ ) {
+		Node* node = *iter;
+		
+		ShaderProgram& shader = mShaders[ node->mShader ];
+		
+		glUseProgram( shader.getHandle() );
+		shader.uniform( "AmbientMaterial",		Vec4f( 0.25f, 0.25f, 0.25f, 1.0f ) );
+		shader.uniform( "LightPosition",		Vec3f( 40.0, 20.0, 10.0 ) );
+		shader.uniform( "SpecularMaterial",		node->mSpecularColor );
+		shader.uniform( "DiffuseMaterial",		node->mColor );
+		shader.uniform( "Shininess",			node->mShininess );
+		shader.uniform( "Modelview",			m_camera.getModelViewMatrix() );
+		shader.uniform( "Projection",			m_camera.getProjectionMatrix() );
+		shader.uniform( "Transform",			node->mTransform );
+		
+		if ( node->mTexture != NULL ) {
+			glActiveTexture( GL_TEXTURE0 );
+			shader.uniform( "DiffuseTexture", 0 );
+			glBindTexture( GL_TEXTURE_2D, node->mTexture->mHandle );
+		}
+		
+		GLint colorLoc			= shader.getAttribLocation( "DiffuseMaterial" );
+		GLint positionLoc		= shader.getAttribLocation( "Position" );
+		GLint normalLoc			= shader.getAttribLocation( "Normal" );
+		GLint texCoordLoc		= shader.getAttribLocation( "TextureCoord" );
+		
+		
+		glEnable(GL_DEPTH_TEST);
+		
+		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh.VertexBuffer );
+		glEnableVertexAttribArray( kPositionAttribLoc );
+		glVertexAttribPointer( kPositionAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
+		
+		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh.NormalBuffer );
+		glEnableVertexAttribArray( kNormalAttribLoc );
+		glVertexAttribPointer( kNormalAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
+		
+		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh.TexCoordBuffer );
+		glEnableVertexAttribArray( kTexCoordAttribLoc );
+		glVertexAttribPointer( kTexCoordAttribLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2f), 0 );
+		
+		glDrawArrays( GL_TRIANGLES, 0, node->mMesh.VertexCount );
+	}	
 }
 
 

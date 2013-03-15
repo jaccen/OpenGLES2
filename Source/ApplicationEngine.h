@@ -21,12 +21,10 @@ public:
     void touchMoved( ci::Vec2i oldLocation, ci::Vec2i newLocation );
 	
 private:
-	//std::list<Node*> mNodes;
+	std::list<Node*> mNodes;
 	
     RenderingEngine* m_renderingEngine;
     ResourceManager* m_resourceManager;
     
 	ci::Vec2i m_screenSize;
-	
-	Node mNode;
 };

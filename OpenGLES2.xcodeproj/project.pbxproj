@@ -13,17 +13,6 @@
 		4D27E4840F9AD71900447247 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D27E4830F9AD71900447247 /* OpenGLES.framework */; };
 		4D27E4B50F9AD7D600447247 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D27E4B40F9AD7D600447247 /* QuartzCore.framework */; };
 		5A0BCF7016F10B5400E6FA13 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A0BCF6E16F10B5400E6FA13 /* ShaderProgram.cpp */; };
-		5A0BCFD016F17DB100E6FA13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
-		5A0BCFD116F17DB100E6FA13 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
-		5A0BCFD216F17DB100E6FA13 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
-		5A0BCFD316F17DB100E6FA13 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D27E4B40F9AD7D600447247 /* QuartzCore.framework */; };
-		5A0BCFD416F17DB100E6FA13 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D27E4830F9AD71900447247 /* OpenGLES.framework */; };
-		5A0BCFD616F17DB100E6FA13 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0BCFD516F17DB100E6FA13 /* AudioToolbox.framework */; };
-		5A0BCFD816F17DB100E6FA13 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0BCFD716F17DB100E6FA13 /* CoreVideo.framework */; };
-		5A0BCFDA16F17DB100E6FA13 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0BCFD916F17DB100E6FA13 /* AVFoundation.framework */; };
-		5A0BCFDC16F17DB100E6FA13 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0BCFDB16F17DB100E6FA13 /* CoreMedia.framework */; };
-		5A0BCFDE16F17DB100E6FA13 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A0BCFDD16F17DB100E6FA13 /* CoreText.framework */; };
-		5A0BCFE416F17DB100E6FA13 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5A0BCFE216F17DB100E6FA13 /* InfoPlist.strings */; };
 		5A21220216EFB396001BF08B /* Default-568h.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A2121FE16EFB396001BF08B /* Default-568h.png */; };
 		5A21220316EFB396001BF08B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A2121FF16EFB396001BF08B /* Default-568h@2x.png */; };
 		5A21220416EFB396001BF08B /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A21220016EFB396001BF08B /* Default.png */; };
@@ -41,16 +30,7 @@
 		5A21224116EFB469001BF08B /* ResourceManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5A21223916EFB469001BF08B /* ResourceManager.mm */; };
 		5A21224416EFB4E6001BF08B /* include in Resources */ = {isa = PBXBuildFile; fileRef = 5A21224316EFB4E6001BF08B /* include */; };
 		5AC0067F16EFBF2C0055177B /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC0067E16EFBF2C0055177B /* Camera.cpp */; };
-		5ACE0BE616F17E6F00C397B4 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5A21222A16EFB469001BF08B /* AppDelegate.mm */; };
-		5ACE0BE716F17E6F00C397B4 /* ApplicationEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A21222B16EFB469001BF08B /* ApplicationEngine.cpp */; };
-		5ACE0BE816F17E6F00C397B4 /* GLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5A21222E16EFB469001BF08B /* GLView.mm */; };
-		5ACE0BEA16F17E6F00C397B4 /* ObjSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A21223116EFB469001BF08B /* ObjSurface.cpp */; };
-		5ACE0BEB16F17E6F00C397B4 /* ParametricSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A21223416EFB469001BF08B /* ParametricSurface.cpp */; };
-		5ACE0BEC16F17E6F00C397B4 /* RenderingEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A21223616EFB469001BF08B /* RenderingEngine.cpp */; };
-		5ACE0BED16F17E6F00C397B4 /* ResourceManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5A21223916EFB469001BF08B /* ResourceManager.mm */; };
-		5ACE0BEE16F17E6F00C397B4 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A0BCF6E16F10B5400E6FA13 /* ShaderProgram.cpp */; };
-		5ACE0BEF16F17EBD00C397B4 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC0067E16EFBF2C0055177B /* Camera.cpp */; };
-		5ACE0BF116F17F0400C397B4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5ACE0BF016F17F0400C397B4 /* main.m */; };
+		5ACE0BFF16F2B4E300C397B4 /* yoda.png in Resources */ = {isa = PBXBuildFile; fileRef = 5ACE0BFE16F2B4E300C397B4 /* yoda.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -62,15 +42,11 @@
 		4D27E4B40F9AD7D600447247 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		5A0BCF6E16F10B5400E6FA13 /* ShaderProgram.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderProgram.cpp; sourceTree = "<group>"; };
 		5A0BCF6F16F10B5400E6FA13 /* ShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderProgram.h; sourceTree = "<group>"; };
-		5A0BCFCF16F17DB100E6FA13 /* CinderAsLib.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CinderAsLib.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A0BCFD516F17DB100E6FA13 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		5A0BCFD716F17DB100E6FA13 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		5A0BCFD916F17DB100E6FA13 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		5A0BCFDB16F17DB100E6FA13 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		5A0BCFDD16F17DB100E6FA13 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
-		5A0BCFE116F17DB100E6FA13 /* CinderAsLib-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CinderAsLib-Info.plist"; sourceTree = "<group>"; };
-		5A0BCFE316F17DB100E6FA13 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		5A0BCFE716F17DB100E6FA13 /* CinderAsLib-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CinderAsLib-Prefix.pch"; sourceTree = "<group>"; };
 		5A2121FE16EFB396001BF08B /* Default-568h.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h.png"; path = "Resources/Default-568h.png"; sourceTree = "<group>"; };
 		5A2121FF16EFB396001BF08B /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "Resources/Default-568h@2x.png"; sourceTree = "<group>"; };
 		5A21220016EFB396001BF08B /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = Resources/Default.png; sourceTree = "<group>"; };
@@ -97,7 +73,7 @@
 		5A21223916EFB469001BF08B /* ResourceManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ResourceManager.mm; sourceTree = "<group>"; };
 		5A21224316EFB4E6001BF08B /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = Cinder/include; sourceTree = "<group>"; };
 		5AC0067E16EFBF2C0055177B /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = Cinder/src/cinder/Camera.cpp; sourceTree = "<group>"; };
-		5ACE0BF016F17F0400C397B4 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		5ACE0BFE16F2B4E300C397B4 /* yoda.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = yoda.png; path = Resources/yoda.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,23 +89,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5A0BCFCC16F17DB100E6FA13 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5A0BCFD016F17DB100E6FA13 /* UIKit.framework in Frameworks */,
-				5A0BCFD116F17DB100E6FA13 /* Foundation.framework in Frameworks */,
-				5A0BCFD216F17DB100E6FA13 /* CoreGraphics.framework in Frameworks */,
-				5A0BCFD316F17DB100E6FA13 /* QuartzCore.framework in Frameworks */,
-				5A0BCFD416F17DB100E6FA13 /* OpenGLES.framework in Frameworks */,
-				5A0BCFD616F17DB100E6FA13 /* AudioToolbox.framework in Frameworks */,
-				5A0BCFD816F17DB100E6FA13 /* CoreVideo.framework in Frameworks */,
-				5A0BCFDA16F17DB100E6FA13 /* AVFoundation.framework in Frameworks */,
-				5A0BCFDC16F17DB100E6FA13 /* CoreMedia.framework in Frameworks */,
-				5A0BCFDE16F17DB100E6FA13 /* CoreText.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -137,7 +96,6 @@
 			isa = PBXGroup;
 			children = (
 				1D6058910D05DD3D006BFB54 /* OpenGLES2.app */,
-				5A0BCFCF16F17DB100E6FA13 /* CinderAsLib.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -148,7 +106,6 @@
 				5A21224216EFB4DF001BF08B /* Cinder */,
 				5A21222816EFB469001BF08B /* Source */,
 				5A2121FD16EFB387001BF08B /* Resources */,
-				5A0BCFDF16F17DB100E6FA13 /* CinderAsLib */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
@@ -172,28 +129,10 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		5A0BCFDF16F17DB100E6FA13 /* CinderAsLib */ = {
-			isa = PBXGroup;
-			children = (
-				5A0BCFE016F17DB100E6FA13 /* Supporting Files */,
-			);
-			path = CinderAsLib;
-			sourceTree = "<group>";
-		};
-		5A0BCFE016F17DB100E6FA13 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				5ACE0BF016F17F0400C397B4 /* main.m */,
-				5A0BCFE116F17DB100E6FA13 /* CinderAsLib-Info.plist */,
-				5A0BCFE216F17DB100E6FA13 /* InfoPlist.strings */,
-				5A0BCFE716F17DB100E6FA13 /* CinderAsLib-Prefix.pch */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 		5A2121FD16EFB387001BF08B /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5ACE0BFE16F2B4E300C397B4 /* yoda.png */,
 				5A21220616EFB39C001BF08B /* models */,
 				5A21220716EFB39C001BF08B /* shaders */,
 				5A21220816EFB39C001BF08B /* textures */,
@@ -276,23 +215,6 @@
 			productReference = 1D6058910D05DD3D006BFB54 /* OpenGLES2.app */;
 			productType = "com.apple.product-type.application";
 		};
-		5A0BCFCE16F17DB100E6FA13 /* CinderAsLib */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 5A0BD00316F17DB100E6FA13 /* Build configuration list for PBXNativeTarget "CinderAsLib" */;
-			buildPhases = (
-				5A0BCFCB16F17DB100E6FA13 /* Sources */,
-				5A0BCFCC16F17DB100E6FA13 /* Frameworks */,
-				5A0BCFCD16F17DB100E6FA13 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = CinderAsLib;
-			productName = CinderAsLib;
-			productReference = 5A0BCFCF16F17DB100E6FA13 /* CinderAsLib.app */;
-			productType = "com.apple.product-type.application";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -310,7 +232,6 @@
 			projectRoot = "";
 			targets = (
 				1D6058900D05DD3D006BFB54 /* OpenGLES2 */,
-				5A0BCFCE16F17DB100E6FA13 /* CinderAsLib */,
 			);
 		};
 /* End PBXProject section */
@@ -328,14 +249,7 @@
 				5A21220A16EFB39C001BF08B /* shaders in Resources */,
 				5A21220B16EFB39C001BF08B /* textures in Resources */,
 				5A21224416EFB4E6001BF08B /* include in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		5A0BCFCD16F17DB100E6FA13 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5A0BCFE416F17DB100E6FA13 /* InfoPlist.strings in Resources */,
+				5ACE0BFF16F2B4E300C397B4 /* yoda.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -359,35 +273,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5A0BCFCB16F17DB100E6FA13 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5ACE0BE616F17E6F00C397B4 /* AppDelegate.mm in Sources */,
-				5ACE0BE716F17E6F00C397B4 /* ApplicationEngine.cpp in Sources */,
-				5ACE0BE816F17E6F00C397B4 /* GLView.mm in Sources */,
-				5ACE0BEA16F17E6F00C397B4 /* ObjSurface.cpp in Sources */,
-				5ACE0BEB16F17E6F00C397B4 /* ParametricSurface.cpp in Sources */,
-				5ACE0BEC16F17E6F00C397B4 /* RenderingEngine.cpp in Sources */,
-				5ACE0BED16F17E6F00C397B4 /* ResourceManager.mm in Sources */,
-				5ACE0BEE16F17E6F00C397B4 /* ShaderProgram.cpp in Sources */,
-				5ACE0BEF16F17EBD00C397B4 /* Camera.cpp in Sources */,
-				5ACE0BF116F17F0400C397B4 /* main.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		5A0BCFE216F17DB100E6FA13 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				5A0BCFE316F17DB100E6FA13 /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		1D6058940D05DD3E006BFB54 /* Debug */ = {
@@ -432,113 +318,6 @@
 			};
 			name = Release;
 		};
-		5A0BD00116F17DB100E6FA13 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CINDER_PATH = ../cinder/;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				COPY_PHASE_STRIP = NO;
-				DEVICE_FAMILY = iPhone/iPad;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "CinderAsLib/CinderAsLib-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(CINDER_PATH)/include",
-					"$(CINDER_PATH)/boost",
-				);
-				INFOPLIST_FILE = "CinderAsLib/CinderAsLib-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
-				LIBRARY_SEARCH_PATHS = (
-					"$(CINDER_PATH)/lib",
-					"$(CINDER_PATH)/lib/ios",
-					"$(CINDER_PATH)/lib/ios-sim",
-				);
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					/usr/lib/libz.dylib,
-					"$(CINDER_PATH)/lib/libcinder-iphone_d.a",
-					"$(CINDER_PATH)/lib/libcinder-iphone-sim_d.a",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "$(CINDER_PATH)/include";
-				WRAPPER_EXTENSION = app;
-			};
-			name = Debug;
-		};
-		5A0BD00216F17DB100E6FA13 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				CINDER_PATH = ../cinder/;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVICE_FAMILY = iPhone/iPad;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "CinderAsLib/CinderAsLib-Prefix.pch";
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(CINDER_PATH)/include",
-					"$(CINDER_PATH)/boost",
-				);
-				INFOPLIST_FILE = "CinderAsLib/CinderAsLib-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
-				LIBRARY_SEARCH_PATHS = (
-					"$(CINDER_PATH)/lib",
-					"$(CINDER_PATH)/lib/ios",
-					"$(CINDER_PATH)/lib/ios-sim",
-				);
-				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				OTHER_LDFLAGS = (
-					/usr/lib/libz.dylib,
-					"$(CINDER_PATH)/lib/libcinder-iphone.a",
-					"$(CINDER_PATH)/lib/libcinder-iphone-sim.a",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "$(CINDER_PATH)/include";
-				VALIDATE_PRODUCT = YES;
-				WRAPPER_EXTENSION = app;
-			};
-			name = Release;
-		};
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -578,15 +357,6 @@
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,
 				1D6058950D05DD3E006BFB54 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		5A0BD00316F17DB100E6FA13 /* Build configuration list for PBXNativeTarget "CinderAsLib" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				5A0BD00116F17DB100E6FA13 /* Debug */,
-				5A0BD00216F17DB100E6FA13 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

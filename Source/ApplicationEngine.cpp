@@ -32,33 +32,56 @@ void ApplicationEngine::setup( int width, int height )
     m_renderingEngine->setup( width, height );
 	m_renderingEngine->addShader( kVertexLitShaderKey, SimpleVertexShader, SimpleFragmentShader );
 	
+	
+	std::string path		= m_resourceManager->getResourcePath();
+	
 	// Create VBOs for our geometry
-	std::string path		= m_resourceManager->GetResourcePath();
-	ObjSurface* model		= new ObjSurface(path + "/models/cube_smooth.obj");
-	
-	mNode.mMesh				= m_renderingEngine->createVbo( model );
-    mNode.mColor			= ci::Vec4f(0.25, 0.75, 1, 1.0f);
-    mNode.mSpecularColor	= ci::Vec4f( 0.5, 0.5, 0.5, 1.0 );
-	mNode.mTransform		= ci::Matrix44f::identity();
-	mNode.mShininess		= 100.0f;
-	mNode.mShader			= kVertexLitShaderKey;
-	
+	Node* planet			= new Node();
+	ObjSurface* model		= new ObjSurface(path + "/models/yoda.obj");
+	planet->mMesh			= m_renderingEngine->createVbo( model );
+    planet->mColor			= ci::Vec4f( 1, 1, 1, 1.0f );
+    planet->mSpecularColor	= ci::Vec4f( 1, 1, 1, 1.0 );
+	planet->mTransform		= ci::Matrix44f::identity();
+	planet->mShininess		= 50.0f;
+	planet->mShader			= kVertexLitShaderKey;
+	planet->mTransform.translate( Vec3f::yAxis() * -1.0f );
+	planet->mTransform.scale( Vec3f::one() * 1.0f );
+	Texture* texture		= m_resourceManager->loadImage( "yoda" );
+	m_renderingEngine->createTexture( texture );
+	planet->mTexture		= texture;
 	delete model;
 	
-	mNode.mTransform.scale( Vec3f::one() * 2.0f );
+	Node* tower				= new Node();
+	model					= new ObjSurface(path + "/models/tower.obj");
+	tower->mMesh				= m_renderingEngine->createVbo( model );
+    tower->mColor			= ci::Vec4f(0.25, 0.75, 1, 1.0f);
+    tower->mSpecularColor	= ci::Vec4f( 0.5, 0.5, 0.5, 1.0 );
+	tower->mTransform		= ci::Matrix44f::identity();
+	tower->mShininess		= 100.0f;
+	tower->mShader			= kVertexLitShaderKey;
+	tower->mTransform.scale( Vec3f::one() * 1.0f );
+	delete model;
 	
+	//m_renderingEngine->addNode( tower );
+	m_renderingEngine->addNode( planet );
+	
+	mNodes.push_back( planet );
+	mNodes.push_back( tower );
 }
 
 void ApplicationEngine::draw() const
 {	
-    m_renderingEngine->draw( mNode );
+    m_renderingEngine->draw();
 }
 
 void ApplicationEngine::update( const float deltaTime )
 {
-	mNode.mTransform.rotate( ci::Vec3f::xAxis(), -1.0f * deltaTime );
-	mNode.mTransform.rotate( ci::Vec3f::yAxis(), 0.5f * deltaTime );
-	mNode.mTransform.rotate( ci::Vec3f::zAxis(), -0.25f * deltaTime );
+	for( std::list<Node*>::iterator iter = mNodes.begin(); iter != mNodes.end(); iter++ ) {
+		Node* node = *iter;
+		//node->mTransform.rotate( ci::Vec3f::xAxis(), -1.0f * deltaTime );
+		node->mTransform.rotate( ci::Vec3f::yAxis(), 0.5f * deltaTime );
+		//node->mTransform.rotate( ci::Vec3f::zAxis(), -0.25f * deltaTime );
+	}
 }
 
 void ApplicationEngine::touchEnded(ci::Vec2i location)
