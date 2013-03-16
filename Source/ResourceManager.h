@@ -24,6 +24,7 @@ private:
 
 class ResourceManager {
 public:
-    Texture* loadImage(const std::string& name);
+    Texture* loadImage(const std::string& path);
     std::string getResourcePath() const;
+	const char* loadShader( const std::string& path );
 };

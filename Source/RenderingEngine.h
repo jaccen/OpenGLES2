@@ -1,9 +1,10 @@
 #pragma once
 
-#include "ParametricSurface.h"
 #include "ShaderProgram.h"
-#include "ObjSurface.h"
+#include "ObjParser.h"
 #include "ResourceManager.h"
+#include "Node.h"
+#include "Gui.h"
 
 #include "cinder/Matrix.h"
 #include "cinder/Quaternion.h"
@@ -23,46 +24,26 @@ enum VertexFlags {
     VertexFlagsTexCoords = 1 << 1,
 };
 
-struct VboMesh {
-    GLuint					VertexBuffer;
-	int						VertexCount;
-    GLuint					TexCoordBuffer;
-    int						TexCoordCount;
-    GLuint					NormalBuffer;
-    int						NormalCount;
-    GLuint					IndexBuffer;
-    int						IndexCount;
-};
-
-class Node {
-public:
-	Node() : mTexture(NULL) {}
-	
-	std::string				mShader;
-	VboMesh					mMesh;
-	ci::Vec4f				mColor;
-	ci::Vec4f				mSpecularColor;
-	ci::Matrix44f			mTransform;
-	float					mShininess;
-	Texture*				mTexture;
-};
-
 class RenderingEngine {
 public:
     RenderingEngine();
     void					setup( int width, int height );
     void					draw();
-	VboMesh					createVbo( const ObjSurface* surface );
+	VboMesh					createVbo( const ObjParser* surface );
 	void					createFbo();
 	bool					createTexture( Texture* texture );
+	void					addGuiNode( Gui* gui );
+	void					removeGuiNode( Gui* gui );
 	void					addNode( Node* node );
 	void					removeNode( Node* node );
 	void					addShader( std::string key, const char* vShader, const char* fShader );
 	
 private:
+	ci::Matrix44f			mScreenTransform;
+	ci::Vec2i				mScreenSize;
 	std::list<Node*>		mNodes;
+	std::list<Node*>		mGuiNodes;
 	std::map<std::string, ShaderProgram> mShaders;
-	ci::Vec2i				m_windowSize;
     GLuint					m_colorRenderbuffer;
     GLuint					m_depthRenderbuffer;
 	ci::CameraPersp			m_camera;

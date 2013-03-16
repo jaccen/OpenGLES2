@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ApplicationEngine.h"
+#include "Game.h"
 #include "RenderingEngine.h"
 #include "ResourceManager.h"
 
@@ -9,7 +9,7 @@
 
 @interface GLView : UIView {
 @private
-    ApplicationEngine* m_applicationEngine;
+    Game* m_Game;
     RenderingEngine* m_renderingEngine;
     ResourceManager* m_resourceManager;
     EAGLContext* m_context;

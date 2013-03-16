@@ -1,16 +1,18 @@
 #pragma once
 
-#include "ObjSurface.h"
-#include "ParametricEquations.h"
+#include "ObjParser.h"
 #include "ResourceManager.h"
 #include "RenderingEngine.h"
+#include "Node.h"
+#include "Gui.h"
+#include "GameConstants.h"
 
 #include <list>
 
-class ApplicationEngine {
+class Game {
 public:
-    ApplicationEngine(RenderingEngine* renderingEngine, ResourceManager* resourceManager);
-    ~ApplicationEngine();
+    Game(RenderingEngine* renderingEngine, ResourceManager* resourceManager);
+    ~Game();
 	
     void setup( int width, int height );
     void draw() const;
@@ -21,10 +23,15 @@ public:
     void touchMoved( ci::Vec2i oldLocation, ci::Vec2i newLocation );
 	
 private:
+	Gui* mRootGui;
+	Node* mPlanet;
 	std::list<Node*> mNodes;
 	
-    RenderingEngine* m_renderingEngine;
-    ResourceManager* m_resourceManager;
+    RenderingEngine* mRenderingEngine;
+    ResourceManager* mResourceManager;
     
-	ci::Vec2i m_screenSize;
+	ci::Vec2i mScreenSize;
+	ci::Vec2i mTouchStart;
+	ci::Vec2i mTouchCurrent;
+	ci::Vec3f mStartRotation;
 };

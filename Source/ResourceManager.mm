@@ -3,6 +3,8 @@
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 
+#import <fstream>
+#import <sstream>
 
 Texture::Texture( void* imageData, ci::Vec2i imageSize )
 {
@@ -21,13 +23,39 @@ std::string ResourceManager::getResourcePath() const
 	return [bundlePath UTF8String];
 }
 
-Texture* ResourceManager::loadImage( const std::string& name )
+const char* ResourceManager::loadShader( const std::string& path )
 {
-	NSString* basePath = [[NSString alloc] initWithUTF8String:name.c_str()];
+	// TODO: GLSL Include stuff
+	std::string fullPath = getResourcePath() + "/" + path;
+	std::ifstream file( fullPath.c_str());
+	if ( !file ) {
+		std::cout << "ERROR: Could not load shader: File not found: " << fullPath << std::endl;
+		exit(1);
+	}
+	else {
+		std::stringstream buffer;
+		buffer << file.rdbuf();
+		std::string text = buffer.str();
+		//std::cout << std::endl << text << std::endl << std::endl;
+		const char* output = (const char*) malloc( sizeof(char) * text.length() );
+		std::memcpy( (void*) output, text.c_str(), sizeof(char) * text.length() );
+		return output;
+	}
+	std::cout << "ERROR: File found, but could not be loaded." << fullPath << std::endl;
+	exit(1);
+	return NULL;
+}
+
+Texture* ResourceManager::loadImage( const std::string& path )
+{
+	NSString* basePath = [NSString stringWithUTF8String:path.c_str()];
 	NSBundle* mainBundle = [NSBundle mainBundle];
-	NSString* fullPath = [mainBundle pathForResource:basePath ofType:@"png"];
+	NSString* extesion = [basePath pathExtension];
+	basePath = [basePath stringByDeletingPathExtension];
+	NSString* fullPath = [mainBundle pathForResource:basePath ofType:extesion];
 	if ( fullPath == nil ) {
 		std::cout << "Error loading image: Does not exist." << std::endl;
+		return NULL;
 	}
 	UIImage* uiImage = [[UIImage alloc] initWithContentsOfFile:fullPath];
 	CGImageRef cgImage = uiImage.CGImage;
@@ -43,7 +71,6 @@ Texture* ResourceManager::loadImage( const std::string& name )
 	
 	CFRelease( imageData );
 	[uiImage release];
-	[basePath release];
 	
 	return texture;
 }

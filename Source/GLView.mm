@@ -36,13 +36,13 @@
         
         m_resourceManager		= new ResourceManager();
 		m_renderingEngine		= new RenderingEngine();
-		m_applicationEngine		= new ApplicationEngine( m_renderingEngine, m_resourceManager );
+		m_Game		= new Game( m_renderingEngine, m_resourceManager );
 
         [m_context renderbufferStorage:GL_RENDERBUFFER fromDrawable: eaglLayer];
                 
         int width = CGRectGetWidth( frame );
         int height = CGRectGetHeight( frame );
-        m_applicationEngine->setup(width * self.contentScaleFactor, height * self.contentScaleFactor );
+        m_Game->setup(width * self.contentScaleFactor, height * self.contentScaleFactor );
         
         [self drawView: nil];
         m_timestamp = CACurrentMediaTime();
@@ -56,7 +56,7 @@
 
 -(void) dealloc
 {
-	delete m_applicationEngine;
+	delete m_Game;
 	delete m_renderingEngine;
 	delete m_resourceManager;
 	
@@ -68,10 +68,10 @@
     if (displayLink != nil) {
         float elapsedSeconds = displayLink.timestamp - m_timestamp;
         m_timestamp = displayLink.timestamp;
-        m_applicationEngine->update( elapsedSeconds );
+        m_Game->update( elapsedSeconds );
     }
     
-    m_applicationEngine->draw();
+    m_Game->draw();
     [m_context presentRenderbuffer:GL_RENDERBUFFER];
 }
 
@@ -79,14 +79,14 @@
 {
     UITouch* touch = [touches anyObject];
     CGPoint location  = [touch locationInView: self];
-    m_applicationEngine->touchBegan(ci::Vec2i(location.x, location.y));
+    m_Game->touchBegan(ci::Vec2i(location.x, location.y));
 }
 
 - (void) touchesEnded: (NSSet*) touches withEvent: (UIEvent*) event
 {
     UITouch* touch = [touches anyObject];
     CGPoint location  = [touch locationInView: self];
-    m_applicationEngine->touchEnded(ci::Vec2i(location.x, location.y));
+    m_Game->touchEnded(ci::Vec2i(location.x, location.y));
 }
 
 - (void) touchesMoved: (NSSet*) touches withEvent: (UIEvent*) event
@@ -94,7 +94,7 @@
     UITouch* touch = [touches anyObject];
     CGPoint previous  = [touch previousLocationInView: self];
     CGPoint current = [touch locationInView: self];
-    m_applicationEngine->touchMoved(ci::Vec2i(previous.x, previous.y),
+    m_Game->touchMoved(ci::Vec2i(previous.x, previous.y),
                                       ci::Vec2i(current.x, current.y));
 }
 

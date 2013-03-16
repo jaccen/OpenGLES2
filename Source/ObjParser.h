@@ -6,9 +6,9 @@
 #include <string>
 #include <vector>
 
-class ObjSurface {
+class ObjParser {
 public:
-    ObjSurface(const std::string& name);
+    ObjParser(const std::string& name);
 	
     int						GetVertexCount() const;
     int						GetLineIndexCount() const { return 0; }
