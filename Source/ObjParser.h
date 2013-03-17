@@ -10,13 +10,13 @@ class ObjParser {
 public:
     ObjParser(const std::string& name);
 	
-    int						GetVertexCount() const;
-    int						GetLineIndexCount() const { return 0; }
-    int						GetTriangleIndexCount() const;
-    virtual void			GenerateVertices(std::vector<float>& vertices ) const;
-    virtual void			GenerateNormals(std::vector<float>& vertices ) const;
-    virtual void			GenerateTexCoords(std::vector<float>& vertices ) const;
-    virtual void			GenerateTriangleIndices(std::vector<unsigned short>& indices) const;
+    int						getVertexCount() const;
+    int						getLineIndexCount() const { return 0; }
+    int						getTriangleIndexCount() const;
+    virtual void			getVertices(std::vector<float>& vertices ) const;
+    virtual void			getNormals(std::vector<float>& vertices ) const;
+    virtual void			getTexCoords(std::vector<float>& vertices ) const;
+    virtual void			getTriangleIndices(std::vector<unsigned short>& indices) const;
 	
 private:
 	std::vector<ci::Vec3f>	m_positions;

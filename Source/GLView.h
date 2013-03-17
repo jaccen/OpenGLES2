@@ -1,19 +1,22 @@
 #pragma once
 
+#include "cinder/Vector.h"
+
 #include "Game.h"
 #include "RenderingEngine.h"
-#include "ResourceManager.h"
 
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 
+#include <vector>
+
 @interface GLView : UIView {
 @private
-    Game* m_Game;
-    RenderingEngine* m_renderingEngine;
-    ResourceManager* m_resourceManager;
-    EAGLContext* m_context;
-    float m_timestamp;
+    Game* mGame;
+    RenderingEngine* mRenderingEngine;
+    EAGLContext* mContext;
+    float mTimestamp;
+	std::vector<ci::Vec2i> mTouches;
 }
 
 - (void) drawView: (CADisplayLink*) displayLink;

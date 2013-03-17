@@ -1,4 +1,5 @@
 #include "RenderingEngine.h"
+#include "ResourceManager.h"
 
 const static int kNormalAttribLoc		= 0;
 const static int kPositionAttribLoc		= 1;
@@ -7,7 +8,7 @@ const static int kColorAttribLoc		= 3;
 
 using namespace ci;
 
-RenderingEngine::RenderingEngine()
+RenderingEngine::RenderingEngine() : mContentScaleFactor(1.0f)
 {
     glGenRenderbuffers( 1, &m_colorRenderbuffer );
     glBindRenderbuffer( GL_RENDERBUFFER, m_colorRenderbuffer );
@@ -25,6 +26,7 @@ void RenderingEngine::removeNode( Node* node )
 
 void RenderingEngine::addGuiNode( Gui* gui )
 {
+	//gui->setContentScaleFactor( mContentScaleFactor );
 	mGuiNodes.push_back( gui->getNode() );
 }
 
@@ -33,36 +35,23 @@ void RenderingEngine::removeGuiNode( Gui* gui )
 	
 }
 
-VboMesh RenderingEngine::createVbo( const ObjParser* surface )
+void RenderingEngine::createVbo( VboMesh* vboMesh, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& texCoords )
 {
 	// Create the VBO for the vertices.
-	GLuint vertexBuffer;
-	glGenBuffers(1, &vertexBuffer);
-	std::vector<float> vertices;
-	surface->GenerateVertices( vertices );
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer );
+	glGenBuffers(1, &vboMesh->vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vboMesh->vertexBuffer );
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), &vertices[0], GL_STATIC_DRAW);
+	vboMesh->vertexCount = vertices.size() / 3;
 	
-	GLuint texCoordBuffer;
-	glGenBuffers(1, &texCoordBuffer);
-	std::vector<float> texCoords;
-	surface->GenerateTexCoords( texCoords );
-    glBindBuffer(GL_ARRAY_BUFFER, texCoordBuffer );
+	glGenBuffers(1, &vboMesh->texCoordBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vboMesh->texCoordBuffer );
     glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(texCoords[0]), &texCoords[0], GL_STATIC_DRAW);
+	vboMesh->texCoordCount = texCoords.size() / 2;
 	
-	GLuint normalBuffer;
-	std::vector<float> normals;
-	surface->GenerateNormals( normals );
-	glGenBuffers(1, &normalBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, normalBuffer ) ;
+	glGenBuffers(1, &vboMesh->normalBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vboMesh->normalBuffer ) ;
     glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(normals[0]), &normals[0], GL_STATIC_DRAW );
-	
-	VboMesh vboData = {
-		vertexBuffer,		vertices.size() / 3,
-		texCoordBuffer,		texCoords.size() / 2,
-		normalBuffer,		normals.size() / 3
-	};
-	return vboData;
+	vboMesh->normalCount = normals.size() / 3;
 }
 
 bool RenderingEngine::createTexture( Texture* texture )
@@ -75,11 +64,7 @@ bool RenderingEngine::createTexture( Texture* texture )
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-	
-	int width = texture->getImageSize().x;
-	int height = texture->getImageSize().y;
-	
-	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture->getImageData() );
+	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, texture->mWidth, texture->mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture->mImageData );
 	glGenerateMipmap( GL_TEXTURE_2D );
 	
 	// Unbind texture
@@ -112,14 +97,20 @@ void RenderingEngine::addShader( std::string key, const char* vShader, const cha
 	mShaders[ key ] = ShaderProgram( vShader, fShader );
 }
 
-void RenderingEngine::setup( int width, int height )
+void RenderingEngine::setup( int width, int height, float contentScaleFactor )
 {
 	mScreenSize.x = width;
 	mScreenSize.y = height;
+	mContentScaleFactor = contentScaleFactor;
+	
+	mCamera = Camera::get();
+	mCamera->setScreenSize( width, height );
 	
 	mScreenTransform = Matrix44f::identity();
 	mScreenTransform.translate( Vec3f( -1.0f, 1.0f, 0.0f ) );
-	mScreenTransform.scale( Vec3f( 1 / (float) width * 2.0f, 1 / (float) height * 2.0f, 1.0f ) );
+	mScreenTransform.scale( Vec3f( 1 / (float) width * contentScaleFactor * 2.0f,
+								   1 / (float) height * contentScaleFactor * 2.0f * -1.0f,
+								   1.0f ) );
     
     // Create a depth buffer that has the same size as the color buffer.
     glGenRenderbuffers(1, &m_depthRenderbuffer);
@@ -134,10 +125,6 @@ void RenderingEngine::setup( int width, int height )
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthRenderbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, m_colorRenderbuffer);
 	
-	m_camera = CameraPersp( width, height, 35.0f, 1.0f, 100.0f );
-	m_camera.setEyePoint( Vec3f( 0, 0, 3 ) );
-	m_camera.setCenterOfInterestPoint( Vec3f::zero() );
-	m_camera.setWorldUp( Vec3f::yAxis() );
 }
 
 void RenderingEngine::draw()
@@ -150,6 +137,9 @@ void RenderingEngine::draw()
 	glEnable(GL_DEPTH_TEST);
 	glEnable( GL_CULL_FACE );
 	glCullFace( GL_BACK );
+	
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
     
 	for( auto iter = mNodes.begin(); iter != mNodes.end(); iter++ ) {
 		Node* node = *iter;
@@ -157,14 +147,17 @@ void RenderingEngine::draw()
 		ShaderProgram& shader = mShaders[ node->mShader ];
 		
 		glUseProgram( shader.getHandle() );
-		shader.uniform( "AmbientMaterial",		Vec4f( 0.15f, 0.15f, 0.15f, 1.0f ) );
+		shader.uniform( "AmbientMaterial",		Vec4f( 0.1f, 0.1f, 0.1f, 1.0f ) );
 		shader.uniform( "LightPosition",		Vec3f( 40.0, 20.0, 10.0 ) );
+		shader.uniform( "EyePosition",			mCamera->getGlobalPosition() );
 		shader.uniform( "SpecularMaterial",		node->mColorSpecular );
 		shader.uniform( "DiffuseMaterial",		node->mColor );
+		shader.uniform( "RimMaterial",			node->mColorRim );
 		shader.uniform( "Shininess",			node->mShininess );
 		shader.uniform( "Glossiness",			node->mGlossiness );
-		shader.uniform( "Modelview",			m_camera.getModelViewMatrix() );
-		shader.uniform( "Projection",			m_camera.getProjectionMatrix() );
+		shader.uniform( "RimPower",				node->mRimPower );
+		shader.uniform( "Modelview",			mCamera->getModelViewMatrix() );
+		shader.uniform( "Projection",			mCamera->getProjectionMatrix() );
 		shader.uniform( "Transform",			node->getTransform() );
 		
 		if ( node->mTexture != NULL ) {
@@ -179,19 +172,19 @@ void RenderingEngine::draw()
 			glBindTexture( GL_TEXTURE_2D, node->mTextureNormal->mHandle );
 		}
 		
-		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh.VertexBuffer );
+		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh->vertexBuffer );
 		glEnableVertexAttribArray( kPositionAttribLoc );
 		glVertexAttribPointer( kPositionAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
 		
-		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh.NormalBuffer );
+		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh->normalBuffer );
 		glEnableVertexAttribArray( kNormalAttribLoc );
 		glVertexAttribPointer( kNormalAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
 		
-		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh.TexCoordBuffer );
+		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh->texCoordBuffer );
 		glEnableVertexAttribArray( kTexCoordAttribLoc );
 		glVertexAttribPointer( kTexCoordAttribLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2f), 0 );
 		
-		glDrawArrays( GL_TRIANGLES, 0, node->mMesh.VertexCount );
+		glDrawArrays( GL_TRIANGLES, 0, node->mMesh->vertexCount );
 		
 		if ( node->mTexture != NULL ) {
 			glBindTexture( GL_TEXTURE_2D, 0 );
@@ -200,9 +193,6 @@ void RenderingEngine::draw()
 	
 	glDisable( GL_CULL_FACE );
 	glDisable( GL_DEPTH_TEST );
-	
-	glEnable( GL_BLEND );
-	
     
 	for( auto iter = mGuiNodes.begin(); iter != mGuiNodes.end(); iter++ ) {
 		Node* node = *iter;
@@ -221,15 +211,15 @@ void RenderingEngine::draw()
 			glBindTexture( GL_TEXTURE_2D, node->mTexture->mHandle );
 		}
 		
-		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh.VertexBuffer );
+		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh->vertexBuffer );
 		glEnableVertexAttribArray( kPositionAttribLoc );
 		glVertexAttribPointer( kPositionAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
 		
-		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh.TexCoordBuffer );
+		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh->texCoordBuffer );
 		glEnableVertexAttribArray( kTexCoordAttribLoc );
 		glVertexAttribPointer( kTexCoordAttribLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2f), 0 );
 		
-		glDrawArrays( GL_TRIANGLES, 0, node->mMesh.VertexCount );
+		glDrawArrays( GL_TRIANGLES, 0, node->mMesh->vertexCount );
 		
 		if ( node->mTexture != NULL ) {
 			glBindTexture( GL_TEXTURE_2D, 0 );

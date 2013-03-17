@@ -1,30 +1,31 @@
 #pragma once
 
-#include "cinder/Vector.h"
+#include "ResourceLoader.h"
+#include "RenderingEngine.h"
+#include "ShaderProgram.h"
+#include "Node.h"
 
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
-
-#include <string>
-
-class Texture {
-public:
-	Texture( void* imageData, ci::Vec2i imageSize );
-	~Texture();
-	GLuint mHandle;
-	void* getImageData() const { return mImageData; }
-	ci::Vec2i getImageSize() const { return mImageSize; }
-private:
-	std::string mName;
-	std::string mPath;
-	ci::Vec2i mImageSize;
-	void* mImageData;
-};
-
+#include <map>
+#include <list>
 
 class ResourceManager {
 public:
-    Texture* loadImage(const std::string& path);
-    std::string getResourcePath() const;
-	const char* loadShader( const std::string& path );
+	ResourceManager( RenderingEngine* renderingEngine );
+	virtual ~ResourceManager();
+	
+	void					loadShader( std::string key, std::string vertexShaderPath, std::string fragmentShaderPath );
+	void					loadTexture( std::string filePath );
+	void					loadMesh( std::string filePath );
+	
+	ShaderProgram*			getShader( std::string key );
+	Texture*				getTexture( std::string key );
+	VboMesh*				getMesh( std::string key );
+	
+private:
+	RenderingEngine*		mRenderingEngine;
+	ResourceLoader			mResourceLoader;
+	
+	std::map<std::string, Texture*> mTextures;
+	std::map<std::string, VboMesh*> mMeshes;
+	std::map<std::string, ShaderProgram*> mShaders;
 };

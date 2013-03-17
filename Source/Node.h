@@ -8,17 +8,26 @@
 
 #include "SmartValue.h"
 
-class Texture;
 
-struct VboMesh {
-    GLuint					VertexBuffer;
-	int						VertexCount;
-    GLuint					TexCoordBuffer;
-    int						TexCoordCount;
-    GLuint					NormalBuffer;
-    int						NormalCount;
-    GLuint					IndexBuffer;
-    int						IndexCount;
+class Texture {
+public:
+	~Texture() { free( mImageData ); }
+	GLuint					mHandle;
+	int						mWidth;
+	int						mHeight;
+	void*					mImageData;
+};
+
+class VboMesh {
+public:
+    GLuint					vertexBuffer;
+	int						vertexCount;
+    GLuint					texCoordBuffer;
+    int						texCoordCount;
+    GLuint					normalBuffer;
+    int						normalCount;
+    GLuint					indexBuffer;
+    int						indexCount;
 };
 
 class Node {
@@ -27,18 +36,22 @@ public:
 	virtual~ Node();
 	
 	void					update( const float deltaTime );
+	const ci::Matrix44f&	getLocalTransform() const { return mLocalTransform; }
 	const ci::Matrix44f&	getTransform() const { return mTransform; }
 	
 	ci::Vec3f				position;
 	ci::Vec3f				rotation;
 	ci::Vec3f				scale;
 	ci::Vec3f				pivotOffset;
+	bool					mFaceCamera;
 	
 	std::string				mShader;
-	VboMesh					mMesh;
+	VboMesh*				mMesh;
 	ci::Vec4f				mColor;
 	ci::Vec4f				mColorSpecular;
+	ci::Vec4f				mColorRim;
 	ci::Vec4f				mColorSelfIllumination;
+	float					mRimPower;
 	float					mShininess;
 	float					mGlossiness;
 	Texture*				mTexture;
@@ -47,13 +60,20 @@ public:
 	Texture*				mTextureAlpha;
 	Texture*				mTextureSelfIllumination;
 	
-	Node*					mParent;
+	void					setParent( Node* parent );
+	Node*					getParent() const { return mParent; }
 	bool					isDirty();
+	
+	ci::Vec3f				getGlobalPosition();
+	void					setForward( const ci::Vec3f forward );
 	
 private:
 	void					updateTransform();
 	
+	Node*					mParent;
+	bool					mIsDirty;
 	ci::Matrix44f			mTransform;
+	ci::Matrix44f			mLocalTransform;
 	ci::Vec3f				mLastPosition;
 	ci::Vec3f				mLastRotation;
 	ci::Vec3f				mLastScale;

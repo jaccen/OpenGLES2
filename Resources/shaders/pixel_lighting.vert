@@ -6,15 +6,17 @@ uniform mat4		Projection;
 uniform mat4		Modelview;
 uniform mat4		Transform;
 
-varying vec2		TexCoord;
+varying vec2		vTexCoord;
 varying vec3		vNormal;
+varying vec4		vWorldPos;
 
 void main(void)
 {
     vNormal = vec4( Transform * vec4( Normal, 0 ) ).xyz;
 	vNormal = normalize( vNormal );
 	
-	TexCoord = TextureCoord;
+	vTexCoord = TextureCoord;
 	
-    gl_Position = Projection * Modelview * Transform * Position;
+	vWorldPos = Transform * Position;
+    gl_Position = Projection * Modelview * vWorldPos;
 }

@@ -57,17 +57,17 @@ ObjParser::ObjParser(const std::string& name) :
 	m_vertexCount = m_positions.size() + m_normals.size() + m_texcoords.size();
 }
 
-int ObjParser::GetVertexCount() const
+int ObjParser::getVertexCount() const
 {
     return m_vertexCount;
 }
 
-int ObjParser::GetTriangleIndexCount() const
+int ObjParser::getTriangleIndexCount() const
 {
     return m_faceCount * 3;
 }
 
-void ObjParser::GenerateVertices( std::vector<float>& floats ) const
+void ObjParser::getVertices( std::vector<float>& floats ) const
 {
 	int size = m_faceCount * 3 * 3;
 	floats.resize( size );
@@ -81,7 +81,7 @@ void ObjParser::GenerateVertices( std::vector<float>& floats ) const
 	}
 }
 
-void ObjParser::GenerateTexCoords( std::vector<float>& floats ) const
+void ObjParser::getTexCoords( std::vector<float>& floats ) const
 {
 	int size = m_faceCount * 3 * 2;
 	floats.resize( size );
@@ -94,7 +94,7 @@ void ObjParser::GenerateTexCoords( std::vector<float>& floats ) const
 	}
 }
 
-void ObjParser::GenerateNormals( std::vector<float>& floats ) const
+void ObjParser::getNormals( std::vector<float>& floats ) const
 {
 	int size = m_faceCount * 3 * 3;
 	floats.resize( size );
@@ -108,7 +108,7 @@ void ObjParser::GenerateNormals( std::vector<float>& floats ) const
 	}
 }
 
-void ObjParser::GenerateTriangleIndices( std::vector<unsigned short>& indices) const
+void ObjParser::getTriangleIndices( std::vector<unsigned short>& indices) const
 {
 	indices.resize( m_faceCount * 3 );
     std::ifstream objFile(m_name.c_str());

@@ -6,23 +6,36 @@
 #include "Node.h"
 #include "Gui.h"
 #include "GameConstants.h"
+#include "Camera.h"
 
 #include <list>
 
 class Game {
 public:
-    Game(RenderingEngine* renderingEngine, ResourceManager* resourceManager);
+    Game( RenderingEngine* renderingEngine );
     ~Game();
 	
-    void setup( int width, int height );
-    void draw() const;
-    void update( const float deltaTime );
+    void				setup( int width, int height );
+    void				update( const float deltaTime );
 	
-    void touchEnded( ci::Vec2i location);
-    void touchBegan( ci::Vec2i location);
-    void touchMoved( ci::Vec2i oldLocation, ci::Vec2i newLocation );
+    void				touchEnded( const std::vector<ci::Vec2i>& positions );
+    void				touchBegan( const std::vector<ci::Vec2i>& positions );
+    void				touchMoved( const std::vector<ci::Vec2i>& positions );
+	
+	Gui*				getRootGui() const { return mRootGui; }
+	Camera*				getCamera() const { return mCamera; }
+	ResourceManager*	getResourceManager() const { return mResourceManager; }
+	RenderingEngine*	getRenderingEngine() const { return mRenderingEngine; }
+	
+	void				add( Node* node );
+	void				add( Gui* gui );
+	void				remove( Node* node );
+	void				remove( Gui* gui );
 	
 private:
+	ci::Vec2i mScreenSize;
+	Camera* mCamera;
+	
 	Gui* mRootGui;
 	Node* mPlanet;
 	std::list<Node*> mNodes;
@@ -30,7 +43,10 @@ private:
     RenderingEngine* mRenderingEngine;
     ResourceManager* mResourceManager;
     
-	ci::Vec2i mScreenSize;
+	float mTouchDistanceStart;
+	float mTouchDistanceCurrent;
+	float mZoomStart;
+	
 	ci::Vec2i mTouchStart;
 	ci::Vec2i mTouchCurrent;
 	ci::Vec3f mStartRotation;

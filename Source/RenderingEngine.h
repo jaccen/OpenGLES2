@@ -2,13 +2,13 @@
 
 #include "ShaderProgram.h"
 #include "ObjParser.h"
-#include "ResourceManager.h"
+#include "ResourceLoader.h"
 #include "Node.h"
 #include "Gui.h"
+#include "Camera.h"
 
 #include "cinder/Matrix.h"
 #include "cinder/Quaternion.h"
-#include "cinder/Camera.h"
 
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
@@ -27,9 +27,9 @@ enum VertexFlags {
 class RenderingEngine {
 public:
     RenderingEngine();
-    void					setup( int width, int height );
+    void					setup( int width, int height, float contentScaleFactor );
     void					draw();
-	VboMesh					createVbo( const ObjParser* surface );
+	void					createVbo( VboMesh* vboMesh, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& texCoords );
 	void					createFbo();
 	bool					createTexture( Texture* texture );
 	void					addGuiNode( Gui* gui );
@@ -39,6 +39,7 @@ public:
 	void					addShader( std::string key, const char* vShader, const char* fShader );
 	
 private:
+	float					mContentScaleFactor;
 	ci::Matrix44f			mScreenTransform;
 	ci::Vec2i				mScreenSize;
 	std::list<Node*>		mNodes;
@@ -46,5 +47,5 @@ private:
 	std::map<std::string, ShaderProgram> mShaders;
     GLuint					m_colorRenderbuffer;
     GLuint					m_depthRenderbuffer;
-	ci::CameraPersp			m_camera;
+	Camera*					mCamera;
 };
