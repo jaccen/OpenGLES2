@@ -19,9 +19,9 @@ public:
 	void*					mImageData;
 };
 
-class VboMesh {
+class Mesh {
 public:
-	VboMesh() : vertexBuffer(-1), normalBuffer(-1), texCoordBuffer(-1), indexBuffer(-1) {}
+	Mesh() : vertexBuffer(-1), normalBuffer(-1), texCoordBuffer(-1), indexBuffer(-1) {}
 	void					getTriangleVertices( size_t i, ci::Vec3f *a, ci::Vec3f *b, ci::Vec3f *c ) const;
     GLuint					vertexBuffer;
 	int						vertexCount;
@@ -50,7 +50,7 @@ public:
 	bool					mFaceCamera;
 	
 	std::string				mShader;
-	VboMesh*				mMesh;
+	Mesh*				mMesh;
 	ci::Vec4f				mColor;
 	ci::Vec4f				mColorSpecular;
 	ci::Vec4f				mColorRim;

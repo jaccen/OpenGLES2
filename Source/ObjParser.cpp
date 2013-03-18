@@ -64,7 +64,7 @@ int ObjParser::getVertexCount() const
 
 int ObjParser::getTriangleIndexCount() const
 {
-    return m_faceCount * 3;
+    return m_faceCount;
 }
 
 void ObjParser::getVertices( std::vector<float>& floats ) const

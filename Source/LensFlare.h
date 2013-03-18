@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cinder/Vector.h"
+#include "cinder/Ray.h"
 
 #include <list>
 
@@ -17,10 +18,12 @@ public:
 	};
 	
 	LensFlare( Game* game );
+	void debugDraw();
 	virtual ~LensFlare();
 	void update( const float deltaTime = 0.0f );
 	
 private:
+	ci::Ray mRay;
 	Node2d mRoot;
 	Game* mGame;
 	ci::Vec3f mLightPosition;

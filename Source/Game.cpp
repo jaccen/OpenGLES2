@@ -32,6 +32,7 @@ void Game::setup( int width, int height )
 	mResourceManager->loadShader( kSahderVertexLighting,	"shaders/vertex_lighting.vert",		"shaders/vertex_lighting.frag" );
 	mResourceManager->loadShader( kShaderUnlit,				"shaders/unlit.vert",				"shaders/unlit.frag" );
 	mResourceManager->loadShader( kShaderScreenSpace,		"shaders/screen_space.vert",		"shaders/screen_space.frag" );
+	mResourceManager->loadShader( kShaderDebug,				"shaders/debug.vert",				"shaders/debug.frag" );
 	
 	mResourceManager->loadTexture( "textures/mars_diffuse.png" );
 	mResourceManager->loadTexture( "textures/mars_normal.jpg" );
@@ -159,6 +160,11 @@ void Game::update( const float deltaTime )
 	mLensFlare->update( deltaTime );
 }
 
+void Game::debugDraw()
+{
+	mLensFlare->debugDraw();
+}
+
 bool Game::rayCast( const ci::Ray& ray )
 {
 	for( auto iter = mNodes.begin(); iter != mNodes.end(); iter++ ) {
@@ -166,11 +172,11 @@ bool Game::rayCast( const ci::Ray& ray )
 		if ( node->mMesh == NULL ) continue;
 		
 		float distance = 0.0f;
-		for( size_t i = 0; i < node->mMesh->indexCount; i++ ) {
-			Vec3f v0, v1, v2;
+		for( size_t i = 0; i < node->mMesh->indexOrderedVertices.size(); i+=3 ) {
 			
-			// get a single triangle from the mesh
-			node->mMesh->getTriangleVertices(i, &v0, &v1, &v2);
+			Vec3f& v0 = node->mMesh->indexOrderedVertices[ i+0 ];
+			Vec3f& v1 = node->mMesh->indexOrderedVertices[ i+1 ];
+			Vec3f& v2 = node->mMesh->indexOrderedVertices[ i+2 ];
 			
 			// transform triangle to world space
 			v0 = node->getTransform().transformPointAffine(v0);

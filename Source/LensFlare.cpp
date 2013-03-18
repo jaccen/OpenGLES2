@@ -2,8 +2,6 @@
 #include "Game.h"
 #include "Camera.h"
 
-#include "cinder/Ray.h"
-
 using namespace ci;
 
 const static int kNumSprites = 9;
@@ -43,6 +41,13 @@ LensFlare::~LensFlare()
 	}
 }
 
+void LensFlare::debugDraw()
+{
+	mGame->getRenderingEngine()->debugDrawLine( mRay.getOrigin(), mRay.getOrigin() + mRay.getDirection(), Vec4f(1,0,0,1) );
+}
+
+float angle = 0.0f;
+
 void LensFlare::update( const float deltaTime )
 {
 	Camera* camera = Camera::get();
@@ -52,16 +57,18 @@ void LensFlare::update( const float deltaTime )
 	float zoom = camera->getZoom();
 	camera->setZoom( zoom + 1 );
 	
-	if ( !camera->getScreenRect().contains( start ) ) {
+	/*if ( !camera->getScreenRect().contains( start ) ) {
 		mRoot.hide();
 	}
-	else {
+	else {*/
 		const Vec2i center = camera->getScreenCenter();
 		const Vec2i dir = start - center;
 		const Vec2i end = center - dir;
-		
-		Ray ray( camera->getGlobalPosition(), mLightPosition - camera->getGlobalPosition() );
-		bool rayHit = mGame->rayCast( ray );
+		angle += 0.02f;
+		Vec3f destination = Vec3f(0, math<float>::sin(angle) * 2.0f, 0.0f );
+		Vec3f origin = mLightPosition;
+		mRay = Ray( origin, destination - origin );
+		bool rayHit = mGame->rayCast( mRay );
 		if ( !rayHit ) {
 			int i = -1;
 			int total = kNumSprites;
@@ -75,5 +82,5 @@ void LensFlare::update( const float deltaTime )
 		else {
 			mRoot.hide();
 		}
-	}
+	//}
 }

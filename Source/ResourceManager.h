@@ -21,7 +21,7 @@ public:
 	
 	ShaderProgram*			getShader( std::string key );
 	Texture*				getTexture( std::string key );
-	VboMesh*				getMesh( std::string key );
+	Mesh*				getMesh( std::string key );
 	
 private:
 	static ResourceManager* sInstance;
@@ -29,6 +29,6 @@ private:
 	ResourceLoader			mResourceLoader;
 	
 	std::map<std::string, Texture*> mTextures;
-	std::map<std::string, VboMesh*> mMeshes;
+	std::map<std::string, Mesh*> mMeshes;
 	std::map<std::string, ShaderProgram*> mShaders;
 };

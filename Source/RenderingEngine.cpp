@@ -1,5 +1,6 @@
 #include "RenderingEngine.h"
 #include "ResourceManager.h"
+#include "GameConstants.h"
 
 const static int kNormalAttribLoc		= 0;
 const static int kPositionAttribLoc		= 1;
@@ -29,6 +30,7 @@ void RenderingEngine::removeNode( Node* node )
 		mObjectNodes.erase( match );
 	}
 }
+
 void RenderingEngine::addNode( Node2d* node )
 {
 	auto match = std::find( mScreenNodes.begin(), mScreenNodes.end(), node );
@@ -51,7 +53,7 @@ void RenderingEngine::setSkyboxNode( Node* node )
 	mSkyboxNode->update();
 }
 
-void RenderingEngine::createVbo( VboMesh* vboMesh, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& texCoords )
+void RenderingEngine::createVbo( Mesh* vboMesh, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& texCoords )
 {
 	// Create the VBO for the vertices.
 	glGenBuffers(1, &vboMesh->vertexBuffer);
@@ -239,9 +241,10 @@ void RenderingEngine::draw()
 	}
 }
 
-void RenderingEngine::drawMesh( VboMesh* mesh )
+void RenderingEngine::drawMesh( Mesh* mesh, bool wireframe )
 {
 	glBindBuffer( GL_ARRAY_BUFFER, mesh->vertexBuffer );
+	
 	glEnableVertexAttribArray( kPositionAttribLoc );
 	glVertexAttribPointer( kPositionAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
 	
@@ -257,7 +260,9 @@ void RenderingEngine::drawMesh( VboMesh* mesh )
 		glVertexAttribPointer( kTexCoordAttribLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2f), 0 );
 	}
 	
-	glDrawArrays( GL_TRIANGLES, 0, mesh->vertexCount );
+	glDrawArrays( wireframe ? GL_LINES : GL_TRIANGLES, 0, mesh->vertexCount );
+	
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 }
 
 void RenderingEngine::drawGui( Node2d* gui )
@@ -289,8 +294,53 @@ void RenderingEngine::drawGui( Node2d* gui )
 	if ( node->mTexture != NULL ) {
 		glBindTexture( GL_TEXTURE_2D, 0 );
 	}
+	
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 }
 
+
+void RenderingEngine::debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::Vec4f color )
+{
+	Vec3f min = center - size * 0.5f;
+	Vec3f max = center + size * 0.5f;
+	
+	debugDrawLine( Vec3f(min.x, min.y, min.z), Vec3f(max.x, min.y, min.z), color );
+	debugDrawLine( Vec3f(max.x, min.y, min.z), Vec3f(max.x, max.y, min.z), color );
+	debugDrawLine( Vec3f(max.x, max.y, min.z), Vec3f(min.x, max.y, min.z), color );
+	debugDrawLine( Vec3f(min.x, max.y, min.z), Vec3f(min.x, min.y, min.z), color );
+	
+	debugDrawLine( Vec3f(min.x, min.y, max.z), Vec3f(max.x, min.y, max.z), color );
+	debugDrawLine( Vec3f(max.x, min.y, max.z), Vec3f(max.x, max.y, max.z), color );
+	debugDrawLine( Vec3f(max.x, max.y, max.z), Vec3f(min.x, max.y, max.z), color );
+	debugDrawLine( Vec3f(min.x, max.y, max.z), Vec3f(min.x, min.y, max.z), color );
+	
+	debugDrawLine( Vec3f(min.x, min.y, min.z), Vec3f(min.x, min.y, max.z), color );
+	debugDrawLine( Vec3f(min.x, max.y, min.z), Vec3f(min.x, max.y, max.z), color );
+	debugDrawLine( Vec3f(max.x, max.y, min.z), Vec3f(max.x, max.y, max.z), color );
+	debugDrawLine( Vec3f(max.x, min.y, min.z), Vec3f(max.x, min.y, max.z), color );
+}
+
+void RenderingEngine::debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::Vec4f color )
+{
+	glEnable( GL_DEPTH_TEST );
+	
+	const float vertices[] = {
+		from.x, from.y, from.z, to.x, to.y, to.z
+	};
+	
+	ShaderProgram& shader = mShaders[ kShaderDebug ];
+	
+	glUseProgram( shader.getHandle() );
+	shader.uniform( "Color",				color );
+	shader.uniform( "Modelview",			mCamera->getModelViewMatrix() );
+	shader.uniform( "Projection",			mCamera->getProjectionMatrix() );
+
+	GLuint positionSlot = glGetAttribLocation( shader.getHandle(), "Position");
+	glEnableVertexAttribArray( positionSlot );
+	glVertexAttribPointer( positionSlot, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, &vertices[0] );
+	glDrawArrays( GL_LINES, 0, 2 );
+	glDisableVertexAttribArray( positionSlot );
+}
 
 
 

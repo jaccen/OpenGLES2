@@ -30,7 +30,7 @@ public:
     void					setup( int width, int height, float contentScaleFactor );
 	void					update( const float deltaTime = 0.0f );
     void					draw();
-	void					createVbo( VboMesh* vboMesh, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& texCoords );
+	void					createVbo( Mesh* vboMesh, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& texCoords );
 	void					createFbo();
 	bool					createTexture( Texture* texture );
 	void					setRootGui( Node2d* Node2d );
@@ -41,9 +41,12 @@ public:
 	void					removeNode( Node2d* node );
 	void					addShader( std::string key, const char* vShader, const char* fShader );
 	
+	void					debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::Vec4f color );
+	void					debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::Vec4f color );
+	
 private:
 	void					drawGui( Node2d* Node2d );
-	void					drawMesh( VboMesh* mesh );
+	void					drawMesh( Mesh* mesh, bool wireframe = false );
 	
 	float					mContentScaleFactor;
 	ci::Matrix44f			mScreenTransform;

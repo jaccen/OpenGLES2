@@ -20,6 +20,7 @@ public:
 	
     void				setup( int width, int height );
     void				update( const float deltaTime = 0.0f );
+	void				debugDraw();
 	
     void				touchEnded( const std::vector<ci::Vec2i>& positions );
     void				touchBegan( const std::vector<ci::Vec2i>& positions );

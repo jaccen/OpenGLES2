@@ -84,6 +84,7 @@ const static int kFps = 60;
     
 	if ( hasUpdatedOnce ) {
 		mRenderingEngine->draw();
+		mGame->debugDraw();
 		[mContext presentRenderbuffer:GL_RENDERBUFFER];
 	}
 }

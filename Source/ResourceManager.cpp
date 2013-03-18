@@ -1,6 +1,7 @@
 #include "ResourceManager.h"
 
 #include "cinder/Vector.h"
+#include "cinder/TriMesh.h"
 
 using namespace ci;
 
@@ -37,15 +38,18 @@ void ResourceManager::loadMesh( std::string filePath )
 	auto match = mMeshes.find( filePath );
 	if ( match == mMeshes.end() ) {
 		ObjParser* objParser = new ObjParser( mResourceLoader.getResourcePath() + "/" + filePath );
-		VboMesh* vboMesh = new VboMesh();
+		Mesh* vboMesh = new Mesh();
 		std::vector<float> vertices;
 		std::vector<float> normals;
 		std::vector<float> texCoords;
 		objParser->getVertices( vertices );
 		objParser->getTexCoords( texCoords );
 		objParser->getNormals( normals );
+		TriMesh mesh;
+		for( auto iter = vertices.begin(); iter != vertices.end(); iter+=3 ) {
+			vboMesh->indexOrderedVertices.push_back( Vec3f( *iter, *(iter+1), *(iter+2) ) );
+		}
 		mRenderingEngine->createVbo( vboMesh, vertices, normals, texCoords );
-		vboMesh->indexOrderedVertices = objParser->getIndexOrderedVertices();
 		mMeshes[ filePath ] = vboMesh;
 		delete objParser;
 	}
@@ -78,10 +82,14 @@ Texture* ResourceManager::getTexture( std::string filePath )
 	return NULL;
 }
 
-VboMesh* ResourceManager::getMesh( std::string filePath )
+Mesh* ResourceManager::getMesh( std::string filePath )
 {
 	auto match = mMeshes.find( filePath );
 	if ( match != mMeshes.end() ) {
+		return mMeshes[ filePath ];
+	}
+	else {
+		loadMesh( filePath );
 		return mMeshes[ filePath ];
 	}
 	return NULL;
