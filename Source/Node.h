@@ -20,6 +20,7 @@ public:
 
 class VboMesh {
 public:
+	VboMesh() : vertexBuffer(-1), normalBuffer(-1), texCoordBuffer(-1), indexBuffer(-1) {}
     GLuint					vertexBuffer;
 	int						vertexCount;
     GLuint					texCoordBuffer;
@@ -35,7 +36,7 @@ public:
 	Node();
 	virtual~ Node();
 	
-	void					update( const float deltaTime );
+	void					update( const float deltaTime = 0.0f );
 	const ci::Matrix44f&	getLocalTransform() const { return mLocalTransform; }
 	const ci::Matrix44f&	getTransform() const { return mTransform; }
 	

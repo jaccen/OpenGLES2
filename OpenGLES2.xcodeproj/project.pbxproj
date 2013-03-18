@@ -29,11 +29,13 @@
 		5A21224016EFB469001BF08B /* RenderingEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A21223616EFB469001BF08B /* RenderingEngine.cpp */; };
 		5A21224116EFB469001BF08B /* ResourceLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5A21223916EFB469001BF08B /* ResourceLoader.mm */; };
 		5A21224416EFB4E6001BF08B /* include in Resources */ = {isa = PBXBuildFile; fileRef = 5A21224316EFB4E6001BF08B /* include */; };
-		5A58E77D16F44C4200AA4635 /* Gui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E77B16F44C4200AA4635 /* Gui.cpp */; };
+		5A58E77D16F44C4200AA4635 /* Node2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E77B16F44C4200AA4635 /* Node2d.cpp */; };
 		5A58E78116F5021F00AA4635 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E77F16F5021F00AA4635 /* Camera.cpp */; };
 		5A58E78716F5094A00AA4635 /* Touch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E78516F5094A00AA4635 /* Touch.cpp */; };
 		5A58E78A16F5401200AA4635 /* LensFlare.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E78816F5401200AA4635 /* LensFlare.cpp */; };
 		5A58E78D16F5429B00AA4635 /* ResourceManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E78B16F5429A00AA4635 /* ResourceManager.cpp */; };
+		5A58E78F16F6463200AA4635 /* Rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E78E16F6463200AA4635 /* Rect.cpp */; };
+		5A58E79116F6464300AA4635 /* Area.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E79016F6464300AA4635 /* Area.cpp */; };
 		5AC0067F16EFBF2C0055177B /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC0067E16EFBF2C0055177B /* Camera.cpp */; };
 /* End PBXBuildFile section */
 
@@ -75,8 +77,8 @@
 		5A21223816EFB469001BF08B /* ResourceLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceLoader.h; sourceTree = "<group>"; };
 		5A21223916EFB469001BF08B /* ResourceLoader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ResourceLoader.mm; sourceTree = "<group>"; };
 		5A21224316EFB4E6001BF08B /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = Cinder/include; sourceTree = "<group>"; };
-		5A58E77B16F44C4200AA4635 /* Gui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gui.cpp; sourceTree = "<group>"; };
-		5A58E77C16F44C4200AA4635 /* Gui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gui.h; sourceTree = "<group>"; };
+		5A58E77B16F44C4200AA4635 /* Node2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Node2d.cpp; sourceTree = "<group>"; };
+		5A58E77C16F44C4200AA4635 /* Node2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Node2d.h; sourceTree = "<group>"; };
 		5A58E77E16F44CD000AA4635 /* GameConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameConstants.h; sourceTree = "<group>"; };
 		5A58E77F16F5021F00AA4635 /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = ../../Cinder_Sqlite/src/Camera.cpp; sourceTree = "<group>"; };
 		5A58E78016F5021F00AA4635 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Camera.h; path = ../../Cinder_Sqlite/src/Camera.h; sourceTree = "<group>"; };
@@ -86,6 +88,8 @@
 		5A58E78916F5401200AA4635 /* LensFlare.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LensFlare.h; sourceTree = "<group>"; };
 		5A58E78B16F5429A00AA4635 /* ResourceManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceManager.cpp; sourceTree = "<group>"; };
 		5A58E78C16F5429A00AA4635 /* ResourceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceManager.h; sourceTree = "<group>"; };
+		5A58E78E16F6463200AA4635 /* Rect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Rect.cpp; path = Cinder/src/cinder/Rect.cpp; sourceTree = "<group>"; };
+		5A58E79016F6464300AA4635 /* Area.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Area.cpp; path = Cinder/src/cinder/Area.cpp; sourceTree = "<group>"; };
 		5AC0067E16EFBF2C0055177B /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = Cinder/src/cinder/Camera.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -178,8 +182,8 @@
 				5A0BCF6F16F10B5400E6FA13 /* ShaderProgram.h */,
 				5A06032516F3BA0600FF457A /* Node.cpp */,
 				5A06032616F3BA0600FF457A /* Node.h */,
-				5A58E77B16F44C4200AA4635 /* Gui.cpp */,
-				5A58E77C16F44C4200AA4635 /* Gui.h */,
+				5A58E77B16F44C4200AA4635 /* Node2d.cpp */,
+				5A58E77C16F44C4200AA4635 /* Node2d.h */,
 				5A58E77F16F5021F00AA4635 /* Camera.cpp */,
 				5A58E78016F5021F00AA4635 /* Camera.h */,
 				5A58E78516F5094A00AA4635 /* Touch.cpp */,
@@ -212,6 +216,8 @@
 		5AC0067D16EFBF260055177B /* cinder */ = {
 			isa = PBXGroup;
 			children = (
+				5A58E79016F6464300AA4635 /* Area.cpp */,
+				5A58E78E16F6463200AA4635 /* Rect.cpp */,
 				5AC0067E16EFBF2C0055177B /* Camera.cpp */,
 			);
 			name = cinder;
@@ -291,11 +297,13 @@
 				5AC0067F16EFBF2C0055177B /* Camera.cpp in Sources */,
 				5A0BCF7016F10B5400E6FA13 /* ShaderProgram.cpp in Sources */,
 				5A06032716F3BA0600FF457A /* Node.cpp in Sources */,
-				5A58E77D16F44C4200AA4635 /* Gui.cpp in Sources */,
+				5A58E77D16F44C4200AA4635 /* Node2d.cpp in Sources */,
 				5A58E78116F5021F00AA4635 /* Camera.cpp in Sources */,
 				5A58E78716F5094A00AA4635 /* Touch.cpp in Sources */,
 				5A58E78A16F5401200AA4635 /* LensFlare.cpp in Sources */,
 				5A58E78D16F5429B00AA4635 /* ResourceManager.cpp in Sources */,
+				5A58E78F16F6463200AA4635 /* Rect.cpp in Sources */,
+				5A58E79116F6464300AA4635 /* Area.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -17,6 +17,7 @@
     EAGLContext* mContext;
     float mTimestamp;
 	std::vector<ci::Vec2i> mTouches;
+	bool hasUpdatedOnce;
 }
 
 - (void) drawView: (CADisplayLink*) displayLink;

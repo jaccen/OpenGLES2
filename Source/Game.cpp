@@ -18,35 +18,33 @@ void Game::add( Node* node )
 	mNodes.push_back( node );
 }
 
-void Game::add( Gui* gui )
-{
-	mRenderingEngine->addGuiNode( gui );
-	mRootGui->addChild( gui );
-}
-
-void Game::remove( Node* node ) {}
-
-void Game::remove( Gui* gui ) {}
+void Game::remove( Node2d* Node2d ) {}
 
 void Game::setup( int width, int height )
 {
-    mScreenSize = ci::Vec2i( width, height );
-	
 	mCamera = Camera::get();
 	
-	mResourceManager = new ResourceManager( mRenderingEngine );
+	mResourceManager = ResourceManager::get();
+	mResourceManager->setup( mRenderingEngine );
 	
-	mResourceManager->loadShader( kShaderFragmentLighting,	"shaders/pixel_lighting.vert",		"shaders/pixel_lighting_plus.frag" );
+	mResourceManager->loadShader( kShaderFragmentLighting,	"shaders/pixel_lighting.vert",		"shaders/planet.frag" );
+	mResourceManager->loadShader( kSahderVertexLighting,	"shaders/pixel_lighting.vert",		"shaders/clouds.frag" );
 	mResourceManager->loadShader( kSahderVertexLighting,	"shaders/vertex_lighting.vert",		"shaders/vertex_lighting.frag" );
 	mResourceManager->loadShader( kShaderUnlit,				"shaders/unlit.vert",				"shaders/unlit.frag" );
-	mResourceManager->loadShader( kShaderGui2d,				"shaders/gui.vert",					"shaders/gui.frag" );
+	mResourceManager->loadShader( kShaderGui2d,				"shaders/Node2d.vert",					"shaders/Node2d.frag" );
 	
 	mResourceManager->loadTexture( "textures/mars_diffuse.png" );
 	mResourceManager->loadTexture( "textures/mars_normal.jpg" );
 	mResourceManager->loadTexture( "textures/stars.jpg" );
 	mResourceManager->loadTexture( "textures/sphere_glow.png" );
-	mResourceManager->loadTexture( "textures/sun_sprite.png" );
 	mResourceManager->loadTexture( "textures/metal.png" );
+	mResourceManager->loadTexture( "textures/clouds.png" );
+	mResourceManager->loadTexture( "textures/clouds_normal.jpg" );
+	mResourceManager->loadTexture( "textures/flare_sprite_0.png" );
+	mResourceManager->loadTexture( "textures/flare_sprite_1.png" );
+	mResourceManager->loadTexture( "textures/flare_sprite_2.png" );
+	mResourceManager->loadTexture( "textures/flare_sprite_3.png" );
+	mResourceManager->loadTexture( "textures/flare_sprite_4.png" );
 	
 	mResourceManager->loadMesh( "models/sphere_globe.obj" );
 	mResourceManager->loadMesh( "models/skybox.obj" );
@@ -66,12 +64,25 @@ void Game::setup( int width, int height )
 	mPlanet->scale			= Vec3f::one() * 0.6f;
 	add( mPlanet );
 	
+	// Create VBOs for our geometry
+	mClouds					= new Node();
+	/*mClouds->mMesh			= mResourceManager->getMesh( "models/sphere_globe.obj" );
+    mClouds->mColorSpecular	= ci::Vec4f( .5, .5, .5, 1.0 );
+    mClouds->mColorRim		= ci::Vec4f( 0.3, 0.15, 0.0, 0.5 );
+	mClouds->mRimPower		= 0.2f;
+	mClouds->mShininess		= 50.0f;
+	mClouds->mShader		= kShaderFragmentLighting;
+	mClouds->mTexture		= mResourceManager->getTexture( "textures/clouds.png" );
+	mClouds->mTextureNormal = mResourceManager->getTexture( "textures/clouds_normal.jpg" );
+	mClouds->scale			= Vec3f::one() * 0.61f;
+	add( mClouds );*/
+	
 	Node* skyBox			= new Node();
 	skyBox->mMesh			= mResourceManager->getMesh( "models/skybox.obj" );
 	skyBox->mTexture		= mResourceManager->getTexture( "textures/stars.jpg" );
 	skyBox->mShader			= kShaderUnlit;
 	skyBox->scale			= Vec3f::one() * 100.0f;
-	add( skyBox );
+	mRenderingEngine->setSkyboxNode( skyBox );
 	
 	for( int i = 0; i < 20; i++ ) {
 		Node* tower				= new Node();
@@ -94,39 +105,26 @@ void Game::setup( int width, int height )
 	glowSprite->mFaceCamera = true;
 	glowSprite->mMesh		= mResourceManager->getMesh( "models/quad_plane.obj" );
 	glowSprite->mTexture	= mResourceManager->getTexture( "textures/sphere_glow.png" );
-    glowSprite->mColor		= ci::Vec4f( 0.6, 0.3, 0.0, 0.5 );
+    glowSprite->mColor		= ci::Vec4f( 0.6, 0.3, 0.0, 1.0 );
 	glowSprite->mShader		= kShaderUnlit;
-	glowSprite->scale		= Vec3f::one() * 1.51f;
+	glowSprite->scale		= Vec3f::one() * 1.54f;
 	add( glowSprite );
 	
 	mCamera->setZoom( 4.0f );
 	mZoomStart = mCamera->getZoom();
 	mTouchDistanceCurrent = 0.0f;
 	
-	mRootGui = new Gui();
-	mRootGui->getNode()->mMesh = mResourceManager->getMesh( "models/quad_plane.obj" );;
-	/*mRootGui->setTexture( texture );
-	mRootGui->position = Vec2i( 400, 400 );
-	mRootGui->size = Vec2i( 200, 100 );
-	mRootGui->anchor = Vec2f( 0.5f, 0.5f );*/
-	mRenderingEngine->addGuiNode( mRootGui );
+	mRootGui = new Node2d();
+	mRenderingEngine->setRootGui( mRootGui );
 	
-	Gui* sunSprite = new Gui();
-	sunSprite->getNode()->mMesh = mResourceManager->getMesh( "models/quad_plane.obj" );
-	sunSprite->setTexture( mResourceManager->getTexture( "textures/sun_sprite.png" ) );
-	sunSprite->getNode()->mShader = kShaderGui2d;
-	sunSprite->size = Vec2i( 300, 300 );
-	sunSprite->anchor = Vec2f( 0.5f, 0.5f );
-	add( sunSprite );
-	
-	/*Gui* child = new Gui();
-	child->getNode()->mMesh = planeMesh;
-	child->setTexture( texture );
-	child->position = Vec2i( 0, 300 );
-	child->size = Vec2i( 50, 50 );
+	Node2d* child = new Node2d();
+	child->setTexture( mResourceManager->getTexture( "textures/metal.png" ) );
+	child->position = Vec2i( 200, 400 );
+	child->size = Vec2i( 100, 300 );
 	child->anchor = Vec2f( 0.5f, 0.5f );
-	mRenderingEngine->addGuiNode( child );
-	add( child );*/
+	mRootGui->addChild( child );
+	
+	mLensFlare = new LensFlare( this );
 }
 
 void Game::update( const float deltaTime )
@@ -146,8 +144,9 @@ void Game::update( const float deltaTime )
 	targetZ = math<float>::clamp( targetZ, minZoom, maxZoom );
 	mCamera->setZoom( targetZ );
 	
-	const float planetRotationSpeed = 4.0f * deltaTime;
-	mPlanet->rotation.y += planetRotationSpeed;
+	const float planetRotationSpeed = 4.0f;
+	mPlanet->rotation.y += planetRotationSpeed * deltaTime;
+	//mClouds->rotation.y += ( planetRotationSpeed + 0.5f ) * deltaTime;
 	//mCamera->rotation.y += planetRotationSpeed * (mCamera->getZoom() - minZoom) / (maxZoom - minZoom);
 	
 	mRootGui->update( deltaTime );
@@ -156,6 +155,13 @@ void Game::update( const float deltaTime )
 		Node* node = *iter;
 		node->update( deltaTime );
 	}
+	
+	mLensFlare->update( deltaTime );
+}
+
+bool Game::rayCast( const ci::Ray& ray )
+{
+	return false;
 }
 
 void Game::touchEnded( const std::vector<ci::Vec2i>& positions )

@@ -10,8 +10,10 @@
 
 class ResourceManager {
 public:
-	ResourceManager( RenderingEngine* renderingEngine );
 	virtual ~ResourceManager();
+	static ResourceManager* get();
+	
+	void					setup( RenderingEngine* renderingEngine );
 	
 	void					loadShader( std::string key, std::string vertexShaderPath, std::string fragmentShaderPath );
 	void					loadTexture( std::string filePath );
@@ -22,6 +24,7 @@ public:
 	VboMesh*				getMesh( std::string key );
 	
 private:
+	static ResourceManager* sInstance;
 	RenderingEngine*		mRenderingEngine;
 	ResourceLoader			mResourceLoader;
 	

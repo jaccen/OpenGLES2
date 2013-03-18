@@ -50,8 +50,47 @@ class Ray {
 	
 	Vec3f calcPosition( float t ) const { return mOrigin + mDirection * t; }
 
-	bool calcTriangleIntersection( const Vec3f &vert0, const Vec3f &vert1, const Vec3f &vert2, float *result ) const;
-	bool calcPlaneIntersection( const Vec3f &origin, const Vec3f &normal, float *result ) const;
+	bool calcTriangleIntersection( const Vec3f &vert0, const Vec3f &vert1, const Vec3f &vert2, float *result ) const
+	{
+		Vec3f edge1, edge2, tvec, pvec, qvec;
+		float det;
+		float u, v;
+		const float EPSILON = 0.000001f;
+		
+		edge1 = vert1 - vert0;
+		edge2 = vert2 - vert0;
+		
+		pvec = getDirection().cross( edge2 );
+		det = edge1.dot( pvec );
+		if( det > -EPSILON && det < EPSILON )
+			return false;
+		
+		float inv_det = 1.0f / det;
+		tvec = getOrigin() - vert0;
+		u = tvec.dot( pvec ) * inv_det;
+		if( u < 0.0f || u > 1.0f )
+			return false;
+		
+		qvec = tvec.cross( edge1 );
+		
+		v = getDirection().dot( qvec ) * inv_det;
+		if( v < 0.0f || u + v > 1.0f )
+			return 0;
+		
+		*result = edge2.dot( qvec ) * inv_det;
+		return true;
+	}
+		
+	bool calcPlaneIntersection( const Vec3f &origin, const Vec3f &normal, float *result ) const
+	{
+		float denom = normal.dot(getDirection());
+		
+		if(denom != 0.0f){
+			*result = normal.dot(origin - getOrigin()) / denom;
+			return true;
+		}
+		return false;
+	}
 
  protected:
 	Vec3f	mOrigin;

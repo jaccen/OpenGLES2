@@ -39,7 +39,7 @@ void ResourceLoader::loadImage( const std::string& path, void** pixelDataDestina
 	basePath = [basePath stringByDeletingPathExtension];
 	NSString* fullPath = [mainBundle pathForResource:basePath ofType:extesion];
 	if ( fullPath == nil ) {
-		std::cout << "Error loading image: Does not exist." << std::endl;
+		std::cout << "Error loading image '" << path << "' -> Does not exist." << std::endl;
 		return;
 	}
 	UIImage* uiImage = [[UIImage alloc] initWithContentsOfFile:fullPath];

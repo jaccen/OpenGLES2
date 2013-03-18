@@ -4,9 +4,12 @@
 #include "ResourceManager.h"
 #include "RenderingEngine.h"
 #include "Node.h"
-#include "Gui.h"
+#include "Node2d.h"
 #include "GameConstants.h"
 #include "Camera.h"
+#include "LensFlare.h"
+
+#include "cinder/Ray.h"
 
 #include <list>
 
@@ -16,27 +19,28 @@ public:
     ~Game();
 	
     void				setup( int width, int height );
-    void				update( const float deltaTime );
+    void				update( const float deltaTime = 0.0f );
 	
     void				touchEnded( const std::vector<ci::Vec2i>& positions );
     void				touchBegan( const std::vector<ci::Vec2i>& positions );
     void				touchMoved( const std::vector<ci::Vec2i>& positions );
 	
-	Gui*				getRootGui() const { return mRootGui; }
+	Node2d*				getRootGui() const { return mRootGui; }
 	Camera*				getCamera() const { return mCamera; }
 	ResourceManager*	getResourceManager() const { return mResourceManager; }
 	RenderingEngine*	getRenderingEngine() const { return mRenderingEngine; }
 	
 	void				add( Node* node );
-	void				add( Gui* gui );
 	void				remove( Node* node );
-	void				remove( Gui* gui );
+	void				remove( Node2d* Node2d );
+	
+	bool				rayCast( const ci::Ray& ray );
 	
 private:
-	ci::Vec2i mScreenSize;
 	Camera* mCamera;
 	
-	Gui* mRootGui;
+	Node2d* mRootGui;
+	Node* mClouds;
 	Node* mPlanet;
 	std::list<Node*> mNodes;
 	
@@ -50,4 +54,6 @@ private:
 	ci::Vec2i mTouchStart;
 	ci::Vec2i mTouchCurrent;
 	ci::Vec3f mStartRotation;
+	
+	LensFlare* mLensFlare;
 };

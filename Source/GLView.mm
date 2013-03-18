@@ -2,6 +2,8 @@
 
 #define GL_RENDERBUFFER 0x8d41
 
+const static int kFps = 60;
+
 @implementation GLView
 
 + (Class) layerClass
@@ -39,10 +41,10 @@
 
         [mContext renderbufferStorage:GL_RENDERBUFFER fromDrawable: eaglLayer];
                 
-        int width = CGRectGetWidth( frame ) * self.contentScaleFactor;
-        int height = CGRectGetHeight( frame ) * self.contentScaleFactor;
+        int width = CGRectGetWidth( frame );
+        int height = CGRectGetHeight( frame );
 		mRenderingEngine->setup( width, height, self.contentScaleFactor );
-        mGame->setup(width, height );
+        mGame->setup( width, height );
         
         [self drawView: nil];
         mTimestamp = CACurrentMediaTime();
@@ -52,6 +54,8 @@
         CADisplayLink* displayLink;
         displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
         [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+		
+		hasUpdatedOnce = false;
     }
     return self;
 }
@@ -66,14 +70,22 @@
 
 - (void) drawView: (CADisplayLink*) displayLink
 {
+	const float frameRate = 1.0 / (float) kFps;
+	
     if (displayLink != nil) {
         float elapsedSeconds = displayLink.timestamp - mTimestamp;
-        mTimestamp = displayLink.timestamp;
-        mGame->update( elapsedSeconds );
+		if ( elapsedSeconds >= frameRate ) {
+			mGame->update( elapsedSeconds );
+			mRenderingEngine->update( elapsedSeconds );
+			mTimestamp = displayLink.timestamp;
+			hasUpdatedOnce = true;
+		}
     }
     
-    mRenderingEngine->draw();
-    [mContext presentRenderbuffer:GL_RENDERBUFFER];
+	if ( hasUpdatedOnce ) {
+		mRenderingEngine->draw();
+		[mContext presentRenderbuffer:GL_RENDERBUFFER];
+	}
 }
 
 - (void) touchesBegan: (NSSet*) touches withEvent: (UIEvent*) event

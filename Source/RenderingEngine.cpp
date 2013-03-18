@@ -8,7 +8,7 @@ const static int kColorAttribLoc		= 3;
 
 using namespace ci;
 
-RenderingEngine::RenderingEngine() : mContentScaleFactor(1.0f)
+RenderingEngine::RenderingEngine() : mContentScaleFactor(1.0f), mSkyboxNode(NULL), mRootGui(NULL)
 {
     glGenRenderbuffers( 1, &m_colorRenderbuffer );
     glBindRenderbuffer( GL_RENDERBUFFER, m_colorRenderbuffer );
@@ -16,23 +16,29 @@ RenderingEngine::RenderingEngine() : mContentScaleFactor(1.0f)
 
 void RenderingEngine::addNode( Node* node )
 {
-	mNodes.push_back( node );
+	auto match = std::find( mObjectNodes.begin(), mObjectNodes.end(), node );
+	if ( match == mObjectNodes.end() ) {
+		mObjectNodes.push_back( node );
+	}
 }
 
 void RenderingEngine::removeNode( Node* node )
 {
-	
+	auto match = std::find( mObjectNodes.begin(), mObjectNodes.end(), node );
+	if ( match != mObjectNodes.end() ) {
+		mObjectNodes.erase( match );
+	}
 }
 
-void RenderingEngine::addGuiNode( Gui* gui )
+void RenderingEngine::setRootGui( Node2d* Node2d )
 {
-	//gui->setContentScaleFactor( mContentScaleFactor );
-	mGuiNodes.push_back( gui->getNode() );
+	mRootGui = Node2d;
 }
 
-void RenderingEngine::removeGuiNode( Gui* gui )
+void RenderingEngine::setSkyboxNode( Node* node )
 {
-	
+	mSkyboxNode = node;
+	mSkyboxNode->update();
 }
 
 void RenderingEngine::createVbo( VboMesh* vboMesh, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& texCoords )
@@ -99,17 +105,17 @@ void RenderingEngine::addShader( std::string key, const char* vShader, const cha
 
 void RenderingEngine::setup( int width, int height, float contentScaleFactor )
 {
-	mScreenSize.x = width;
-	mScreenSize.y = height;
+	mScreenSize.x = width * contentScaleFactor;
+	mScreenSize.y = height * contentScaleFactor;
 	mContentScaleFactor = contentScaleFactor;
 	
 	mCamera = Camera::get();
-	mCamera->setScreenSize( width, height );
+	mCamera->setScreenSize( width, height, contentScaleFactor );
 	
 	mScreenTransform = Matrix44f::identity();
 	mScreenTransform.translate( Vec3f( -1.0f, 1.0f, 0.0f ) );
-	mScreenTransform.scale( Vec3f( 1 / (float) width * contentScaleFactor * 2.0f,
-								   1 / (float) height * contentScaleFactor * 2.0f * -1.0f,
+	mScreenTransform.scale( Vec3f( 1 / (float) width * 2.0f,
+								   1 / (float) height * 2.0f * -1.0f,
 								   1.0f ) );
     
     // Create a depth buffer that has the same size as the color buffer.
@@ -127,6 +133,13 @@ void RenderingEngine::setup( int width, int height, float contentScaleFactor )
 	
 }
 
+void RenderingEngine::update( const float deltaTime )
+{
+	if ( mSkyboxNode ) {
+		mSkyboxNode->position = mCamera->getGlobalPosition();
+	}
+}
+
 void RenderingEngine::draw()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1);
@@ -134,21 +147,43 @@ void RenderingEngine::draw()
 	
 	// Set the viewport transform.
 	glViewport( 0, 0, mScreenSize.x, mScreenSize.y );
-	glEnable(GL_DEPTH_TEST);
 	glEnable( GL_CULL_FACE );
 	glCullFace( GL_BACK );
 	
+	if ( mSkyboxNode ) {
+		Node* node = mSkyboxNode;
+		
+		ShaderProgram& shader = mShaders[ node->mShader ];
+		
+		glUseProgram( shader.getHandle() );
+		shader.uniform( "DiffuseMaterial",		node->mColor );
+		shader.uniform( "Modelview",			mCamera->getModelViewMatrix() );
+		shader.uniform( "Projection",			mCamera->getProjectionMatrix() );
+		shader.uniform( "Transform",			node->getTransform() );
+		
+		if ( node->mTexture != NULL ) {
+			glActiveTexture( GL_TEXTURE0 );
+			shader.uniform( "DiffuseTexture", 0 );
+			glBindTexture( GL_TEXTURE_2D, node->mTexture->mHandle );
+		}
+		
+		drawMesh( node->mMesh );
+		
+		glBindTexture( GL_TEXTURE_2D, 0 );
+	}
+	
+	glEnable(GL_DEPTH_TEST);
 	glEnable( GL_BLEND );
-	glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     
-	for( auto iter = mNodes.begin(); iter != mNodes.end(); iter++ ) {
+	for( auto iter = mObjectNodes.begin(); iter != mObjectNodes.end(); iter++ ) {
 		Node* node = *iter;
 		
 		ShaderProgram& shader = mShaders[ node->mShader ];
 		
 		glUseProgram( shader.getHandle() );
 		shader.uniform( "AmbientMaterial",		Vec4f( 0.1f, 0.1f, 0.1f, 1.0f ) );
-		shader.uniform( "LightPosition",		Vec3f( 40.0, 20.0, 10.0 ) );
+		shader.uniform( "LightPosition",		Vec3f( 100.0, 50.0, 50.0 ) );
 		shader.uniform( "EyePosition",			mCamera->getGlobalPosition() );
 		shader.uniform( "SpecularMaterial",		node->mColorSpecular );
 		shader.uniform( "DiffuseMaterial",		node->mColor );
@@ -172,58 +207,73 @@ void RenderingEngine::draw()
 			glBindTexture( GL_TEXTURE_2D, node->mTextureNormal->mHandle );
 		}
 		
-		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh->vertexBuffer );
-		glEnableVertexAttribArray( kPositionAttribLoc );
-		glVertexAttribPointer( kPositionAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
+		drawMesh( node->mMesh );
 		
-		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh->normalBuffer );
-		glEnableVertexAttribArray( kNormalAttribLoc );
-		glVertexAttribPointer( kNormalAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
-		
-		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh->texCoordBuffer );
-		glEnableVertexAttribArray( kTexCoordAttribLoc );
-		glVertexAttribPointer( kTexCoordAttribLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2f), 0 );
-		
-		glDrawArrays( GL_TRIANGLES, 0, node->mMesh->vertexCount );
-		
-		if ( node->mTexture != NULL ) {
-			glBindTexture( GL_TEXTURE_2D, 0 );
-		}
+		glBindTexture( GL_TEXTURE_2D, 0 );
 	}
 	
-	glDisable( GL_CULL_FACE );
+	// Additive blending for lighting effects, such as lens flare
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE );
 	glDisable( GL_DEPTH_TEST );
     
-	for( auto iter = mGuiNodes.begin(); iter != mGuiNodes.end(); iter++ ) {
-		Node* node = *iter;
-		
-		ShaderProgram& shader = mShaders[ node->mShader ];
-		
-		glUseProgram( shader.getHandle() );
-		shader.uniform( "DiffuseMaterial",		node->mColor );
-		shader.uniform( "Transform",			node->getTransform() );
-		shader.uniform( "ScreenTransform",		mScreenTransform );
-		shader.uniform( "ScreenSize",			mScreenSize );
-		
-		if ( node->mTexture != NULL ) {
-			glActiveTexture( GL_TEXTURE0 );
-			shader.uniform( "DiffuseTexture", 0 );
-			glBindTexture( GL_TEXTURE_2D, node->mTexture->mHandle );
-		}
-		
-		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh->vertexBuffer );
-		glEnableVertexAttribArray( kPositionAttribLoc );
-		glVertexAttribPointer( kPositionAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
-		
-		glBindBuffer( GL_ARRAY_BUFFER, node->mMesh->texCoordBuffer );
+	if ( mRootGui ) {
+		glDisable( GL_DEPTH_TEST );
+		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+		drawGui( mRootGui );
+	}
+}
+
+void RenderingEngine::drawMesh( VboMesh* mesh )
+{
+	glBindBuffer( GL_ARRAY_BUFFER, mesh->vertexBuffer );
+	glEnableVertexAttribArray( kPositionAttribLoc );
+	glVertexAttribPointer( kPositionAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
+	
+	if ( mesh->normalBuffer > 0 ) {
+		glBindBuffer( GL_ARRAY_BUFFER, mesh->normalBuffer );
+		glEnableVertexAttribArray( kNormalAttribLoc );
+		glVertexAttribPointer( kNormalAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
+	}
+	
+	if ( mesh->texCoordBuffer > 0 ) {
+		glBindBuffer( GL_ARRAY_BUFFER, mesh->texCoordBuffer );
 		glEnableVertexAttribArray( kTexCoordAttribLoc );
 		glVertexAttribPointer( kTexCoordAttribLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2f), 0 );
-		
-		glDrawArrays( GL_TRIANGLES, 0, node->mMesh->vertexCount );
-		
-		if ( node->mTexture != NULL ) {
-			glBindTexture( GL_TEXTURE_2D, 0 );
-		}
+	}
+	
+	glDrawArrays( GL_TRIANGLES, 0, mesh->vertexCount );
+}
+
+void RenderingEngine::drawGui( Node2d* Node2d )
+{
+	if ( !Node2d->getIsVisible() ) return;
+	
+	for( auto iter = Node2d->getChildren().begin(); iter != Node2d->getChildren().end(); iter++ ) {
+		drawGui( *iter );
+	}
+	
+	Node* node = Node2d->getNode();
+	
+	ShaderProgram& shader = mShaders[ node->mShader ];
+	
+	glUseProgram( shader.getHandle() );
+	shader.uniform( "DiffuseMaterial",		node->mColor );
+	shader.uniform( "Transform",			node->getTransform() );
+	shader.uniform( "ScreenTransform",		mScreenTransform );
+	shader.uniform( "ScreenSize",			mScreenSize );
+	
+	if ( node->mTexture != NULL ) {
+		glActiveTexture( GL_TEXTURE0 );
+		shader.uniform( "DiffuseTexture", 0 );
+		glBindTexture( GL_TEXTURE_2D, node->mTexture->mHandle );
+	}
+	
+	drawMesh( node->mMesh );
+	
+	glDrawArrays( GL_TRIANGLES, 0, node->mMesh->vertexCount );
+	
+	if ( node->mTexture != NULL ) {
+		glBindTexture( GL_TEXTURE_2D, 0 );
 	}
 }
 

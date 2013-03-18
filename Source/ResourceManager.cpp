@@ -4,9 +4,19 @@
 
 using namespace ci;
 
-ResourceManager::ResourceManager( RenderingEngine* renderingEngine ) : mRenderingEngine( renderingEngine )
+ResourceManager* ResourceManager::sInstance = NULL;
+
+ResourceManager* ResourceManager::get()
 {
-	
+	if ( !sInstance ) {
+		sInstance = new ResourceManager();
+	}
+	return sInstance;
+}
+
+void ResourceManager::setup( RenderingEngine* renderingEngine )
+{
+	mRenderingEngine = renderingEngine;
 }
 
 ResourceManager::~ResourceManager() {}
