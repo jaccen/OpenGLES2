@@ -7,12 +7,12 @@ using namespace ci;
 Node2d::Node2d() : mParent( NULL ), mIsVisible( true ), mIsEnabled( true ), zIndex( 0 ), tag(-1), group(-1)
 {
 	mNode = new Node();
-	mNode->mShader = kShaderGui2d;
 	position = Vec2i::zero();
 	size = Vec2i::zero();
 	rotation = 0.0f;
 	anchor = Vec2i::zero();
 	childAnchor = Vec2i::zero();
+	mNode->mShader = kShaderScreenSpace;
 	mNode->mMesh = ResourceManager::get()->getMesh( "models/quad_plane.obj" );
 }
 
@@ -107,12 +107,12 @@ void Node2d::disable()
 	mIsEnabled = false;
 }
 
-void Node2d::addChild( Node2d* Node2d )
+void Node2d::addChild( Node2d* node )
 {
-	if ( !hasChild( Node2d ) ) {
-		mChildren.push_back( Node2d );
-		Node2d->zIndex = mChildren.size()-1;
-		Node2d->setParent( this );
+	if ( !hasChild( node ) ) {
+		mChildren.push_back( node );
+		node->zIndex = mChildren.size()-1;
+		node->setParent( this );
 	}
 }
 

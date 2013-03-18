@@ -13,10 +13,10 @@ public:
     int						getVertexCount() const;
     int						getLineIndexCount() const { return 0; }
     int						getTriangleIndexCount() const;
-    virtual void			getVertices(std::vector<float>& vertices ) const;
-    virtual void			getNormals(std::vector<float>& vertices ) const;
-    virtual void			getTexCoords(std::vector<float>& vertices ) const;
-    virtual void			getTriangleIndices(std::vector<unsigned short>& indices) const;
+	void					getVertices(std::vector<float>& vertices ) const;
+	void					getNormals(std::vector<float>& vertices ) const;
+	void					getTexCoords(std::vector<float>& vertices ) const;
+	std::vector<ci::Vec3f>  getIndexOrderedVertices() const { return m_positions; }
 	
 private:
 	std::vector<ci::Vec3f>	m_positions;

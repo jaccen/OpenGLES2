@@ -4,7 +4,7 @@
 
 #include <list>
 
-#include "Gui.h"
+#include "Node2d.h"
 
 class Game;
 
@@ -21,8 +21,8 @@ public:
 	void update( const float deltaTime = 0.0f );
 	
 private:
-	Gui mRoot;
+	Node2d mRoot;
 	Game* mGame;
 	ci::Vec3f mLightPosition;
-	std::list<Gui*> mSprites;
+	std::list<Node2d*> mSprites;
 };

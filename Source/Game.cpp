@@ -31,7 +31,7 @@ void Game::setup( int width, int height )
 	mResourceManager->loadShader( kSahderVertexLighting,	"shaders/pixel_lighting.vert",		"shaders/clouds.frag" );
 	mResourceManager->loadShader( kSahderVertexLighting,	"shaders/vertex_lighting.vert",		"shaders/vertex_lighting.frag" );
 	mResourceManager->loadShader( kShaderUnlit,				"shaders/unlit.vert",				"shaders/unlit.frag" );
-	mResourceManager->loadShader( kShaderGui2d,				"shaders/Node2d.vert",					"shaders/Node2d.frag" );
+	mResourceManager->loadShader( kShaderScreenSpace,		"shaders/screen_space.vert",		"shaders/screen_space.frag" );
 	
 	mResourceManager->loadTexture( "textures/mars_diffuse.png" );
 	mResourceManager->loadTexture( "textures/mars_normal.jpg" );
@@ -84,7 +84,7 @@ void Game::setup( int width, int height )
 	skyBox->scale			= Vec3f::one() * 100.0f;
 	mRenderingEngine->setSkyboxNode( skyBox );
 	
-	for( int i = 0; i < 20; i++ ) {
+	/*for( int i = 0; i < 20; i++ ) {
 		Node* tower				= new Node();
 		tower->mMesh			= mResourceManager->getMesh( "models/tower.obj" );
 		tower->mColorSpecular	= ci::Vec4f( 0.5, 0.5, 0.5, 1.0 );
@@ -99,7 +99,7 @@ void Game::setup( int width, int height )
 		tower->setParent( mPlanet );
 		mRenderingEngine->addNode( tower );
 		mNodes.push_back( tower );
-	}
+	}*/
 	
 	Node* glowSprite		= new Node();
 	glowSprite->mFaceCamera = true;
@@ -108,21 +108,21 @@ void Game::setup( int width, int height )
     glowSprite->mColor		= ci::Vec4f( 0.6, 0.3, 0.0, 1.0 );
 	glowSprite->mShader		= kShaderUnlit;
 	glowSprite->scale		= Vec3f::one() * 1.54f;
-	add( glowSprite );
+	//add( glowSprite );
 	
 	mCamera->setZoom( 4.0f );
 	mZoomStart = mCamera->getZoom();
 	mTouchDistanceCurrent = 0.0f;
 	
 	mRootGui = new Node2d();
-	mRenderingEngine->setRootGui( mRootGui );
+	mRenderingEngine->addNode( mRootGui );
 	
-	Node2d* child = new Node2d();
+	/*Node2d* child = new Node2d();
 	child->setTexture( mResourceManager->getTexture( "textures/metal.png" ) );
 	child->position = Vec2i( 200, 400 );
 	child->size = Vec2i( 100, 300 );
 	child->anchor = Vec2f( 0.5f, 0.5f );
-	mRootGui->addChild( child );
+	mRootGui->addChild( child );*/
 	
 	mLensFlare = new LensFlare( this );
 }
@@ -139,7 +139,7 @@ void Game::update( const float deltaTime )
 	mCamera->setAngle( targetX );
 	mCamera->rotation.y = targetY;
 	float targetZ = mZoomStart + ( mTouchDistanceCurrent - mTouchDistanceStart ) * -0.01f;
-	const float maxZoom = 3.0f;
+	const float maxZoom = 8.0f;
 	const float minZoom = 0.65f;
 	targetZ = math<float>::clamp( targetZ, minZoom, maxZoom );
 	mCamera->setZoom( targetZ );
@@ -161,6 +161,28 @@ void Game::update( const float deltaTime )
 
 bool Game::rayCast( const ci::Ray& ray )
 {
+	for( auto iter = mNodes.begin(); iter != mNodes.end(); iter++ ) {
+		Node* node = *iter;
+		if ( node->mMesh == NULL ) continue;
+		
+		float distance = 0.0f;
+		for( size_t i = 0; i < node->mMesh->indexCount; i++ ) {
+			Vec3f v0, v1, v2;
+			
+			// get a single triangle from the mesh
+			node->mMesh->getTriangleVertices(i, &v0, &v1, &v2);
+			
+			// transform triangle to world space
+			v0 = node->getTransform().transformPointAffine(v0);
+			v1 = node->getTransform().transformPointAffine(v1);
+			v2 = node->getTransform().transformPointAffine(v2);
+			
+			// test to see if the ray intersects with this triangle
+			if( ray.calcTriangleIntersection(v0, v1, v2, &distance) ) {
+				return true;
+			}
+		}
+	}
 	return false;
 }
 

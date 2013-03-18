@@ -29,10 +29,20 @@ void RenderingEngine::removeNode( Node* node )
 		mObjectNodes.erase( match );
 	}
 }
-
-void RenderingEngine::setRootGui( Node2d* Node2d )
+void RenderingEngine::addNode( Node2d* node )
 {
-	mRootGui = Node2d;
+	auto match = std::find( mScreenNodes.begin(), mScreenNodes.end(), node );
+	if ( match == mScreenNodes.end() ) {
+		mScreenNodes.push_back( node );
+	}
+}
+
+void RenderingEngine::removeNode( Node2d* node )
+{
+	auto match = std::find( mScreenNodes.begin(), mScreenNodes.end(), node );
+	if ( match != mScreenNodes.end() ) {
+		mScreenNodes.erase( match );
+	}
 }
 
 void RenderingEngine::setSkyboxNode( Node* node )
@@ -112,6 +122,8 @@ void RenderingEngine::setup( int width, int height, float contentScaleFactor )
 	mCamera = Camera::get();
 	mCamera->setScreenSize( width, height, contentScaleFactor );
 	
+	mRootGui = new Node2d();
+	
 	mScreenTransform = Matrix44f::identity();
 	mScreenTransform.translate( Vec3f( -1.0f, 1.0f, 0.0f ) );
 	mScreenTransform.scale( Vec3f( 1 / (float) width * 2.0f,
@@ -137,6 +149,10 @@ void RenderingEngine::update( const float deltaTime )
 {
 	if ( mSkyboxNode ) {
 		mSkyboxNode->position = mCamera->getGlobalPosition();
+	}
+	
+	if ( mRootGui ) {
+		mRootGui->update( deltaTime );
 	}
 }
 
@@ -214,12 +230,12 @@ void RenderingEngine::draw()
 	
 	// Additive blending for lighting effects, such as lens flare
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE );
+	glDisable( GL_CULL_FACE );
 	glDisable( GL_DEPTH_TEST );
-    
-	if ( mRootGui ) {
-		glDisable( GL_DEPTH_TEST );
-		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-		drawGui( mRootGui );
+	
+	//glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	for( auto iter = mScreenNodes.begin(); iter != mScreenNodes.end(); iter++ ) {
+		drawGui( *iter );
 	}
 }
 
@@ -244,15 +260,15 @@ void RenderingEngine::drawMesh( VboMesh* mesh )
 	glDrawArrays( GL_TRIANGLES, 0, mesh->vertexCount );
 }
 
-void RenderingEngine::drawGui( Node2d* Node2d )
+void RenderingEngine::drawGui( Node2d* gui )
 {
-	if ( !Node2d->getIsVisible() ) return;
+	if ( !gui->getIsVisible() ) return;
 	
-	for( auto iter = Node2d->getChildren().begin(); iter != Node2d->getChildren().end(); iter++ ) {
+	for( auto iter = gui->getChildren().begin(); iter != gui->getChildren().end(); iter++ ) {
 		drawGui( *iter );
 	}
 	
-	Node* node = Node2d->getNode();
+	Node* node = gui->getNode();
 	
 	ShaderProgram& shader = mShaders[ node->mShader ];
 	
@@ -260,7 +276,7 @@ void RenderingEngine::drawGui( Node2d* Node2d )
 	shader.uniform( "DiffuseMaterial",		node->mColor );
 	shader.uniform( "Transform",			node->getTransform() );
 	shader.uniform( "ScreenTransform",		mScreenTransform );
-	shader.uniform( "ScreenSize",			mScreenSize );
+	shader.uniform( "ScreenSize",		mScreenSize );
 	
 	if ( node->mTexture != NULL ) {
 		glActiveTexture( GL_TEXTURE0 );
@@ -269,8 +285,6 @@ void RenderingEngine::drawGui( Node2d* Node2d )
 	}
 	
 	drawMesh( node->mMesh );
-	
-	glDrawArrays( GL_TRIANGLES, 0, node->mMesh->vertexCount );
 	
 	if ( node->mTexture != NULL ) {
 		glBindTexture( GL_TEXTURE_2D, 0 );

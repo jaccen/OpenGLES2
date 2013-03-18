@@ -8,6 +8,14 @@ using namespace ci;
 const static float kToRad = 0.017453292519943295769f;
 const static float kToDeg = 0.017453292519943295769;
 
+void VboMesh::getTriangleVertices( size_t i, Vec3f *a, Vec3f *b, Vec3f *c ) const
+{
+	*a = indexOrderedVertices[ i+0  ];
+	*b = indexOrderedVertices[ i+1 ];
+	*c = indexOrderedVertices[ i+2 ];
+}
+
+
 Node::Node() :
 	mIsDirty( true ),
 	mMesh( NULL ),

@@ -107,25 +107,3 @@ void ObjParser::getNormals( std::vector<float>& floats ) const
 		v++;
 	}
 }
-
-void ObjParser::getTriangleIndices( std::vector<unsigned short>& indices) const
-{
-	indices.resize( m_faceCount * 3 );
-    std::ifstream objFile(m_name.c_str());
-	int index = 0;
-    while (objFile) {
-        char c = objFile.get();
-        if ( c == 'f' ) {
-			for( int i = 0; i < 3; i++ ) {
-				int p_index;
-				objFile >> p_index;
-				std::cout << p_index << std::endl;
-				indices[ index++ ] = p_index-1;
-				objFile.ignore( MaxLineSize, '/' );
-				objFile.ignore( MaxLineSize, ' ' );
-			}
-		}
-		objFile.ignore(MaxLineSize, '\n');
-	}
-	objFile.close();
-}

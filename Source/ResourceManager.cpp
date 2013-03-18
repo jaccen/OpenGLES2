@@ -45,6 +45,7 @@ void ResourceManager::loadMesh( std::string filePath )
 		objParser->getTexCoords( texCoords );
 		objParser->getNormals( normals );
 		mRenderingEngine->createVbo( vboMesh, vertices, normals, texCoords );
+		vboMesh->indexOrderedVertices = objParser->getIndexOrderedVertices();
 		mMeshes[ filePath ] = vboMesh;
 		delete objParser;
 	}

@@ -8,6 +8,7 @@
 
 #include "SmartValue.h"
 
+#include <vector>
 
 class Texture {
 public:
@@ -21,6 +22,7 @@ public:
 class VboMesh {
 public:
 	VboMesh() : vertexBuffer(-1), normalBuffer(-1), texCoordBuffer(-1), indexBuffer(-1) {}
+	void					getTriangleVertices( size_t i, ci::Vec3f *a, ci::Vec3f *b, ci::Vec3f *c ) const;
     GLuint					vertexBuffer;
 	int						vertexCount;
     GLuint					texCoordBuffer;
@@ -29,6 +31,7 @@ public:
     int						normalCount;
     GLuint					indexBuffer;
     int						indexCount;
+	std::vector<ci::Vec3f>	indexOrderedVertices;
 };
 
 class Node {

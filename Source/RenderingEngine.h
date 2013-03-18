@@ -37,6 +37,8 @@ public:
 	void					setSkyboxNode( Node* node );
 	void					addNode( Node* node );
 	void					removeNode( Node* node );
+	void					addNode( Node2d* node );
+	void					removeNode( Node2d* node );
 	void					addShader( std::string key, const char* vShader, const char* fShader );
 	
 private:
@@ -47,6 +49,7 @@ private:
 	ci::Matrix44f			mScreenTransform;
 	ci::Vec2i				mScreenSize;
 	std::list<Node*>		mObjectNodes;
+	std::list<Node2d*>		mScreenNodes;
 	std::map<std::string, ShaderProgram> mShaders;
     GLuint					m_colorRenderbuffer;
     GLuint					m_depthRenderbuffer;

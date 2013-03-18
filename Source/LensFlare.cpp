@@ -26,14 +26,13 @@ LensFlare::LensFlare( Game* game ) : mGame( game )
 		sprite->setTexture( ResourceManager::get()->getTexture( sprites[i].texture ) );
 		sprite->size = Vec2i( sprites[i].size, sprites[i].size );
 		sprite->setColor( sprites[i].color );
-		sprite->getNode()->mShader = kShaderGui2d;
 		sprite->anchor = Vec2f( 0.5f, 0.5f );
 		mRoot.addChild( sprite );
 		mSprites.push_back( sprite );
 	}
 	mLightPosition = Vec3f( 100.0, 50.0, 50.0 );
 	
-	mGame->getRootGui()->addChild( &mRoot );
+	mGame->getRenderingEngine()->addNode( &mRoot );
 }
 
 LensFlare::~LensFlare()
@@ -50,6 +49,9 @@ void LensFlare::update( const float deltaTime )
 	
 	const Vec2i start = camera->worldToScreen( mLightPosition );
 	
+	float zoom = camera->getZoom();
+	camera->setZoom( zoom + 1 );
+	
 	if ( !camera->getScreenRect().contains( start ) ) {
 		mRoot.hide();
 	}
@@ -58,17 +60,20 @@ void LensFlare::update( const float deltaTime )
 		const Vec2i dir = start - center;
 		const Vec2i end = center - dir;
 		
-		Ray ray( camera->getGlobalPosition(), mLightPosition );
+		Ray ray( camera->getGlobalPosition(), mLightPosition - camera->getGlobalPosition() );
 		bool rayHit = mGame->rayCast( ray );
-		
-		int i = -1;
-		int total = kNumSprites;
-		for( auto iter = mSprites.begin(); iter != mSprites.end(); iter++ ) {
-			float r = (float) i++ / (float) total;
-			(*iter)->position = start + r * ( end - start );
-			(*iter)->update();
+		if ( !rayHit ) {
+			int i = -1;
+			int total = kNumSprites;
+			for( auto iter = mSprites.begin(); iter != mSprites.end(); iter++ ) {
+				float r = (float) i++ / (float) total;
+				(*iter)->position = start + r * ( end - start );
+				(*iter)->update();
+			}
+			mRoot.show();
 		}
-		
-		mRoot.show();
+		else {
+			mRoot.hide();
+		}
 	}
 }
