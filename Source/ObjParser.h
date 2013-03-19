@@ -16,6 +16,8 @@ public:
 	void					getVertices(std::vector<float>& vertices ) const;
 	void					getNormals(std::vector<float>& vertices ) const;
 	void					getTexCoords(std::vector<float>& vertices ) const;
+	std::vector<int>&		getVertexIndices() { return m_vertex_indices; }
+	std::vector<ci::Vec3f>&	getVertices() { return m_positions; }
 	
 private:
 	std::vector<ci::Vec3f>	m_positions;

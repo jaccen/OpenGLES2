@@ -22,6 +22,7 @@
 		5A21224416EFB4E6001BF08B /* include in Resources */ = {isa = PBXBuildFile; fileRef = 5A21224316EFB4E6001BF08B /* include */; };
 		5A58E78F16F6463200AA4635 /* Rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E78E16F6463200AA4635 /* Rect.cpp */; };
 		5A58E79116F6464300AA4635 /* Area.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E79016F6464300AA4635 /* Area.cpp */; };
+		5A82A24216F7E2960093D1AA /* planet.vert in Sources */ = {isa = PBXBuildFile; fileRef = 5A82A24116F7E2960093D1AA /* planet.vert */; };
 		5AC0067F16EFBF2C0055177B /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC0067E16EFBF2C0055177B /* Camera.cpp */; };
 		5AE85B1916F69D0400F47648 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85AFF16F69D0400F47648 /* AppDelegate.mm */; };
 		5AE85B1A16F69D0400F47648 /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B0016F69D0400F47648 /* Game.cpp */; };
@@ -63,6 +64,7 @@
 		5A21224316EFB4E6001BF08B /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = Cinder/include; sourceTree = "<group>"; };
 		5A58E78E16F6463200AA4635 /* Rect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Rect.cpp; path = Cinder/src/cinder/Rect.cpp; sourceTree = "<group>"; };
 		5A58E79016F6464300AA4635 /* Area.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Area.cpp; path = Cinder/src/cinder/Area.cpp; sourceTree = "<group>"; };
+		5A82A24116F7E2960093D1AA /* planet.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = planet.vert; path = Resources/shaders/planet.vert; sourceTree = "<group>"; };
 		5AC0067E16EFBF2C0055177B /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = Cinder/src/cinder/Camera.cpp; sourceTree = "<group>"; };
 		5AE85AFE16F69D0400F47648 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		5AE85AFF16F69D0400F47648 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
@@ -124,6 +126,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				5A82A24116F7E2960093D1AA /* planet.vert */,
 				5A21224216EFB4DF001BF08B /* Cinder */,
 				5A21222816EFB469001BF08B /* Source */,
 				5A2121FD16EFB387001BF08B /* Resources */,
@@ -312,6 +315,7 @@
 				5AE85B2816F69D4100F47648 /* Camera.cpp in Sources */,
 				5AE85B2B16F6A84300F47648 /* AxisAlignedBox.cpp in Sources */,
 				5AE85B2C16F6A84300F47648 /* TriMesh.cpp in Sources */,
+				5A82A24216F7E2960093D1AA /* planet.vert in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

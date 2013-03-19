@@ -44,6 +44,8 @@ private:
 	Node* mClouds;
 	Node* mPlanet;
 	std::list<Node*> mNodes;
+	std::vector<Node2d*> mCityIcons;
+	std::vector<Node*> mCities;
 	
     RenderingEngine* mRenderingEngine;
     ResourceManager* mResourceManager;

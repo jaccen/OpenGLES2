@@ -5,6 +5,7 @@
 
 #include "cinder/Vector.h"
 #include "cinder/Matrix.h"
+#include "cinder/TriMesh.h"
 
 #include "SmartValue.h"
 
@@ -32,10 +33,19 @@ public:
     GLuint					indexBuffer;
     int						indexCount;
 	std::vector<ci::Vec3f>	indexOrderedVertices;
+	ci::TriMesh				triMesh;
 };
 
 class Node {
 public:
+	typedef enum {
+		LayerNone		= 1 << 0,
+		LayerLighting	= 1 << 1,
+		LayerObjects	= 1 << 2,
+		LayerGui		= 1 << 3,
+		LayerClouds		= 1 << 4
+	} Layer;
+	
 	Node();
 	virtual~ Node();
 	
@@ -50,7 +60,7 @@ public:
 	bool					mFaceCamera;
 	
 	std::string				mShader;
-	Mesh*				mMesh;
+	Mesh*					mMesh;
 	ci::Vec4f				mColor;
 	ci::Vec4f				mColorSpecular;
 	ci::Vec4f				mColorRim;
@@ -59,6 +69,8 @@ public:
 	float					mShininess;
 	float					mGlossiness;
 	Texture*				mTexture;
+	Texture*				mTexture2;
+	Texture*				mTexture3;
 	Texture*				mTextureNormal;
 	Texture*				mTextureSpecular;
 	Texture*				mTextureAlpha;
@@ -70,6 +82,8 @@ public:
 	
 	ci::Vec3f				getGlobalPosition();
 	void					setForward( const ci::Vec3f forward );
+	
+	Layer					mLayer;
 	
 private:
 	void					updateTransform();

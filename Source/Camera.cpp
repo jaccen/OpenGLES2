@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "GameConstants.h"
 
 #include "cinder/Camera.h"
 #include "cinder/Quaternion.h"
@@ -44,9 +45,17 @@ void Camera::setFov( float fov )
 	mFov = fov;
 }
 
-ci::Vec2f Camera::worldToScreen( const ci::Vec3f &worldCoord ) const
+ci::Vec2f Camera::getWorldToScreen( const ci::Vec3f &worldCoord ) const
 {
-	return mCinderCamera->worldToScreen( worldCoord, mScreenSize.x, mScreenSize.y );
+	ci::Quatf q = ci::Quatf( Node::getTransform() );
+	ci::Quatf f = ci::Quatf( ci::Vec3f::zAxis(), worldCoord - mBody.getTransform().getTranslate().xyz() );
+	float dot = q.dot( f );
+	if ( dot < 0.5f ) {
+		return mCinderCamera->worldToScreen( worldCoord, mScreenSize.x, mScreenSize.y );
+	}
+	else {
+		return ci::Vec2i(-99999,-99999);
+	}
 }
 
 ci::Ray Camera::rayIntoScene( ci::Vec2i screenPoint )

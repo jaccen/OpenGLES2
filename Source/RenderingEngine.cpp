@@ -185,14 +185,13 @@ void RenderingEngine::draw()
 			glBindTexture( GL_TEXTURE_2D, node->mTexture->mHandle );
 		}
 		
+		setBlendMode( node->mLayer );
 		drawMesh( node->mMesh );
 		
 		glBindTexture( GL_TEXTURE_2D, 0 );
 	}
 	
 	glEnable(GL_DEPTH_TEST);
-	glEnable( GL_BLEND );
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     
 	for( auto iter = mObjectNodes.begin(); iter != mObjectNodes.end(); iter++ ) {
 		Node* node = *iter;
@@ -200,10 +199,14 @@ void RenderingEngine::draw()
 		ShaderProgram& shader = mShaders[ node->mShader ];
 		
 		glUseProgram( shader.getHandle() );
-		shader.uniform( "AmbientMaterial",		Vec4f( 0.1f, 0.1f, 0.1f, 1.0f ) );
+		shader.uniform( "AmbientMaterial",		Vec4f( 0.4f, 0.4f, 0.4f, 1.0f ) );
+		//shader.uniform( "LightPosition",		Vec3f( 0, -1, 0 ) );
+		//shader.uniform( "LightColor",			Vec4f( 1, 0, 0, 1 ) );
 		shader.uniform( "LightPosition",		Vec3f( 100.0, 50.0, 50.0 ) );
+		shader.uniform( "LightColor",			Vec4f( 1, 1, 1, 1 ) );
 		shader.uniform( "EyePosition",			mCamera->getGlobalPosition() );
 		shader.uniform( "SpecularMaterial",		node->mColorSpecular );
+		shader.uniform( "SelfIlliminationMaterial", node->mColorSelfIllumination );
 		shader.uniform( "DiffuseMaterial",		node->mColor );
 		shader.uniform( "RimMaterial",			node->mColorRim );
 		shader.uniform( "Shininess",			node->mShininess );
@@ -225,17 +228,27 @@ void RenderingEngine::draw()
 			glBindTexture( GL_TEXTURE_2D, node->mTextureNormal->mHandle );
 		}
 		
+		if ( node->mTextureSpecular != NULL ) {
+			glActiveTexture( GL_TEXTURE2 );
+			shader.uniform( "SpecularTexture", 2 );
+			glBindTexture( GL_TEXTURE_2D, node->mTextureSpecular->mHandle );
+		}
+		
+		if ( node->mTextureSelfIllumination != NULL ) {
+			glActiveTexture( GL_TEXTURE3 );
+			shader.uniform( "SelfIlliminationTexture", 3 );
+			glBindTexture( GL_TEXTURE_2D, node->mTextureSelfIllumination->mHandle );
+		}
+		
+		setBlendMode( node->mLayer );
 		drawMesh( node->mMesh );
 		
 		glBindTexture( GL_TEXTURE_2D, 0 );
 	}
 	
-	// Additive blending for lighting effects, such as lens flare
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE );
 	glDisable( GL_CULL_FACE );
 	glDisable( GL_DEPTH_TEST );
 	
-	//glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	for( auto iter = mScreenNodes.begin(); iter != mScreenNodes.end(); iter++ ) {
 		drawGui( *iter );
 	}
@@ -289,6 +302,7 @@ void RenderingEngine::drawGui( Node2d* gui )
 		glBindTexture( GL_TEXTURE_2D, node->mTexture->mHandle );
 	}
 	
+	setBlendMode( node->mLayer );
 	drawMesh( node->mMesh );
 	
 	if ( node->mTexture != NULL ) {
@@ -298,6 +312,22 @@ void RenderingEngine::drawGui( Node2d* gui )
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 }
 
+void RenderingEngine::setBlendMode( Node::Layer layer )
+{
+	glEnable( GL_BLEND );
+	if ( layer == Node::LayerLighting ) {
+		glBlendFunc( GL_SRC_ALPHA, GL_ONE );
+	}
+	else if ( layer == Node::LayerGui | layer == Node::LayerObjects ) {
+		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	}
+	else if ( layer == Node::LayerClouds ) {
+		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	}
+	else {
+		glDisable( GL_BLEND );
+	}
+}
 
 void RenderingEngine::debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::Vec4f color )
 {

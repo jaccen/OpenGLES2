@@ -1,17 +1,18 @@
 #include "Node.h"
 #include "RenderingEngine.h"
+#include "GameConstants.h"
 
 #include "cinder/CinderMath.h"
 
 using namespace ci;
 
-const static float kToRad = 0.017453292519943295769f;
-const static float kToDeg = 0.017453292519943295769;
-
 Node::Node() :
+	mLayer( Node::LayerNone ),
 	mIsDirty( true ),
 	mMesh( NULL ),
 	mTexture( NULL ),
+	mTexture2( NULL ),
+	mTexture3( NULL ),
 	mTextureNormal( NULL ),
 	mTextureSpecular( NULL ),
 	mTextureAlpha( NULL ),

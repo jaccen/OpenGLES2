@@ -17,7 +17,8 @@ void main(void)
 {
 	vec3 ViewDir = normalize( EyePosition - vWorldPos.xyz );
 	vec3 LightDir = normalize( LightPosition - vWorldPos.xyz );
-	vec3 N = vNormal + texture2D( NormalTexture, vTexCoord ).xyz * 0.5;
+	vec3 normalMapColor = texture2D( NormalTexture, vTexCoord ).xyz;
+	vec3 N = vNormal + normalize( normalMapColor * 2.0 - 1.0 ) * 2.0;
 	vec3 E = normalize( ViewDir );
     vec3 L = normalize( LightDir );
     vec3 H = normalize(L + E);
@@ -25,7 +26,7 @@ void main(void)
     float df = max( 0.0, dot( N, L ) );
 	
 	vec4 texColor = texture2D( DiffuseTexture, vTexCoord );
-    vec4 color = AmbientMaterial * texColor + df * texColor;
+    vec4 color = df * AmbientMaterial + df * DiffuseMaterial;
 	
-    gl_FragColor = color;
+    gl_FragColor = vec4( color.xyz, texColor.a );
 }

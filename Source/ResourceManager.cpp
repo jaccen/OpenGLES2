@@ -45,10 +45,10 @@ void ResourceManager::loadMesh( std::string filePath )
 		objParser->getVertices( vertices );
 		objParser->getTexCoords( texCoords );
 		objParser->getNormals( normals );
-		TriMesh mesh;
-		for( auto iter = vertices.begin(); iter != vertices.end(); iter+=3 ) {
-			vboMesh->indexOrderedVertices.push_back( Vec3f( *iter, *(iter+1), *(iter+2) ) );
-		}
+		std::vector<ci::Vec3f>& allVerts = objParser->getVertices();
+		vboMesh->triMesh.appendVertices( allVerts.data(), allVerts.size() );
+		std::vector<int>& vIndices = objParser->getVertexIndices();
+		vboMesh->triMesh.appendIndices( (uint32_t*) vIndices.data(), vIndices.size() );
 		mRenderingEngine->createVbo( vboMesh, vertices, normals, texCoords );
 		mMeshes[ filePath ] = vboMesh;
 		delete objParser;
@@ -77,6 +77,9 @@ Texture* ResourceManager::getTexture( std::string filePath )
 {
 	auto match = mTextures.find( filePath );
 	if ( match != mTextures.end() ) {
+		return mTextures[ filePath ];
+	} else {
+		loadTexture( filePath );
 		return mTextures[ filePath ];
 	}
 	return NULL;

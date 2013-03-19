@@ -47,6 +47,7 @@ public:
 private:
 	void					drawGui( Node2d* Node2d );
 	void					drawMesh( Mesh* mesh, bool wireframe = false );
+	void					setBlendMode( Node::Layer layerType );
 	
 	float					mContentScaleFactor;
 	ci::Matrix44f			mScreenTransform;

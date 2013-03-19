@@ -27,25 +27,12 @@ void Game::setup( int width, int height )
 	mResourceManager = ResourceManager::get();
 	mResourceManager->setup( mRenderingEngine );
 	
-	mResourceManager->loadShader( kShaderFragmentLighting,	"shaders/pixel_lighting.vert",		"shaders/planet.frag" );
-	mResourceManager->loadShader( kSahderVertexLighting,	"shaders/pixel_lighting.vert",		"shaders/clouds.frag" );
+	mResourceManager->loadShader( kShaderFragmentLighting,	"shaders/planet.vert",				"shaders/planet.frag" );
+	mResourceManager->loadShader( kSahderClouds,			"shaders/pixel_lighting.vert",		"shaders/clouds.frag" );
 	mResourceManager->loadShader( kSahderVertexLighting,	"shaders/vertex_lighting.vert",		"shaders/vertex_lighting.frag" );
 	mResourceManager->loadShader( kShaderUnlit,				"shaders/unlit.vert",				"shaders/unlit.frag" );
 	mResourceManager->loadShader( kShaderScreenSpace,		"shaders/screen_space.vert",		"shaders/screen_space.frag" );
 	mResourceManager->loadShader( kShaderDebug,				"shaders/debug.vert",				"shaders/debug.frag" );
-	
-	mResourceManager->loadTexture( "textures/mars_diffuse.png" );
-	mResourceManager->loadTexture( "textures/mars_normal.jpg" );
-	mResourceManager->loadTexture( "textures/stars.jpg" );
-	mResourceManager->loadTexture( "textures/sphere_glow.png" );
-	mResourceManager->loadTexture( "textures/metal.png" );
-	mResourceManager->loadTexture( "textures/clouds.png" );
-	mResourceManager->loadTexture( "textures/clouds_normal.jpg" );
-	mResourceManager->loadTexture( "textures/flare_sprite_0.png" );
-	mResourceManager->loadTexture( "textures/flare_sprite_1.png" );
-	mResourceManager->loadTexture( "textures/flare_sprite_2.png" );
-	mResourceManager->loadTexture( "textures/flare_sprite_3.png" );
-	mResourceManager->loadTexture( "textures/flare_sprite_4.png" );
 	
 	mResourceManager->loadMesh( "models/sphere_globe.obj" );
 	mResourceManager->loadMesh( "models/skybox.obj" );
@@ -54,78 +41,105 @@ void Game::setup( int width, int height )
 	
 	// Create VBOs for our geometry
 	mPlanet					= new Node();
+	mPlanet->mLayer			= Node::LayerObjects;
 	mPlanet->mMesh			= mResourceManager->getMesh( "models/sphere_globe.obj" );
-    mPlanet->mColorSpecular	= ci::Vec4f( .5, .5, .5, 1.0 );
-    mPlanet->mColorRim		= ci::Vec4f( 0.3, 0.15, 0.0, 0.5 );
-	mPlanet->mRimPower		= 0.2f;
+    mPlanet->mColorSelfIllumination	= ci::Vec4f( 1, 0, 0, 1.0 );
+    mPlanet->mColorRim		= ci::Vec4f( 1, .15, 0, 0.1 );
+    mPlanet->mColorSpecular	= ci::Vec4f( 1, 1, 1, 0.8f );
+	mPlanet->mRimPower		= 0.15f;
 	mPlanet->mShininess		= 50.0f;
+	mPlanet->mGlossiness	= 1.0f;
 	mPlanet->mShader		= kShaderFragmentLighting;
 	mPlanet->mTexture		= mResourceManager->getTexture( "textures/mars_diffuse.png" );
 	mPlanet->mTextureNormal = mResourceManager->getTexture( "textures/mars_normal.jpg" );
+	mPlanet->mTextureSelfIllumination = mResourceManager->getTexture( "textures/light_map.jpg" );
 	mPlanet->scale			= Vec3f::one() * 0.6f;
 	add( mPlanet );
 	
-	// Create VBOs for our geometry
-	mClouds					= new Node();
-	/*mClouds->mMesh			= mResourceManager->getMesh( "models/sphere_globe.obj" );
-    mClouds->mColorSpecular	= ci::Vec4f( .5, .5, .5, 1.0 );
-    mClouds->mColorRim		= ci::Vec4f( 0.3, 0.15, 0.0, 0.5 );
-	mClouds->mRimPower		= 0.2f;
-	mClouds->mShininess		= 50.0f;
-	mClouds->mShader		= kShaderFragmentLighting;
-	mClouds->mTexture		= mResourceManager->getTexture( "textures/clouds.png" );
-	mClouds->mTextureNormal = mResourceManager->getTexture( "textures/clouds_normal.jpg" );
-	mClouds->scale			= Vec3f::one() * 0.61f;
-	add( mClouds );*/
-	
 	Node* skyBox			= new Node();
 	skyBox->mMesh			= mResourceManager->getMesh( "models/skybox.obj" );
-	skyBox->mTexture		= mResourceManager->getTexture( "textures/stars.jpg" );
+	skyBox->mTexture		= mResourceManager->getTexture( "textures/stars2.jpg" );
 	skyBox->mShader			= kShaderUnlit;
 	skyBox->scale			= Vec3f::one() * 100.0f;
-	mRenderingEngine->setSkyboxNode( skyBox );
+	//mRenderingEngine->setSkyboxNode( skyBox );
 	
-	/*for( int i = 0; i < 20; i++ ) {
-		Node* tower				= new Node();
-		tower->mMesh			= mResourceManager->getMesh( "models/tower.obj" );
-		tower->mColorSpecular	= ci::Vec4f( 0.5, 0.5, 0.5, 1.0 );
-		tower->mShininess		= 100.0f;
-		tower->mShader			= kSahderVertexLighting;
-		tower->rotation.x		= arc4random() % 360;
-		tower->rotation.y		= arc4random() % 360;
-		tower->rotation.z		= arc4random() % 360;
-		tower->scale			= Vec3f::one() * 0.05f;
-		tower->pivotOffset.y	= 1.0f;
-		tower->mTexture			= mResourceManager->getTexture( "textures/metal.png" );
-		tower->setParent( mPlanet );
-		mRenderingEngine->addNode( tower );
-		mNodes.push_back( tower );
-	}*/
+	for( int i = 0; i < 6; i++ ) {
+		int rX = arc4random() % 360;
+		int rY = arc4random() % 360;
+		int rZ = arc4random() % 360;
+		for( int k = 0; k < 20; k++ ) {
+			Node* tower				= new Node();
+			tower->mMesh			= mResourceManager->getMesh( "models/cube.obj" );
+			tower->mColorSpecular	= ci::Vec4f( 1, 1, 1, 1.0 );
+			tower->mShininess		= 100.0f;
+			tower->mShader			= kSahderVertexLighting;
+			int s = 3;
+			tower->rotation.x		= rX + arc4random() % s;
+			tower->rotation.y		= rY + arc4random() % s;
+			tower->rotation.z		= rZ + arc4random() % s;
+			int height = 2 + arc4random() % 30;
+			tower->scale			= Vec3f( 0.15, (float) height / 20.0, 0.15 ) * 0.08f;
+			tower->pivotOffset.y	= 0.98f;
+			tower->mTexture			= mResourceManager->getTexture( "textures/metal.png" );
+			tower->setParent( mPlanet );
+			mRenderingEngine->addNode( tower );
+			mNodes.push_back( tower );
+			tower->update();
+			if ( k == 1 ) {
+				mCities.push_back( tower );
+			}
+		}
+	}
 	
 	Node* glowSprite		= new Node();
+	glowSprite->mLayer		= Node::LayerLighting;
 	glowSprite->mFaceCamera = true;
 	glowSprite->mMesh		= mResourceManager->getMesh( "models/quad_plane.obj" );
 	glowSprite->mTexture	= mResourceManager->getTexture( "textures/sphere_glow.png" );
-    glowSprite->mColor		= ci::Vec4f( 0.6, 0.3, 0.0, 1.0 );
+    glowSprite->mColor		= ci::Vec4f( 1, 1, 1, 0.4 );
 	glowSprite->mShader		= kShaderUnlit;
 	glowSprite->scale		= Vec3f::one() * 1.54f;
-	//add( glowSprite );
+	add( glowSprite );
+	
+	// Create VBOs for our geometry
+	mClouds					= new Node();
+	mClouds->mLayer			= Node::LayerClouds;
+	mClouds->mMesh			= mResourceManager->getMesh( "models/sphere_globe.obj" );
+	mClouds->mShader		= kSahderClouds;
+	mClouds->mTexture		= mResourceManager->getTexture( "textures/clouds.png" );
+	mClouds->mTextureNormal = mResourceManager->getTexture( "textures/clouds_normal.jpg" );
+	mClouds->scale			= Vec3f::one() * 0.61f;
+	//add( mClouds );
 	
 	mCamera->setZoom( 4.0f );
 	mZoomStart = mCamera->getZoom();
 	mTouchDistanceCurrent = 0.0f;
 	
+	mLensFlare = new LensFlare( this );
+	
 	mRootGui = new Node2d();
 	mRenderingEngine->addNode( mRootGui );
 	
-	/*Node2d* child = new Node2d();
-	child->setTexture( mResourceManager->getTexture( "textures/metal.png" ) );
-	child->position = Vec2i( 200, 400 );
-	child->size = Vec2i( 100, 300 );
-	child->anchor = Vec2f( 0.5f, 0.5f );
-	mRootGui->addChild( child );*/
+	Texture* texture =  mResourceManager->getTexture( "textures/city_icon.png" );
+	for( int i = 0; i < mCities.size(); i++ ) {
+		Node2d* child = new Node2d();
+		child->getNode()->mLayer = Node::LayerGui;
+		child->setTexture( texture );
+		child->position = Vec2i( 100, 100 );
+		child->setColor( Vec4f( 0, 1, 0, 1 ) );
+		child->size = Vec2i( texture->mWidth, texture->mHeight );
+		child->anchor = Vec2f( 0.5f, -.2f );
+		mRootGui->addChild( child );
+		mCityIcons.push_back( child );
+	}
 	
-	mLensFlare = new LensFlare( this );
+	Node2d* child = new Node2d();
+	child->getNode()->mLayer = Node::LayerGui;
+	child->setTexture( mResourceManager->getTexture( "textures/metal.png" ) );
+	child->position = Vec2i( 0, 0 );
+	child->size = Vec2i( 768, 100 );
+	child->anchor = Vec2f( 0.0f, 0.0f );
+	mRootGui->addChild( child );
 }
 
 void Game::update( const float deltaTime )
@@ -147,10 +161,16 @@ void Game::update( const float deltaTime )
 	
 	const float planetRotationSpeed = 4.0f;
 	mPlanet->rotation.y += planetRotationSpeed * deltaTime;
-	//mClouds->rotation.y += ( planetRotationSpeed + 0.5f ) * deltaTime;
+	mClouds->rotation.y += ( planetRotationSpeed + 0.5f ) * deltaTime;
 	//mCamera->rotation.y += planetRotationSpeed * (mCamera->getZoom() - minZoom) / (maxZoom - minZoom);
 	
 	mRootGui->update( deltaTime );
+	
+	for( int i = 0; i < mCities.size(); i++ ) {
+		Node2d* node = mCityIcons[i];
+		node->position = mCamera->getWorldToScreen( mCities[i]->getGlobalPosition() );
+		node->update();
+	}
 	
 	for( auto iter = mNodes.begin(); iter != mNodes.end(); iter++ ) {
 		Node* node = *iter;
@@ -163,31 +183,40 @@ void Game::update( const float deltaTime )
 void Game::debugDraw()
 {
 	mLensFlare->debugDraw();
+	
+	// Draw cubic bounding boxes
+	/*for( auto iter = mNodes.begin(); iter != mNodes.end(); iter++ ) {
+		Node* node = *iter;
+		if ( node->mMesh == NULL ) continue;
+		
+		AxisAlignedBox3f worldBounds = node->mMesh->triMesh.calcBoundingBox( node->getTransform() );
+		mRenderingEngine->debugDrawCube( worldBounds.getCenter(), worldBounds.getSize(), Vec4f( 1, 0, 0, 1 ) );
+	}*/
 }
 
 bool Game::rayCast( const ci::Ray& ray )
 {
 	for( auto iter = mNodes.begin(); iter != mNodes.end(); iter++ ) {
 		Node* node = *iter;
+		if ( node->mLayer == Node::LayerLighting || node->mLayer == Node::LayerNone ) continue;
 		if ( node->mMesh == NULL ) continue;
 		
-		float distance = 0.0f;
-		for( size_t i = 0; i < node->mMesh->indexOrderedVertices.size(); i+=3 ) {
-			
-			Vec3f& v0 = node->mMesh->indexOrderedVertices[ i+0 ];
-			Vec3f& v1 = node->mMesh->indexOrderedVertices[ i+1 ];
-			Vec3f& v2 = node->mMesh->indexOrderedVertices[ i+2 ];
-			
-			// transform triangle to world space
-			v0 = node->getTransform().transformPointAffine(v0);
-			v1 = node->getTransform().transformPointAffine(v1);
-			v2 = node->getTransform().transformPointAffine(v2);
-			
-			// test to see if the ray intersects with this triangle
-			if( ray.calcTriangleIntersection(v0, v1, v2, &distance) ) {
-				return true;
+		// TODO: Get this fracking optimization working:
+		//AxisAlignedBox3f worldBounds = node->mMesh->triMesh.calcBoundingBox( node->getTransform() );
+		//if( worldBounds.intersects( ray ) ) {
+			float distance = 0.0f;
+			int len = node->mMesh->triMesh.getNumTriangles();
+			for( size_t i = 0; i < len; i++ ) {
+				Vec3f v0, v1, v2;
+				node->mMesh->triMesh.getTriangleVertices(i, &v0, &v1, &v2);
+				v0 = node->getTransform().transformPointAffine(v0);
+				v1 = node->getTransform().transformPointAffine(v1);
+				v2 = node->getTransform().transformPointAffine(v2);
+				if( ray.calcTriangleIntersection(v0, v1, v2, &distance) ) {
+					return true;
+				}
 			}
-		}
+		//}
 	}
 	return false;
 }

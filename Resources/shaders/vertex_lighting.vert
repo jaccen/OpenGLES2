@@ -7,6 +7,7 @@ uniform mat4		Modelview;
 uniform mat4		Transform;
 
 uniform vec3		LightPosition;
+uniform vec4		LightColor;
 uniform vec4		DiffuseMaterial;
 uniform vec4		AmbientMaterial;
 uniform vec4		SpecularMaterial;
@@ -30,6 +31,7 @@ void main(void)
 	TexCoord = TextureCoord;
 
     DestinationColor = AmbientMaterial * DiffuseMaterial + df * DiffuseMaterial + sf * SpecularMaterial;
+	DestinationColor *= LightColor;
 	
     gl_Position = Projection * Modelview * Transform * Position;
 }

@@ -21,6 +21,7 @@ LensFlare::LensFlare( Game* game ) : mGame( game )
 	
 	for( int i = 0; i < kNumSprites; i++ ) {
 		Node2d* sprite = new Node2d();
+		sprite->getNode()->mLayer = Node::LayerLighting;
 		sprite->setTexture( ResourceManager::get()->getTexture( sprites[i].texture ) );
 		sprite->size = Vec2i( sprites[i].size, sprites[i].size );
 		sprite->setColor( sprites[i].color );
@@ -43,7 +44,7 @@ LensFlare::~LensFlare()
 
 void LensFlare::debugDraw()
 {
-	mGame->getRenderingEngine()->debugDrawLine( mRay.getOrigin(), mRay.getOrigin() + mRay.getDirection(), Vec4f(1,0,0,1) );
+	//mGame->getRenderingEngine()->debugDrawLine( mRay.getOrigin(), mRay.getOrigin() + mRay.getDirection(), Vec4f(1,0,0,1) );
 }
 
 float angle = 0.0f;
@@ -52,20 +53,20 @@ void LensFlare::update( const float deltaTime )
 {
 	Camera* camera = Camera::get();
 	
-	const Vec2i start = camera->worldToScreen( mLightPosition );
+	const Vec2i start = camera->getWorldToScreen( mLightPosition );
 	
 	float zoom = camera->getZoom();
 	camera->setZoom( zoom + 1 );
 	
-	/*if ( !camera->getScreenRect().contains( start ) ) {
+	if ( !camera->getScreenRect().contains( start ) ) {
 		mRoot.hide();
 	}
-	else {*/
+	else {
 		const Vec2i center = camera->getScreenCenter();
 		const Vec2i dir = start - center;
 		const Vec2i end = center - dir;
 		angle += 0.02f;
-		Vec3f destination = Vec3f(0, math<float>::sin(angle) * 2.0f, 0.0f );
+		Vec3f destination = camera->getGlobalPosition();
 		Vec3f origin = mLightPosition;
 		mRay = Ray( origin, destination - origin );
 		bool rayHit = mGame->rayCast( mRay );
@@ -82,5 +83,5 @@ void LensFlare::update( const float deltaTime )
 		else {
 			mRoot.hide();
 		}
-	//}
+	}
 }
