@@ -26,7 +26,7 @@ void main(void)
 	vec3 ViewDir = normalize( EyePosition - vWorldPos.xyz );
 	vec3 LightDir = normalize( LightPosition - vWorldPos.xyz );
 	vec3 normalMapColor = texture2D( NormalTexture, vTexCoord ).xyz;
-	vec3 N = vNormal + normalize( normalMapColor * 2.0 - 1.0 ) * 1.2;
+	vec3 N = vNormal;//+ normalize( normalMapColor * 2.0 - 1.0 ) * 1.2;
 	vec3 E = normalize( ViewDir );
     vec3 L = normalize( LightDir );
     vec3 H = normalize(L + E);
@@ -41,7 +41,7 @@ void main(void)
 	float darkMix = clamp( (1.0-df * 5.0), 0.0, 1.0);
 	vec4 texColor = texture2D( DiffuseTexture, vTexCoord );
 	vec4 specColor = sf * mix( texColor, SpecularMaterial, Glossiness );
-    vec4 color = AmbientMaterial * texColor + df * texColor + specColor + rf * mix( vec4( 0, .5, 1, 1 ), RimMaterial, darkMix );
+    vec4 color = AmbientMaterial * texColor + df * texColor + specColor + rf * RimMaterial * darkMix;
 	color = mix( color, SelfIlliminationMaterial, lf * darkMix );
 	color *= LightColor;
     gl_FragColor = color;

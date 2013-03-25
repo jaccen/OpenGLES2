@@ -29,6 +29,7 @@ void ResourceManager::loadTexture( std::string filePath )
 		Texture* texture = new Texture();
 		mResourceLoader.loadImage( filePath, &texture->mImageData, &texture->mWidth, &texture->mHeight );
 		mRenderingEngine->createTexture( texture );
+		std::cout << "Loading texture " << filePath << ": " << texture->mWidth << ", " << texture->mHeight << std::endl;
 		mTextures[ filePath ] = texture;
 	}
 }

@@ -6,6 +6,40 @@
 
 using namespace ci;
 
+
+Texture::Texture( int width, int height ) : mFormat( GL_RGBA )
+{
+	setSize( width, height );
+}
+
+ci::Vec2i Texture::getScaledTextureSize() const
+{
+	return ci::Vec2i( mWidth, mHeight ) / RenderingEngine::get()->getContentScaleFactor();
+}
+
+void Texture::setSize( int width, int height )
+{
+	int sizes[9] = { 16, 32, 64, 128, 256, 512, 1024, 2048, 4096 };
+	for ( int i = 1; i < 9; i++ ) {
+		if ( width <= sizes[i] && width > sizes[i-1] ) {
+			mWidth = sizes[i];
+		}
+		if ( height <= sizes[i] && height > sizes[i-1] ) {
+			mHeight = sizes[i];
+		}
+	}
+}
+
+FramebufferObject::FramebufferObject( int width, int height ) : mTexture(NULL), mWidth( width ), mHeight( height ), mFormat( GL_RGBA4 )
+{
+	
+}
+
+FramebufferObject::FramebufferObject( Texture* texture ) : mTexture( texture ), mWidth( texture->mWidth ), mHeight( texture->mHeight ), mFormat( texture->mFormat )
+{
+	
+}
+
 Node::Node() :
 	mLayer( Node::LayerNone ),
 	mIsDirty( true ),
@@ -39,6 +73,16 @@ Node::~Node()
 	                              
 }
 
+
+void Node::setForward( const ci::Vec3f forward )
+{
+	ci::Matrix44f trans = mTransform * ci::Matrix44f::alignZAxisWithTarget( forward.normalized(), ci::Vec3f::yAxis() );
+	Quatf q( trans );
+	float rads;
+	q.getAxisAngle( &rotation, &rads );
+	rotation *= kToDeg;
+}
+
 ci::Vec3f Node::getGlobalPosition()
 {
 	return Vec3f( mTransform.getTranslate().xyz() );
@@ -64,10 +108,6 @@ void Node::update( const float deltaTime )
 		updateTransform();
 		mIsDirty = false;
 	}
-}
-
-void Node::setForward( const ci::Vec3f forward )
-{
 }
 
 void Node::updateTransform()

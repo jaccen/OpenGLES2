@@ -8,12 +8,17 @@
 #include "GameConstants.h"
 #include "Camera.h"
 #include "LensFlare.h"
+#include "Touch.h"
+
+#include "Text.h"
+
+#include "ObjectController.h"
 
 #include "cinder/Ray.h"
 
 #include <list>
 
-class Game {
+class Game : Touch::IDelegate {
 public:
     Game( RenderingEngine* renderingEngine );
     ~Game();
@@ -22,41 +27,48 @@ public:
     void				update( const float deltaTime = 0.0f );
 	void				debugDraw();
 	
-    void				touchEnded( const std::vector<ci::Vec2i>& positions );
-    void				touchBegan( const std::vector<ci::Vec2i>& positions );
-    void				touchMoved( const std::vector<ci::Vec2i>& positions );
+    void				touchesBegan( const std::vector<ci::Vec2i>& positions ) { mTouch.touchesBegan( positions ); }
+    void				touchesMoved( const std::vector<ci::Vec2i>& positions ) { mTouch.touchesMoved( positions ); }
+    void				touchesEnded( const std::vector<ci::Vec2i>& positions ) { mTouch.touchesEnded( positions ); }
 	
 	Node2d*				getRootGui() const { return mRootGui; }
 	Camera*				getCamera() const { return mCamera; }
 	ResourceManager*	getResourceManager() const { return mResourceManager; }
-	RenderingEngine*	getRenderingEngine() const { return mRenderingEngine; }
 	
-	void				add( Node* node );
 	void				remove( Node* node );
 	void				remove( Node2d* Node2d );
 	
-	bool				rayCast( const ci::Ray& ray );
+	Node*				pickObject( const ci::Ray& ray );
+	
+	const std::list<Node*>& getNodes() { return mNodes; }
+	
+	void				gestureStarted( int fingerCount );
+	void				gestureEnded( int fingerCount );
+	void				tapDown(ci::Vec2i position);
+	void				tapUp(ci::Vec2i position) {}
 	
 private:
+	Text* mText;
+	
 	Camera* mCamera;
+	std::list<ObjectController*> mControllers;
+	
+	Touch mTouch;
 	
 	Node2d* mRootGui;
-	Node* mClouds;
 	Node* mPlanet;
 	std::list<Node*> mNodes;
-	std::vector<Node2d*> mCityIcons;
-	std::vector<Node*> mCities;
 	
     RenderingEngine* mRenderingEngine;
     ResourceManager* mResourceManager;
-    
-	float mTouchDistanceStart;
-	float mTouchDistanceCurrent;
-	float mZoomStart;
 	
-	ci::Vec2i mTouchStart;
-	ci::Vec2i mTouchCurrent;
+	// Camera controls
+	bool mFreeTargetMode;
+	Node* mFocusTarget;
+	float mZoomStart;
+	float mZoomTarget;
 	ci::Vec3f mStartRotation;
+	ci::Vec3f mRotationTarget;
 	
 	LensFlare* mLensFlare;
 };

@@ -32,6 +32,8 @@ public:
 	
 	ci::Vec2i getScreenSize() const { return mScreenSize; }
 	ci::Vec2i getScaledScreenSize() const { return mScreenSize * mContentScaleFactor; }
+	float getScaledScreenWidth() const { return mScreenSize.x * mContentScaleFactor; }
+	float getScaledScreenHeight() const { return mScreenSize.y * mContentScaleFactor; }
 	ci::Vec2i getScreenCenter() const { return mScreenSize / 2; }
 	ci::Vec2f getWorldToScreen( const ci::Vec3f &worldCoord ) const;
 	ci::Rectf getScreenRect() const { return mScreenRect; }

@@ -31,7 +31,7 @@ LensFlare::LensFlare( Game* game ) : mGame( game )
 	}
 	mLightPosition = Vec3f( 100.0, 50.0, 50.0 );
 	
-	mGame->getRenderingEngine()->addNode( &mRoot );
+	RenderingEngine::get()->addNode( &mRoot );
 }
 
 LensFlare::~LensFlare()
@@ -44,7 +44,33 @@ LensFlare::~LensFlare()
 
 void LensFlare::debugDraw()
 {
-	//mGame->getRenderingEngine()->debugDrawLine( mRay.getOrigin(), mRay.getOrigin() + mRay.getDirection(), Vec4f(1,0,0,1) );
+}
+
+Node* LensFlare::rayCast( const ci::Ray& ray )
+{
+	for( auto iter = RenderingEngine::get()->getObjectNodes().begin(); iter != RenderingEngine::get()->getObjectNodes().end(); iter++ ) {
+		Node* node = *iter;
+		if ( node->mLayer == Node::LayerLighting || node->mLayer == Node::LayerNone ) continue;
+		if ( node->mMesh == NULL ) continue;
+		
+		// TODO: Get this fracking optimization working:
+		//AxisAlignedBox3f worldBounds = node->mMesh->triMesh.calcBoundingBox( node->getTransform() );
+		//if( worldBounds.intersects( ray ) ) {
+		float distance = 0.0f;
+		int len = node->mMesh->triMesh.getNumTriangles();
+		for( size_t i = 0; i < len; i++ ) {
+			Vec3f v0, v1, v2;
+			node->mMesh->triMesh.getTriangleVertices(i, &v0, &v1, &v2);
+			v0 = node->getTransform().transformPointAffine(v0);
+			v1 = node->getTransform().transformPointAffine(v1);
+			v2 = node->getTransform().transformPointAffine(v2);
+			if( ray.calcTriangleIntersection(v0, v1, v2, &distance) ) {
+				return node;
+			}
+		}
+		//}
+	}
+	return NULL;
 }
 
 float angle = 0.0f;
@@ -54,9 +80,6 @@ void LensFlare::update( const float deltaTime )
 	Camera* camera = Camera::get();
 	
 	const Vec2i start = camera->getWorldToScreen( mLightPosition );
-	
-	float zoom = camera->getZoom();
-	camera->setZoom( zoom + 1 );
 	
 	if ( !camera->getScreenRect().contains( start ) ) {
 		mRoot.hide();
@@ -69,7 +92,7 @@ void LensFlare::update( const float deltaTime )
 		Vec3f destination = camera->getGlobalPosition();
 		Vec3f origin = mLightPosition;
 		mRay = Ray( origin, destination - origin );
-		bool rayHit = mGame->rayCast( mRay );
+		bool rayHit = rayCast( mRay );
 		if ( !rayHit ) {
 			int i = -1;
 			int total = kNumSprites;

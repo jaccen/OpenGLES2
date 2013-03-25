@@ -21,7 +21,7 @@ public:
 	
 	ShaderProgram*			getShader( std::string key );
 	Texture*				getTexture( std::string key );
-	Mesh*				getMesh( std::string key );
+	Mesh*					getMesh( std::string key );
 	
 private:
 	static ResourceManager* sInstance;

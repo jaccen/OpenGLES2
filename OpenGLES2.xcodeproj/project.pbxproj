@@ -14,7 +14,6 @@
 		4D27E4B50F9AD7D600447247 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D27E4B40F9AD7D600447247 /* QuartzCore.framework */; };
 		5A21220216EFB396001BF08B /* Default-568h.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A2121FE16EFB396001BF08B /* Default-568h.png */; };
 		5A21220316EFB396001BF08B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A2121FF16EFB396001BF08B /* Default-568h@2x.png */; };
-		5A21220416EFB396001BF08B /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A21220016EFB396001BF08B /* Default.png */; };
 		5A21220516EFB396001BF08B /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A21220116EFB396001BF08B /* Icon.png */; };
 		5A21220916EFB39C001BF08B /* models in Resources */ = {isa = PBXBuildFile; fileRef = 5A21220616EFB39C001BF08B /* models */; };
 		5A21220A16EFB39C001BF08B /* shaders in Resources */ = {isa = PBXBuildFile; fileRef = 5A21220716EFB39C001BF08B /* shaders */; };
@@ -22,7 +21,13 @@
 		5A21224416EFB4E6001BF08B /* include in Resources */ = {isa = PBXBuildFile; fileRef = 5A21224316EFB4E6001BF08B /* include */; };
 		5A58E78F16F6463200AA4635 /* Rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E78E16F6463200AA4635 /* Rect.cpp */; };
 		5A58E79116F6464300AA4635 /* Area.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E79016F6464300AA4635 /* Area.cpp */; };
-		5A82A24216F7E2960093D1AA /* planet.vert in Sources */ = {isa = PBXBuildFile; fileRef = 5A82A24116F7E2960093D1AA /* planet.vert */; };
+		5A9B879816F89E4F000B53BF /* ObjectController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A9B879616F89E4F000B53BF /* ObjectController.cpp */; };
+		5A9D974616F96BB60099763E /* LifeMeter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A9D974416F96BB60099763E /* LifeMeter.cpp */; };
+		5A9D975E16FA31D10099763E /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A9D975C16FA31D00099763E /* Text.cpp */; };
+		5A9D976816FA47760099763E /* libfreetype.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A9D976716FA47760099763E /* libfreetype.a */; };
+		5A9D976D16FA57710099763E /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 5A9D976C16FA57710099763E /* fonts */; };
+		5A9F4AFD16FB91CB007D4BD7 /* Default-Landscape@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A9F4AFC16FB91CB007D4BD7 /* Default-Landscape@2x~ipad.png */; };
+		5A9F4AFF16FB91D0007D4BD7 /* Default-Landscape~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A9F4AFE16FB91D0007D4BD7 /* Default-Landscape~ipad.png */; };
 		5AC0067F16EFBF2C0055177B /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC0067E16EFBF2C0055177B /* Camera.cpp */; };
 		5AE85B1916F69D0400F47648 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85AFF16F69D0400F47648 /* AppDelegate.mm */; };
 		5AE85B1A16F69D0400F47648 /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B0016F69D0400F47648 /* Game.cpp */; };
@@ -64,7 +69,18 @@
 		5A21224316EFB4E6001BF08B /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = Cinder/include; sourceTree = "<group>"; };
 		5A58E78E16F6463200AA4635 /* Rect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Rect.cpp; path = Cinder/src/cinder/Rect.cpp; sourceTree = "<group>"; };
 		5A58E79016F6464300AA4635 /* Area.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Area.cpp; path = Cinder/src/cinder/Area.cpp; sourceTree = "<group>"; };
-		5A82A24116F7E2960093D1AA /* planet.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = planet.vert; path = Resources/shaders/planet.vert; sourceTree = "<group>"; };
+		5A9B879616F89E4F000B53BF /* ObjectController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ObjectController.cpp; sourceTree = "<group>"; };
+		5A9B879716F89E4F000B53BF /* ObjectController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectController.h; sourceTree = "<group>"; };
+		5A9D974416F96BB60099763E /* LifeMeter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LifeMeter.cpp; sourceTree = "<group>"; };
+		5A9D974516F96BB60099763E /* LifeMeter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LifeMeter.h; sourceTree = "<group>"; };
+		5A9D975C16FA31D00099763E /* Text.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Text.cpp; sourceTree = "<group>"; };
+		5A9D975D16FA31D00099763E /* Text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Text.h; sourceTree = "<group>"; };
+		5A9D976716FA47760099763E /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = ../freetype/libfreetype.a; sourceTree = "<group>"; };
+		5A9D976C16FA57710099763E /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = Resources/fonts; sourceTree = "<group>"; };
+		5A9F4AF816FB91B7007D4BD7 /* Default-Portrait@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait@2x~ipad.png"; sourceTree = "<group>"; };
+		5A9F4AFA16FB91BE007D4BD7 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "Resources/Default@2x.png"; sourceTree = "<group>"; };
+		5A9F4AFC16FB91CB007D4BD7 /* Default-Landscape@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape@2x~ipad.png"; sourceTree = "<group>"; };
+		5A9F4AFE16FB91D0007D4BD7 /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape~ipad.png"; sourceTree = "<group>"; };
 		5AC0067E16EFBF2C0055177B /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = Cinder/src/cinder/Camera.cpp; sourceTree = "<group>"; };
 		5AE85AFE16F69D0400F47648 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		5AE85AFF16F69D0400F47648 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
@@ -109,6 +125,7 @@
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
 				4D27E4840F9AD71900447247 /* OpenGLES.framework in Frameworks */,
 				4D27E4B50F9AD7D600447247 /* QuartzCore.framework in Frameworks */,
+				5A9D976816FA47760099763E /* libfreetype.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,7 +143,9 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				5A82A24116F7E2960093D1AA /* planet.vert */,
+				5A9F4AFE16FB91D0007D4BD7 /* Default-Landscape~ipad.png */,
+				5A9F4AFC16FB91CB007D4BD7 /* Default-Landscape@2x~ipad.png */,
+				5A9F4AF816FB91B7007D4BD7 /* Default-Portrait@2x~ipad.png */,
 				5A21224216EFB4DF001BF08B /* Cinder */,
 				5A21222816EFB469001BF08B /* Source */,
 				5A2121FD16EFB387001BF08B /* Resources */,
@@ -139,6 +158,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5A9D976716FA47760099763E /* libfreetype.a */,
 				4D27E4B40F9AD7D600447247 /* QuartzCore.framework */,
 				4D27E4830F9AD71900447247 /* OpenGLES.framework */,
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
@@ -156,12 +176,14 @@
 		5A2121FD16EFB387001BF08B /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5A9D976C16FA57710099763E /* fonts */,
 				5A21220616EFB39C001BF08B /* models */,
 				5A21220716EFB39C001BF08B /* shaders */,
 				5A21220816EFB39C001BF08B /* textures */,
 				5A2121FE16EFB396001BF08B /* Default-568h.png */,
 				5A2121FF16EFB396001BF08B /* Default-568h@2x.png */,
 				5A21220016EFB396001BF08B /* Default.png */,
+				5A9F4AFA16FB91BE007D4BD7 /* Default@2x.png */,
 				5A21220116EFB396001BF08B /* Icon.png */,
 			);
 			name = Resources;
@@ -199,6 +221,12 @@
 				5AE85B1616F69D0400F47648 /* ShaderProgram.h */,
 				5AE85B1716F69D0400F47648 /* Touch.cpp */,
 				5AE85B1816F69D0400F47648 /* Touch.h */,
+				5A9B879616F89E4F000B53BF /* ObjectController.cpp */,
+				5A9B879716F89E4F000B53BF /* ObjectController.h */,
+				5A9D974416F96BB60099763E /* LifeMeter.cpp */,
+				5A9D974516F96BB60099763E /* LifeMeter.h */,
+				5A9D975C16FA31D00099763E /* Text.cpp */,
+				5A9D975D16FA31D00099763E /* Text.h */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -280,12 +308,14 @@
 			files = (
 				5A21220216EFB396001BF08B /* Default-568h.png in Resources */,
 				5A21220316EFB396001BF08B /* Default-568h@2x.png in Resources */,
-				5A21220416EFB396001BF08B /* Default.png in Resources */,
 				5A21220516EFB396001BF08B /* Icon.png in Resources */,
 				5A21220916EFB39C001BF08B /* models in Resources */,
 				5A21220A16EFB39C001BF08B /* shaders in Resources */,
 				5A21220B16EFB39C001BF08B /* textures in Resources */,
 				5A21224416EFB4E6001BF08B /* include in Resources */,
+				5A9D976D16FA57710099763E /* fonts in Resources */,
+				5A9F4AFD16FB91CB007D4BD7 /* Default-Landscape@2x~ipad.png in Resources */,
+				5A9F4AFF16FB91D0007D4BD7 /* Default-Landscape~ipad.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -315,7 +345,9 @@
 				5AE85B2816F69D4100F47648 /* Camera.cpp in Sources */,
 				5AE85B2B16F6A84300F47648 /* AxisAlignedBox.cpp in Sources */,
 				5AE85B2C16F6A84300F47648 /* TriMesh.cpp in Sources */,
-				5A82A24216F7E2960093D1AA /* planet.vert in Sources */,
+				5A9B879816F89E4F000B53BF /* ObjectController.cpp in Sources */,
+				5A9D974616F96BB60099763E /* LifeMeter.cpp in Sources */,
+				5A9D975E16FA31D10099763E /* Text.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,9 +366,16 @@
 				HEADER_SEARCH_PATHS = (
 					Cinder/include/,
 					../cinder/boost/,
+					../freetype/include,
 				);
 				INFOPLIST_FILE = Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../freetype/lib\"",
+					"\"$(SRCROOT)/../../Library/Developer/Xcode/DerivedData/freetype2-fdyfojbzdbasmxbevtnrpljkkwcs/Build/Products/Debug-iphoneos\"",
+					"\"$(SRCROOT)/../freetype\"",
+				);
 				PRODUCT_NAME = OpenGLES2;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -354,9 +393,16 @@
 				HEADER_SEARCH_PATHS = (
 					Cinder/include/,
 					../cinder/boost/,
+					../freetype/include,
 				);
 				INFOPLIST_FILE = Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../freetype/lib\"",
+					"\"$(SRCROOT)/../../Library/Developer/Xcode/DerivedData/freetype2-fdyfojbzdbasmxbevtnrpljkkwcs/Build/Products/Debug-iphoneos\"",
+					"\"$(SRCROOT)/../freetype\"",
+				);
 				PRODUCT_NAME = OpenGLES2;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

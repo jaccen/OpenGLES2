@@ -23,6 +23,8 @@ public:
 	void update( const float deltaTime = 0.0f );
 	
 private:
+	Node* rayCast( const ci::Ray& ray );
+	
 	ci::Ray mRay;
 	Node2d mRoot;
 	Game* mGame;

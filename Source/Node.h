@@ -13,11 +13,29 @@
 
 class Texture {
 public:
+	Texture( int width, int height );
+	Texture() : mFormat( GL_RGBA ) {}
+	void setSize( int width, int height );
 	~Texture() { free( mImageData ); }
+	GLuint					mFormat;
 	GLuint					mHandle;
 	int						mWidth;
 	int						mHeight;
 	void*					mImageData;
+	ci::Vec2i				getScaledTextureSize() const;
+};
+
+class FramebufferObject {
+public:
+	FramebufferObject( int width, int height );
+	FramebufferObject( Texture* texture );
+	Texture* mTexture;
+	int mWidth;
+	int mHeight;
+	GLuint mFormat;
+	GLuint mHandle;
+	GLuint mColorRenderbuffer;
+	GLuint mDepthRenderbuffer;
 };
 
 class Mesh {

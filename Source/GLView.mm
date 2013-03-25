@@ -26,23 +26,18 @@ const static int kFps = 60;
         EAGLRenderingAPI api = kEAGLRenderingAPIOpenGLES2;
         mContext = [[EAGLContext alloc] initWithAPI:api];
         
-        if (!mContext) {
-            api = kEAGLRenderingAPIOpenGLES1;
-            mContext = [[EAGLContext alloc] initWithAPI:api];
-        }
-        
         if (!mContext || ![EAGLContext setCurrentContext:mContext]) {
             [self release];
             return nil;
         }
         
-		mRenderingEngine		= new RenderingEngine();
+		mRenderingEngine		= RenderingEngine::get();
 		mGame					= new Game( mRenderingEngine );
 
         [mContext renderbufferStorage:GL_RENDERBUFFER fromDrawable: eaglLayer];
                 
-        int width = CGRectGetWidth( frame );
-        int height = CGRectGetHeight( frame );
+        int width = CGRectGetWidth( self.bounds );
+        int height = CGRectGetHeight( self.bounds );
 		mRenderingEngine->setup( width, height, self.contentScaleFactor );
         mGame->setup( width, height );
         
@@ -84,6 +79,8 @@ const static int kFps = 60;
     
 	if ( hasUpdatedOnce ) {
 		mRenderingEngine->draw();
+		glEnable( GL_BLEND );
+		glBlendFunc( GL_SRC_ALPHA, GL_ONE );
 		mGame->debugDraw();
 		[mContext presentRenderbuffer:GL_RENDERBUFFER];
 	}
@@ -96,7 +93,7 @@ const static int kFps = 60;
 		CGPoint location  = [touch locationInView:self];
 		mTouches.push_back( ci::Vec2i( location.x, location.y ) );
 	}
-	mGame->touchBegan( mTouches );
+	mGame->touchesBegan( mTouches );
 }
 
 - (void) touchesEnded: (NSSet*) touches withEvent: (UIEvent*) event
@@ -106,7 +103,7 @@ const static int kFps = 60;
 		CGPoint location  = [touch locationInView:self];
 		mTouches.push_back( ci::Vec2i( location.x, location.y ) );
 	}
-	mGame->touchEnded( mTouches );
+	mGame->touchesEnded( mTouches );
 }
 
 - (void) touchesMoved: (NSSet*) touches withEvent: (UIEvent*) event
@@ -116,7 +113,7 @@ const static int kFps = 60;
 		CGPoint location  = [touch locationInView:self];
 		mTouches.push_back( ci::Vec2i( location.x, location.y ) );
 	}
-	mGame->touchMoved( mTouches );
+	mGame->touchesMoved( mTouches );
 }
 
 @end
