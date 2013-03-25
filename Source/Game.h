@@ -10,8 +10,6 @@
 #include "LensFlare.h"
 #include "Touch.h"
 
-#include "Text.h"
-
 #include "ObjectController.h"
 
 #include "cinder/Ray.h"
@@ -48,8 +46,6 @@ public:
 	void				tapUp(ci::Vec2i position) {}
 	
 private:
-	Text* mText;
-	
 	Camera* mCamera;
 	std::list<ObjectController*> mControllers;
 	

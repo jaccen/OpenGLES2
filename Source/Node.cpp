@@ -104,7 +104,7 @@ bool Node::isDirty()
 
 void Node::update( const float deltaTime )
 {
-	if ( isDirty() || ( mParent && mParent->isDirty() ) ) {
+	if ( isDirty() || ( mParent && mParent->isDirty() ) || mFaceCamera ) {
 		updateTransform();
 		mIsDirty = false;
 	}
@@ -132,5 +132,9 @@ void Node::updateTransform()
 		mTransform *= ci::Matrix44f::alignZAxisWithTarget( cameraDirection.normalized(), ci::Vec3f::yAxis() );
 		//mTransform.rotate( Vec3f::zAxis(), toRadians( mSpriteRotation ) );
 	}
+	
+	mLastRotation = rotation;
+	mLastPosition = position;
+	mLastScale = scale;
 }
 

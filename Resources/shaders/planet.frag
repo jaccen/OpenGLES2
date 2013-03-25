@@ -25,7 +25,7 @@ void main(void)
 {
 	vec3 ViewDir = normalize( EyePosition - vWorldPos.xyz );
 	vec3 LightDir = normalize( LightPosition - vWorldPos.xyz );
-	vec3 normalMapColor = texture2D( NormalTexture, vTexCoord ).xyz;
+	//vec3 normalMapColor = texture2D( NormalTexture, vTexCoord ).xyz;
 	vec3 N = vNormal;//+ normalize( normalMapColor * 2.0 - 1.0 ) * 1.2;
 	vec3 E = normalize( ViewDir );
     vec3 L = normalize( LightDir );

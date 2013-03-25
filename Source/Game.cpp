@@ -16,14 +16,12 @@ void Game::remove( Node2d* Node2d ) {}
 
 void Game::setup( int width, int height )
 {
-	mText = new Text();
-	
 	mTouch.addDelegate( this );
 	
 	mResourceManager = ResourceManager::get();
 	mResourceManager->setup( mRenderingEngine );
 	
-	mResourceManager->loadShader( kShaderFragmentLighting,	"shaders/planet.vert",				"shaders/planet.frag" );
+	mResourceManager->loadShader( kShaderFragmentLighting,	"shaders/pixel_lighting.vert",		"shaders/pixel_lighting.frag" );
 	mResourceManager->loadShader( kSahderClouds,			"shaders/pixel_lighting.vert",		"shaders/clouds.frag" );
 	mResourceManager->loadShader( kSahderVertexLighting,	"shaders/vertex_lighting.vert",		"shaders/vertex_lighting.frag" );
 	mResourceManager->loadShader( kShaderUnlit,				"shaders/unlit.vert",				"shaders/unlit.frag" );
@@ -63,8 +61,8 @@ void Game::setup( int width, int height )
 	glowSprite->mTexture	= mResourceManager->getTexture( "textures/sphere_glow.png" );
     glowSprite->mColor		= ci::Vec4f( 1, .5, 0, 0.4 );
 	glowSprite->mShader		= kShaderUnlit;
-	glowSprite->scale		= Vec3f::one() * 9.1f;
-	//mRenderingEngine->addNode( glowSprite );
+	glowSprite->scale		= Vec3f::one() * 9.6f;
+	mRenderingEngine->addNode( glowSprite );
 	
 	mFocusTarget = mPlanet;
 	
@@ -76,7 +74,7 @@ void Game::setup( int width, int height )
 	mRenderingEngine->setSkyboxNode( skyBox );
 	
 	
-	for( int i = 0; i < 6; i++ ) {
+	/*for( int i = 0; i < 6; i++ ) {
 		Node* glowSprite		= new Node();
 		glowSprite->mLayer		= Node::LayerLighting;
 		glowSprite->mFaceCamera = true;
@@ -90,7 +88,7 @@ void Game::setup( int width, int height )
 		int rZ = arc4random() % 100;
 		glowSprite->position	= Vec3f( rX, rY, rZ ) * 0.05f;
 		mRenderingEngine->addNode( glowSprite );
-	}
+	}*/
 	
 	for( int i = 0; i < 6; i++ ) {
 		int rX = arc4random() % 360;
@@ -150,19 +148,9 @@ void Game::setup( int width, int height )
 	child->getNode()->mLayer = Node::LayerGui;
 	Texture* t = mResourceManager->getTexture( "textures/gui_test.png" );
 	child->setTexture( t );
-	child->position = Vec2i( 400, 400 );
+	child->position = Vec2i( 0, 0 );
 	child->anchor = Vec2f( 0.0f, 0.0f );
 	mRootGui->addChild( child );
-	
-	Node2d* textGui = new Node2d();
-	textGui->getNode()->mLayer = Node::LayerGui;
-	Texture* text = mText->drawToTexture();
-	textGui->setTexture( text );
-	textGui->getNode()->mShader = kShaderScreenSpace;
-	textGui->setColor( Vec4f::one() );
-	textGui->position = Vec2i( 0, 0 );
-	textGui->anchor = Vec2f( 0.0f, 0.0f );
-	mRootGui->addChild( textGui );
 }
 
 void Game::update( const float deltaTime )
@@ -171,7 +159,7 @@ void Game::update( const float deltaTime )
 	
 	mTouch.update( deltaTime );
 	
-	//mCamera->position += ( mFocusTarget->getGlobalPosition() - mCamera->position ) / 20.0f;
+	mCamera->position += ( mFocusTarget->getGlobalPosition() - mCamera->position ) / 20.0f;
 	
 	// Zooming
 	float targetZ = mZoomStart + mTouch.getTouchesDistance() * -(0.15f);
@@ -182,20 +170,18 @@ void Game::update( const float deltaTime )
 	mCamera->setZoom( mZoomTarget );
 	
 	// Orbiting
-	/*float targetY = mStartRotation.y + mTouch.getTouchesDifference().x * -0.3f;
+	float targetY = mStartRotation.y + mTouch.getTouchesDifference().x * -0.3f;
 	float targetX = mStartRotation.x + mTouch.getTouchesDifference().y * -0.3f;
 	const float maxAngle = 89.9f;
 	const float minAngle = -89.9f;
 	targetX = math<float>::clamp( targetX, minAngle, maxAngle );
 	mCamera->setAngle( targetX );
-	mCamera->rotation.y = targetY;*/
+	mCamera->rotation.y = targetY;
 	
-	mCamera->rotation.y += 2.0f * deltaTime;
-	
-	const float planetRotationSpeed = 4.0f;
-	if ( mPlanet ) {
+	/*if ( mPlanet ) {
+		const float planetRotationSpeed = 4.0f;
 		mPlanet->rotation.y += planetRotationSpeed * deltaTime;
-	}
+	}*/
 	
 	if ( mLensFlare ) {
 		mLensFlare->update( deltaTime );
@@ -217,6 +203,7 @@ void Game::tapDown(ci::Vec2i position)
 
 void Game::debugDraw()
 {
+	return;
 	
 	// Draw grid
 	Vec4f c = Vec4f( 1, 1, 1, 0.1f );
