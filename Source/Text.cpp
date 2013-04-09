@@ -9,8 +9,7 @@ using namespace boost::property_tree;
 
 using namespace ci;
 
-Text::Text( Font* font, std::string text ) :
-	mFont( font ),
+Text::Options::Options() :
 	letterSpacing( 0 ),
 	lineSpacing( 0 ),
 	width( 0 ),
@@ -19,7 +18,15 @@ Text::Text( Font* font, std::string text ) :
 	truncateWithDots( false ),
 	padding( 0 )
 {
-	mColor = Vec4f::one();
+	color = Vec4f::one();
+}
+
+Text::Text() : mFont( NULL ), mOptions() {}
+
+Text::Text( Font* font, Text::Options& options, std::string text ) :
+	mFont( font ),
+	mOptions( options )
+{
 	mMesh = ResourceManager::get()->getMesh( "models/quad_plane.obj" );
 	setText( text );
 }
@@ -28,6 +35,11 @@ Text::~Text()
 {
 	// This will delete the elements in the list:
 	clearCharacters();
+}
+
+void Text::setOptions( Text::Options& options )
+{
+	mOptions = options;
 }
 
 void Text::clearCharacters()
@@ -44,6 +56,8 @@ void Text::setText( const std::string& text )
 	// Start with a fresh crop of new characters
 	clearCharacters();
 	
+	Options& o = mOptions;
+	
 	mPenPosition = Vec2i( 0, -mFont->defaultLineHeight * 0.6f );
 	
 	for( int i = 0; i < text.length(); i++ ) {
@@ -51,13 +65,13 @@ void Text::setText( const std::string& text )
 		insertCharacter( text[i] );
 		
 		// Check end of line according to 'width' property
-		bool lineWidthExceeded = width > 0 && mPenPosition.x * scale > width - padding * 2;
+		bool lineWidthExceeded = o.width > 0 && mPenPosition.x * o.scale > o.width - o.padding * 2;
 		if ( lineWidthExceeded ) {
 			
 			// Check max lines according to 'height' property
-			bool lineHeightExceeded = height > 0 && ( mPenPosition.y + mFont->defaultLineHeight ) * scale > height - padding * 2;
+			bool lineHeightExceeded = o.height > 0 && ( mPenPosition.y + mFont->defaultLineHeight ) * o.scale > o.height - o.padding * 2;
 			if ( lineHeightExceeded ) {
-				if ( truncateWithDots ) {
+				if ( o.truncateWithDots ) {
 					// Go back to the most recent space
 					revertToLastSpace( text, i );
 					// Add the dots
@@ -84,7 +98,7 @@ void Text::setText( const std::string& text )
 void Text::removeLastCharacter()
 {
 	// Reset the pen position to where it was before the character was added
-	mPenPosition.x -= mCharacters.back()->xadvance + letterSpacing;
+	mPenPosition.x -= mCharacters.back()->xadvance + mOptions.letterSpacing;
 	
 	// Removal it and clean up, since the Character pointer is copied from the font
 	delete mCharacters.back();
@@ -93,17 +107,19 @@ void Text::removeLastCharacter()
 
 void Text::insertCharacter( const char c )
 {
+	Options& o = mOptions;
+	
 	// Check for special characters
 	if ( c == '\n' ) {
 		// New line by offseting mPenPosition
 		mPenPosition.x = 0;
-		mPenPosition.y += mFont->defaultLineHeight + lineSpacing;
+		mPenPosition.y += mFont->defaultLineHeight + o.lineSpacing;
 	}
 	
 	else if ( Font::Character* character = mFont->getCharacterCopy( c ) ) {
 		// Adjust character display properties according to Text settings
-		character->paddingOffset = Vec2i( padding, padding );
-		character->scale = scale;
+		character->paddingOffset = Vec2i( o.padding, o.padding );
+		character->scale = o.scale;
 		character->setPosition( mPenPosition.x, mPenPosition.y );
 		character->visible = true;
 		
@@ -111,7 +127,7 @@ void Text::insertCharacter( const char c )
 		mCharacters.push_back( character );
 		
 		// Update current position of where new characters will be added
-		mPenPosition.x += character->xadvance + letterSpacing;
+		mPenPosition.x += character->xadvance + o.letterSpacing;
 	}
 }
 

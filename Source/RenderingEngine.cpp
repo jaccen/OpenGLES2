@@ -395,7 +395,7 @@ void RenderingEngine::drawText( Text* text )
 	ShaderProgram& shader = mShaders[ kShaderText ];
 	
 	glUseProgram( shader.getHandle() );
-	shader.uniform( "DiffuseMaterial",		text->mColor );
+	shader.uniform( "DiffuseMaterial",		text->getColor() );
 	shader.uniform( "ScreenTransform",		mScreenTransform );
 	
 	glActiveTexture( GL_TEXTURE0 );

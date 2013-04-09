@@ -147,15 +147,15 @@ void Game::setup( int width, int height )
 	Font* font = ResourceManager::get()->getFont( "fonts/menlo.fnt" );
 	
 	Node2d* child = new Node2d();
-	child->mText = new Text( font );
-	child->mText->scale = 0.4f;
-	child->mText->padding = 25;
-	child->mText->width = 256;
-	child->mText->height = 150;
-	child->mText->letterSpacing = 2;
-	child->mText->mColor = Vec4f( 1, 1, 1, 1 );
-	child->mText->truncateWithDots = true;
-	child->mText->setText( "\"The 14210 quick brown foxes jumped over the 21543 lazy dogs,\" I said.  \"The 1440 quick brown foxes jumped over the 5432142 lazy dogs,\" I said.  \"The 10 quick brown foxes jumped over the 52 lazy dogs,\" I said.  \"The 4320 quick brown foxes jumped over the 52 lazy dogs,\" I said." );
+	Text::Options opts;
+	opts.scale = 0.4f;
+	opts.padding = 25;
+	opts.width = 256;
+	opts.height = 150;
+	opts.letterSpacing = 2;
+	opts.color = Vec4f( 1, 1, 1, 1 );
+	opts.truncateWithDots = true;
+	child->mText = new Text( font, opts,  "\"The 14210 quick brown foxes jumped over the 21543 lazy dogs,\" I said.  \"The 1440 quick brown foxes jumped over the 5432142 lazy dogs,\" I said.  \"The 10 quick brown foxes jumped over the 52 lazy dogs,\" I said.  \"The 4320 quick brown foxes jumped over the 52 lazy dogs,\" I said." );
 	child->getNode()->mLayer = Node::LayerGui;
 	Texture* t = mResourceManager->getTexture( "textures/test_dialog.png" );
 	child->setTexture( t );
