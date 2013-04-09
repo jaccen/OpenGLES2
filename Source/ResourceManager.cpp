@@ -1,5 +1,4 @@
 #include "ResourceManager.h"
-
 #include "cinder/Vector.h"
 #include "cinder/TriMesh.h"
 
@@ -29,7 +28,7 @@ void ResourceManager::loadTexture( std::string filePath )
 		Texture* texture = new Texture();
 		mResourceLoader.loadImage( filePath, &texture->mImageData, &texture->mWidth, &texture->mHeight );
 		mRenderingEngine->createTexture( texture );
-		std::cout << "Loading texture " << filePath << ": " << texture->mWidth << ", " << texture->mHeight << std::endl;
+		std::cout << "Loading texture: " << filePath << ": " << texture->mWidth << ", " << texture->mHeight << std::endl;
 		mTextures[ filePath ] = texture;
 	}
 }
@@ -53,6 +52,16 @@ void ResourceManager::loadMesh( std::string filePath )
 		mRenderingEngine->createVbo( vboMesh, vertices, normals, texCoords );
 		mMeshes[ filePath ] = vboMesh;
 		delete objParser;
+	}
+}
+
+void ResourceManager::loadFont( std::string path )
+{
+	std::string filepath = mResourceLoader.getResourcePath() + "/" + path;
+	std::cout << "Loading font: " << path << std::endl;
+	Font* font = new Font( filepath );
+	if ( font->checkDidLoad() ) {
+		mFonts[ path ] = font;
 	}
 }
 
@@ -98,3 +107,17 @@ Mesh* ResourceManager::getMesh( std::string filePath )
 	}
 	return NULL;
 }
+
+Font* ResourceManager::getFont( std::string filePath )
+{
+	auto match = mFonts.find( filePath );
+	if ( match != mFonts.end() ) {
+		return mFonts[ filePath ];
+	}
+	else {
+		loadFont( filePath );
+		return mFonts[ filePath ];
+	}
+	return NULL;
+}
+

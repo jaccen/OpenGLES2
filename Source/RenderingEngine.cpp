@@ -390,6 +390,33 @@ void RenderingEngine::drawMesh( Mesh* mesh, bool wireframe )
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 }
 
+void RenderingEngine::drawText( Text* text )
+{
+	ShaderProgram& shader = mShaders[ kShaderText ];
+	
+	glUseProgram( shader.getHandle() );
+	shader.uniform( "DiffuseMaterial",		text->mColor );
+	shader.uniform( "ScreenTransform",		mScreenTransform );
+	
+	glActiveTexture( GL_TEXTURE0 );
+	shader.uniform( "DiffuseTexture", 0 );
+	glBindTexture( GL_TEXTURE_2D, text->getFont()->getTexture()->mHandle );
+	
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	
+	const std::vector<Font::Character*>& chars = text->getCharacters();
+	for( std::vector<Font::Character*>::const_iterator iter = chars.begin(); iter != chars.end(); iter++ ) {
+		if ( (*iter)->visible ) {
+			shader.uniform( "Transform", (*iter)->getTransform() );
+			shader.uniform( "SourceTransform", (*iter)->getSourceTransform() );
+			drawMesh( text->getMesh() );
+		}
+	}
+	
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+}
+
 void RenderingEngine::drawGui( Node2d* gui )
 {
 	if ( !gui->getIsVisible() ) return;
@@ -420,6 +447,10 @@ void RenderingEngine::drawGui( Node2d* gui )
 	}
 	
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	
+	if ( gui->mText != NULL ) {
+		drawText( gui->mText );
+	}
 }
 
 void RenderingEngine::drawTexture( Texture* texture, int offsetX, int offsetY )

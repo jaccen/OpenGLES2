@@ -23,7 +23,7 @@ LensFlare::LensFlare( Game* game ) : mGame( game )
 		Node2d* sprite = new Node2d();
 		sprite->getNode()->mLayer = Node::LayerLighting;
 		sprite->setTexture( ResourceManager::get()->getTexture( sprites[i].texture ) );
-		sprite->size = Vec2i( sprites[i].size, sprites[i].size );
+		sprite->size = Vec2i( sprites[i].size, sprites[i].size ) / 2.0f;
 		sprite->setColor( sprites[i].color );
 		sprite->anchor = Vec2f( 0.5f, 0.5f );
 		mRoot.addChild( sprite );

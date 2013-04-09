@@ -4,7 +4,7 @@
 
 using namespace ci;
 
-Node2d::Node2d() : mParent( NULL ), mIsVisible( true ), mIsEnabled( true ), zIndex( 0 ), tag(-1), group(-1)
+Node2d::Node2d() : mParent( NULL ), mText( NULL), mIsVisible( true ), mIsEnabled( true ), zIndex( 0 ), tag(-1), group(-1)
 {
 	mNode = new Node();
 	position = Vec2i::zero();

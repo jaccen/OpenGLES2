@@ -5,6 +5,7 @@
 #include "ResourceLoader.h"
 #include "Node.h"
 #include "Node2d.h"
+#include "Text.h"
 #include "Camera.h"
 
 #include "cinder/Matrix.h"
@@ -56,6 +57,7 @@ private:
     RenderingEngine();
 	static RenderingEngine*			sInstance;
 	
+	void					drawText( Text* text );
 	void					drawGui( Node2d* Node2d );
 	void					drawMesh( Mesh* mesh, bool wireframe = false );
 	void					setBlendMode( Node::Layer layerType );

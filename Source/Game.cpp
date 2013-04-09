@@ -3,7 +3,7 @@
 
 using namespace ci;
 
-Game::Game(RenderingEngine* renderingEngine ) : mRenderingEngine(renderingEngine), mFreeTargetMode( true ), mPlanet(NULL), mLensFlare(NULL)
+Game::Game(RenderingEngine* renderingEngine ) : mRenderingEngine(renderingEngine), mFreeTargetMode( true ), mPlanet(NULL), mLensFlare(NULL), mAngleTargetX( 0.0f ), mAngleTargetY( 0.0f )
 {
 }
 
@@ -15,13 +15,14 @@ Game::~Game()
 void Game::remove( Node2d* Node2d ) {}
 
 void Game::setup( int width, int height )
-{
+{	
 	mTouch.addDelegate( this );
 	
 	mResourceManager = ResourceManager::get();
 	mResourceManager->setup( mRenderingEngine );
 	
-	mResourceManager->loadShader( kShaderFragmentLighting,	"shaders/pixel_lighting.vert",		"shaders/pixel_lighting.frag" );
+	mResourceManager->loadShader( kShaderText,				"shaders/text.vert",				"shaders/text.frag" );
+	mResourceManager->loadShader( kShaderFragmentLighting,	"shaders/planet.vert",				"shaders/planet.frag" );
 	mResourceManager->loadShader( kSahderClouds,			"shaders/pixel_lighting.vert",		"shaders/clouds.frag" );
 	mResourceManager->loadShader( kSahderVertexLighting,	"shaders/vertex_lighting.vert",		"shaders/vertex_lighting.frag" );
 	mResourceManager->loadShader( kShaderUnlit,				"shaders/unlit.vert",				"shaders/unlit.frag" );
@@ -33,7 +34,7 @@ void Game::setup( int width, int height )
 	
 	mResourceManager->loadMesh( "models/sphere_globe.obj" );
 	mResourceManager->loadMesh( "models/skybox.obj" );
-	mResourceManager->loadMesh( "models/tower.obj" );
+	//mResourceManager->loadMesh( "models/tower.obj" );
 	mResourceManager->loadMesh( "models/quad_plane.obj" );
 	
 	mCamera = Camera::get();
@@ -47,7 +48,7 @@ void Game::setup( int width, int height )
 	mPlanet->mRimPower		= 0.15f;
 	mPlanet->mShininess		= 50.0f;
 	mPlanet->mGlossiness	= 0.0f;
-	mPlanet->mShader		= kShaderFragmentLighting;
+	mPlanet->mShader		= kSahderVertexLighting;
 	mPlanet->mTexture		= mResourceManager->getTexture( "textures/mars_diffuse.png" );
 	mPlanet->mTextureNormal = mResourceManager->getTexture( "textures/mars_normal.jpg" );
 	mPlanet->mTextureSelfIllumination = mResourceManager->getTexture( "textures/light_map.jpg" );
@@ -74,7 +75,7 @@ void Game::setup( int width, int height )
 	mRenderingEngine->setSkyboxNode( skyBox );
 	
 	
-	/*for( int i = 0; i < 6; i++ ) {
+	for( int i = 0; i < 6; i++ ) {
 		Node* glowSprite		= new Node();
 		glowSprite->mLayer		= Node::LayerLighting;
 		glowSprite->mFaceCamera = true;
@@ -88,7 +89,7 @@ void Game::setup( int width, int height )
 		int rZ = arc4random() % 100;
 		glowSprite->position	= Vec3f( rX, rY, rZ ) * 0.05f;
 		mRenderingEngine->addNode( glowSprite );
-	}*/
+	}
 	
 	for( int i = 0; i < 6; i++ ) {
 		int rX = arc4random() % 360;
@@ -98,7 +99,7 @@ void Game::setup( int width, int height )
 		tower->mMesh			= mResourceManager->getMesh( "models/cube.obj" );
 		tower->mColorSpecular	= ci::Vec4f( 1, 1, 1, 1.0 );
 		tower->mShininess		= 100.0f;
-		tower->mShader			= kShaderShip;
+		tower->mShader			= kSahderVertexLighting;
 		tower->rotation			= Vec3f( rX, rY, rZ );
 		tower->scale			= Vec3f( 1, 2, 1 ) * 0.04f;
 		tower->pivotOffset.y	= 0.98f;
@@ -119,7 +120,7 @@ void Game::setup( int width, int height )
 		shipNode->mColorSpecular	= ci::Vec4f( 1, 1, 1, 1.0 );
 		shipNode->mShininess		= 100.0f;
 		shipNode->mGlossiness		= 1.0f;
-		shipNode->mShader			= kShaderShip;
+		shipNode->mShader			= kSahderVertexLighting;
 		shipNode->scale			= Vec3f( 1, 2, 3 ) * 0.05f;
 		int rX = arc4random() % 200 - 100;
 		int rY = arc4random() % 200 - 100;
@@ -140,13 +141,23 @@ void Game::setup( int width, int height )
 	
 	mLensFlare = new LensFlare( this );
 	
-	
 	mRootGui = new Node2d();
 	mRenderingEngine->addNode( mRootGui );
 	
+	Font* font = ResourceManager::get()->getFont( "fonts/menlo.fnt" );
+	
 	Node2d* child = new Node2d();
+	child->mText = new Text( font );
+	child->mText->scale = 0.4f;
+	child->mText->padding = 25;
+	child->mText->width = 256;
+	child->mText->height = 150;
+	child->mText->letterSpacing = 2;
+	child->mText->mColor = Vec4f( 1, 1, 1, 1 );
+	child->mText->truncateWithDots = true;
+	child->mText->setText( "\"The 14210 quick brown foxes jumped over the 21543 lazy dogs,\" I said.  \"The 1440 quick brown foxes jumped over the 5432142 lazy dogs,\" I said.  \"The 10 quick brown foxes jumped over the 52 lazy dogs,\" I said.  \"The 4320 quick brown foxes jumped over the 52 lazy dogs,\" I said." );
 	child->getNode()->mLayer = Node::LayerGui;
-	Texture* t = mResourceManager->getTexture( "textures/gui_test.png" );
+	Texture* t = mResourceManager->getTexture( "textures/test_dialog.png" );
 	child->setTexture( t );
 	child->position = Vec2i( 0, 0 );
 	child->anchor = Vec2f( 0.0f, 0.0f );
@@ -166,7 +177,7 @@ void Game::update( const float deltaTime )
 	const float maxZoom = 100.0f;
 	const float minZoom = 9.65f;
 	targetZ = math<float>::clamp( targetZ, minZoom, maxZoom );
-	mZoomTarget += (targetZ - mZoomTarget ) / 4.0f;
+	mZoomTarget += (targetZ - mZoomTarget ) / 10.0f;
 	mCamera->setZoom( mZoomTarget );
 	
 	// Orbiting
@@ -175,13 +186,16 @@ void Game::update( const float deltaTime )
 	const float maxAngle = 89.9f;
 	const float minAngle = -89.9f;
 	targetX = math<float>::clamp( targetX, minAngle, maxAngle );
-	mCamera->setAngle( targetX );
-	mCamera->rotation.y = targetY;
+	float easing = 10.0f;
+	mAngleTargetX += ( targetX - mAngleTargetX ) / easing;
+	mCamera->setAngle( mAngleTargetX );
+	mAngleTargetY += ( targetY - mAngleTargetY ) / easing;
+	mCamera->rotation.y = mAngleTargetY;
 	
-	/*if ( mPlanet ) {
+	if ( mPlanet ) {
 		const float planetRotationSpeed = 4.0f;
 		mPlanet->rotation.y += planetRotationSpeed * deltaTime;
-	}*/
+	}
 	
 	if ( mLensFlare ) {
 		mLensFlare->update( deltaTime );
@@ -195,9 +209,9 @@ void Game::update( const float deltaTime )
 void Game::tapDown(ci::Vec2i position)
 {
 	if ( Node* node = pickObject( mCamera->rayIntoScene( position ) ) ) {
-		std::cout << "tapDown: " << position << std::endl;
-		mFocusTarget = node;
-		mFreeTargetMode = false;
+		//std::cout << "tapDown: " << position << std::endl;
+		//mFocusTarget = node;
+		//mFreeTargetMode = false;
 	}
 }
 

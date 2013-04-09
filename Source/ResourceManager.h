@@ -18,10 +18,12 @@ public:
 	void					loadShader( std::string key, std::string vertexShaderPath, std::string fragmentShaderPath );
 	void					loadTexture( std::string filePath );
 	void					loadMesh( std::string filePath );
+	void					loadFont( std::string fontpath );
 	
 	ShaderProgram*			getShader( std::string key );
 	Texture*				getTexture( std::string key );
 	Mesh*					getMesh( std::string key );
+	Font*					getFont( std::string key );
 	
 private:
 	static ResourceManager* sInstance;
@@ -31,4 +33,5 @@ private:
 	std::map<std::string, Texture*> mTextures;
 	std::map<std::string, Mesh*> mMeshes;
 	std::map<std::string, ShaderProgram*> mShaders;
+	std::map<std::string, Font*> mFonts;
 };

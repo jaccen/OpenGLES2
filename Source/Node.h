@@ -1,58 +1,13 @@
 #pragma once
 
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
-
 #include "cinder/Vector.h"
 #include "cinder/Matrix.h"
 #include "cinder/TriMesh.h"
 
 #include "SmartValue.h"
+#include "Resources.h"
 
 #include <vector>
-
-class Texture {
-public:
-	Texture( int width, int height );
-	Texture() : mFormat( GL_RGBA ) {}
-	void setSize( int width, int height );
-	~Texture() { free( mImageData ); }
-	GLuint					mFormat;
-	GLuint					mHandle;
-	int						mWidth;
-	int						mHeight;
-	void*					mImageData;
-	ci::Vec2i				getScaledTextureSize() const;
-};
-
-class FramebufferObject {
-public:
-	FramebufferObject( int width, int height );
-	FramebufferObject( Texture* texture );
-	Texture* mTexture;
-	int mWidth;
-	int mHeight;
-	GLuint mFormat;
-	GLuint mHandle;
-	GLuint mColorRenderbuffer;
-	GLuint mDepthRenderbuffer;
-};
-
-class Mesh {
-public:
-	Mesh() : vertexBuffer(-1), normalBuffer(-1), texCoordBuffer(-1), indexBuffer(-1) {}
-	void					getTriangleVertices( size_t i, ci::Vec3f *a, ci::Vec3f *b, ci::Vec3f *c ) const;
-    GLuint					vertexBuffer;
-	int						vertexCount;
-    GLuint					texCoordBuffer;
-    int						texCoordCount;
-    GLuint					normalBuffer;
-    int						normalCount;
-    GLuint					indexBuffer;
-    int						indexCount;
-	std::vector<ci::Vec3f>	indexOrderedVertices;
-	ci::TriMesh				triMesh;
-};
 
 class Node {
 public:

@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "LensFlare.h"
 #include "Touch.h"
+#include "Text.h"
 
 #include "ObjectController.h"
 
@@ -63,6 +64,8 @@ private:
 	Node* mFocusTarget;
 	float mZoomStart;
 	float mZoomTarget;
+	float mAngleTargetX;
+	float mAngleTargetY;
 	ci::Vec3f mStartRotation;
 	ci::Vec3f mRotationTarget;
 	

@@ -9,6 +9,7 @@
 
 class ResourceLoader {
 public:
+	std::string		loadTextFile( const std::string filepath );
 	void			loadImage( const std::string& path, void** pixelDataDestination, int* width, int* height );
     std::string		getResourcePath() const;
 	char*			loadShader( const std::string& path );

@@ -6,6 +6,7 @@
 
 #include "Node.h"
 #include "ResourceLoader.h"
+#include "Text.h"
 #include "SmartValue.h"
 
 class Node2d {
@@ -56,6 +57,8 @@ public:
 	ci::Vec2i size;
 	ci::Vec2i position;
 	float rotation;
+	
+	Text* mText;
 	
 private:
 	ly::ChangeValue<int> zIndex;

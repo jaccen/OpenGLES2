@@ -59,3 +59,19 @@ void ResourceLoader::loadImage( const std::string& path, void** pixelDataDestina
 	CFRelease( imageData );
 	[uiImage release];
 }
+
+std::string ResourceLoader::loadTextFile( const std::string filepath )
+{
+	NSString* basePath = [NSString stringWithUTF8String:filepath.c_str()];
+	NSString* extesion = [basePath pathExtension];
+	basePath = [basePath stringByDeletingPathExtension];
+	NSString* fullPath = [[NSBundle mainBundle] pathForResource:basePath
+														 ofType:extesion];
+	
+	NSString* content = [NSString stringWithContentsOfFile:fullPath
+												  encoding:NSUTF8StringEncoding
+													 error:NULL];
+	
+	std::string output( [content UTF8String] );
+	return output;
+}

@@ -9,6 +9,9 @@ const static std::string kShaderScreenSpaceBW		= "kShaderScreenSpaceBW";
 const static std::string kSahderClouds				= "kSahderClouds";
 const static std::string kShaderShip				= "kShaderShip";
 const static std::string kShaderScreenText			= "kShaderScreenText";
+const static std::string kShaderText				= "kShaderText";
+
+const static std::string kFontChars					= " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
 const static float kToRad							= 0.017453292519943295769f;
 const static float kToDeg							= 0.017453292519943295769;
