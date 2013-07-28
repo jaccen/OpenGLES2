@@ -2,6 +2,7 @@
 
 #include "cinder/Vector.h"
 #include "cinder/Matrix.h"
+#include "cinder/Quaternion.h"
 #include "cinder/TriMesh.h"
 
 #include "SmartValue.h"
@@ -19,6 +20,8 @@ public:
 		LayerClouds		= 1 << 4
 	} Layer;
 	
+	static bool				sortByDistanceFromCamera( Node* a, Node* b ) { return a->getDistanceFromCamera() > b->getDistanceFromCamera(); }		
+	
 	Node();
 	virtual~ Node();
 	
@@ -27,7 +30,7 @@ public:
 	const ci::Matrix44f&	getTransform() const { return mTransform; }
 	
 	ci::Vec3f				position;
-	ci::Vec3f				rotation;
+	ci::Quatf				orientation;
 	ci::Vec3f				scale;
 	ci::Vec3f				pivotOffset;
 	bool					mFaceCamera;
@@ -52,7 +55,7 @@ public:
 	void					setParent( Node* parent );
 	Node*					getParent() const { return mParent; }
 	bool					isDirty();
-	
+	const float&			getDistanceFromCamera() { return mDistanceFromCamera; }
 	ci::Vec3f				getGlobalPosition();
 	void					setForward( const ci::Vec3f forward );
 	
@@ -66,6 +69,7 @@ private:
 	ci::Matrix44f			mTransform;
 	ci::Matrix44f			mLocalTransform;
 	ci::Vec3f				mLastPosition;
-	ci::Vec3f				mLastRotation;
+	ci::Quatf				mLastOrientation;
 	ci::Vec3f				mLastScale;
+	float					mDistanceFromCamera;
 };

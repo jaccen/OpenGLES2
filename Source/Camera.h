@@ -18,12 +18,14 @@ public:
 	
 	void setScreenSize( int width, int height, float contentScaleFactor );
 	void setRange( float near, float far );
-	void setZoom( float zoom );
-	void setAngle( float angleX );
+	
 	void setFov( float fov );
 	
+	void setZoom( float zoom );
 	float getZoom() const { return mBody.position.z; }
-	float getAngle() const { return mPivot.rotation.x; }
+	
+	float getAngle() const { return mPivot.orientation.getAngle(); }
+	void setAngle( const float angleX ) { mPivot.orientation = ci::Quatf( ci::Vec3f::xAxis(), angleX ); }
 	
 	ci::Ray rayIntoScene( ci::Vec2i screenPoint );
 	

@@ -17,7 +17,11 @@ public:
 	
 	int mFaction;
 	
+	void setMoveTarget( ci::Vec3f target );
+	
 private:
+	bool mShouldMove;
+	ci::Vec3f mMoveTarget;
 	ci::Vec2i mScreenPosition;
 	Node* mNode;
 	//ActiveRecordRef mModel;

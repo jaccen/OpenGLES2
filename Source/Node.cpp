@@ -23,7 +23,7 @@ Node::Node() :
 	mTransform			= Matrix44f::identity();
 	mLocalTransform		= Matrix44f::identity();
 	position			= Vec3f::zero();
-	rotation			= Vec3f::zero();
+	orientation			= Quatf::identity();
 	scale				= Vec3f::one();
 	mColor				= Vec4f::one();
 	pivotOffset			= Vec3f::zero();
@@ -42,11 +42,8 @@ Node::~Node()
 
 void Node::setForward( const ci::Vec3f forward )
 {
-	ci::Matrix44f trans = mTransform * ci::Matrix44f::alignZAxisWithTarget( forward.normalized(), ci::Vec3f::yAxis() );
-	Quatf q( trans );
-	float rads;
-	q.getAxisAngle( &rotation, &rads );
-	rotation *= kToDeg;
+	ci::Matrix44f trans = ci::Matrix44f::alignZAxisWithTarget( forward.normalized(), ci::Vec3f::yAxis() );
+	orientation = Quatf( trans );
 }
 
 ci::Vec3f Node::getGlobalPosition()
@@ -64,12 +61,13 @@ bool Node::isDirty()
 {
 	return  mIsDirty ||
 			mLastPosition != position ||
-			mLastRotation != rotation ||
+			mLastOrientation != orientation ||
 			mLastScale != scale;
 }
 
 void Node::update( const float deltaTime )
 {
+	// // Try to optimize mFaceCamera for spirtes, don't do it every frame if possible:
 	if ( isDirty() || ( mParent && mParent->isDirty() ) || mFaceCamera ) {
 		updateTransform();
 		mIsDirty = false;
@@ -81,9 +79,9 @@ void Node::updateTransform()
 	mLocalTransform = Matrix44f::identity();
 	mLocalTransform.translate( position );
 	if ( !mFaceCamera ) {
-		mLocalTransform.rotate( rotation * kToRad );
+		mLocalTransform *= orientation.toMatrix44();
 	}
-	mLocalTransform.translate( pivotOffset );
+	//mLocalTransform.translate( pivotOffset );
 	mLocalTransform.scale( scale );
 	
 	if ( mParent != NULL ) {
@@ -96,10 +94,11 @@ void Node::updateTransform()
 	if ( mFaceCamera ) {
 		Vec3f cameraDirection = Camera::get()->getGlobalPosition() - getGlobalPosition();
 		mTransform *= ci::Matrix44f::alignZAxisWithTarget( cameraDirection.normalized(), ci::Vec3f::yAxis() );
-		//mTransform.rotate( Vec3f::zAxis(), toRadians( mSpriteRotation ) );
+		// Try to optimize this, don't do it every frame if possible:
+		//mDistanceFromCamera = Camera::get()->getGlobalPosition().distance( getGlobalPosition() );
 	}
 	
-	mLastRotation = rotation;
+	mLastOrientation = orientation;
 	mLastPosition = position;
 	mLastScale = scale;
 }

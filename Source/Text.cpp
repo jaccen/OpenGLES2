@@ -16,16 +16,18 @@ Text::Options::Options() :
 	height( 0 ),
 	scale( 1.0f ),
 	truncateWithDots( false ),
-	padding( 0 )
+	padding( 0 ),
+	alignment( Text::LEFT )
 {
 	color = Vec4f::one();
 }
 
-Text::Text() : mFont( NULL ), mOptions() {}
+Text::Text() : mFont( NULL ), mOptions(), mTexture( NULL ) {}
 
 Text::Text( Font* font, Text::Options& options, std::string text ) :
 	mFont( font ),
-	mOptions( options )
+	mOptions( options ),
+	mTexture( NULL )
 {
 	mMesh = ResourceManager::get()->getMesh( "models/quad_plane.obj" );
 	setText( text );
@@ -49,6 +51,12 @@ void Text::clearCharacters()
 		delete c;
 	}
 	mCharacters.clear();
+	
+	// Delete texture
+	if ( mTexture != NULL ) {
+		RenderingEngine::get()->deleteTexture( mTexture );
+		delete mTexture;
+	}
 }
 
 void Text::setText( const std::string& text )
@@ -61,7 +69,7 @@ void Text::setText( const std::string& text )
 	mPenPosition = Vec2i( 0, -mFont->defaultLineHeight * 0.6f );
 	
 	for( int i = 0; i < text.length(); i++ ) {
-		// Inser the first character
+		// Inser the next character character
 		insertCharacter( text[i] );
 		
 		// Check end of line according to 'width' property
@@ -81,7 +89,7 @@ void Text::setText( const std::string& text )
 				}
 				
 				// Out of space, so stop adding characters
-				return;
+				break;
 			}
 			else {
 				// Go back to the most recent space
@@ -93,6 +101,18 @@ void Text::setText( const std::string& text )
 			}
 		}
 	}
+	
+	// Create an FBO with a texture
+	RenderingEngine* renderer = RenderingEngine::get();
+	int size = ci::math<int>::max(  mPenPosition.x, mPenPosition.y );
+	mTexture = new Texture( size, size );
+	renderer->createTexture( mTexture );
+	FramebufferObject* fbo = new FramebufferObject( mTexture );
+	renderer->createFbo( fbo );
+	
+	// Draw the Characters to the texture
+	renderer->bindFrameBufferObject( fbo );
+	renderer->drawText( this );
 }
 
 void Text::removeLastCharacter()

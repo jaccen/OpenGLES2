@@ -35,11 +35,6 @@ void Camera::setZoom( float zoom )
 	mBody.position.z = zoom;
 }
 
-void Camera::setAngle( float angleX )
-{
-	mPivot.rotation.x = angleX;
-}
-
 void Camera::setFov( float fov )
 {
 	mFov = fov;
@@ -72,7 +67,7 @@ Camera::Camera()
 	
 	mFov = 45.0f;
 	
-	mPivot.rotation.x	= -13.0f;
+	mPivot.orientation	= ci::Quatf( ci::Vec3f::xAxis(), -13.0f );
 	mBody.position.z	= 30.0f;
 	
 	mBody.setParent( &mPivot );

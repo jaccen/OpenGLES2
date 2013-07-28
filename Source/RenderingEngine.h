@@ -36,6 +36,7 @@ public:
 	bool					createTexture( Texture* texture );
 	void					deleteTexture( Texture* texture );
 	void					setRootGui( Node2d* Node2d );
+	void					setBackgroundTexture( Texture* texture );
 	void					setSkyboxNode( Node* node );
 	void					addNode( Node* node );
 	void					removeNode( Node* node );
@@ -51,22 +52,26 @@ public:
 	float					getContentScaleFactor() const { return mContentScaleFactor; }
 	void					bindWindowContext();
 	void					bindFrameBufferObject( FramebufferObject* fbo );
-	void					drawTexture( Texture* texture, int offsetX = 0, int offsetY = 0 );
+	void					drawTexture( Texture* texture, const ci::Matrix44f& transform = ci::Matrix44f::identity(), bool flipY = false );
+	void					drawText( Text* text );
+	void					drawNode( Node* node );
+	void					addSpriteNode( Node* node );
 	
 private:
     RenderingEngine();
 	static RenderingEngine*			sInstance;
 	
-	void					drawText( Text* text );
 	void					drawGui( Node2d* Node2d );
 	void					drawMesh( Mesh* mesh, bool wireframe = false );
 	void					setBlendMode( Node::Layer layerType );
 	
 	float					mContentScaleFactor;
 	ci::Matrix44f			mScreenTransform;
+	ci::Matrix44f			mScreenTransformFlippedY;
 	ci::Vec2i				mScreenSize;
 	std::list<Node*>		mObjectNodes;
 	std::list<Node2d*>		mScreenNodes;
+	std::list<Node*>		mSpriteNodes;
 	std::map<std::string, ShaderProgram> mShaders;
 	GLuint					mContextFramebuffer;
     GLuint					mContextColorRenderbuffer;
@@ -74,6 +79,7 @@ private:
 	Camera*					mCamera;
 	Node*					mSkyboxNode;
 	
+	Texture*				mBackgroundTexture;
 	Texture*				mDefaultWhite;
 	Texture*				mDefaultBlack;
 	FramebufferObject*		mMainFbo;

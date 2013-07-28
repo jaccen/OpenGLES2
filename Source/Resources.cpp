@@ -33,7 +33,7 @@ void Texture::setSize( int width, int height )
 	}
 }
 
-FramebufferObject::FramebufferObject( int width, int height ) : mTexture(NULL), mWidth( width ), mHeight( height ), mFormat( GL_RGBA4 )
+FramebufferObject::FramebufferObject( int width, int height ) : mTexture(NULL), mWidth( width ), mHeight( height ), mFormat( GL_RGBA )
 {
 	
 }

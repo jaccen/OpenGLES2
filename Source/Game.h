@@ -37,7 +37,7 @@ public:
 	void				remove( Node* node );
 	void				remove( Node2d* Node2d );
 	
-	Node*				pickObject( const ci::Ray& ray );
+	ObjectController*	pickObject( const ci::Ray& ray );
 	
 	const std::list<Node*>& getNodes() { return mNodes; }
 	
@@ -49,6 +49,7 @@ public:
 private:
 	Camera* mCamera;
 	std::list<ObjectController*> mControllers;
+	std::list<ObjectController*> mSelectedControllers;
 	
 	Touch mTouch;
 	
@@ -62,6 +63,7 @@ private:
 	// Camera controls
 	bool mFreeTargetMode;
 	Node* mFocusTarget;
+	Node* mSelection;
 	float mZoomStart;
 	float mZoomTarget;
 	float mAngleTargetX;
@@ -69,5 +71,9 @@ private:
 	ci::Vec3f mStartRotation;
 	ci::Vec3f mRotationTarget;
 	
-	LensFlare* mLensFlare;
+	//LensFlare* mLensFlare;
+		
+	void selectController( ObjectController* controller );
+	void deselectController( ObjectController* controller );
+	void deselectAllControllers();
 };

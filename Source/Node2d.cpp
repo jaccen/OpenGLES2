@@ -65,7 +65,7 @@ void Node2d::update( const float deltaTime )
 	mNode->scale.y		= size.y;
 	mNode->position.x	= mNode->scale.x * (0.5f - anchor.x) + p.x;
 	mNode->position.y	= mNode->scale.y * (0.5f - anchor.y) + p.y;
-	mNode->rotation.z	= rotation;
+	mNode->orientation = Quatf( Vec3f::zAxis(), rotation );
 	
 	mNode->update( deltaTime );
 }

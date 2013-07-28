@@ -3,7 +3,7 @@
 
 using namespace ci;
 
-Game::Game(RenderingEngine* renderingEngine ) : mRenderingEngine(renderingEngine), mFreeTargetMode( true ), mPlanet(NULL), mLensFlare(NULL), mAngleTargetX( 0.0f ), mAngleTargetY( 0.0f )
+Game::Game(RenderingEngine* renderingEngine ) : mRenderingEngine(renderingEngine), mFreeTargetMode( true ), mPlanet(NULL), /*mLensFlare(NULL),*/ mAngleTargetX( 0.0f ), mAngleTargetY( 0.0f )
 {
 }
 
@@ -25,6 +25,7 @@ void Game::setup( int width, int height )
 	mResourceManager->loadShader( kShaderFragmentLighting,	"shaders/planet.vert",				"shaders/planet.frag" );
 	mResourceManager->loadShader( kSahderClouds,			"shaders/pixel_lighting.vert",		"shaders/clouds.frag" );
 	mResourceManager->loadShader( kSahderVertexLighting,	"shaders/vertex_lighting.vert",		"shaders/vertex_lighting.frag" );
+	mResourceManager->loadShader( kShaderVertexLightColor,	"shaders/vertex_lighting.vert",		"shaders/color.frag" );
 	mResourceManager->loadShader( kShaderUnlit,				"shaders/unlit.vert",				"shaders/unlit.frag" );
 	mResourceManager->loadShader( kShaderScreenSpace,		"shaders/screen_space.vert",		"shaders/screen_space.frag" );
 	mResourceManager->loadShader( kShaderScreenSpaceBW,		"shaders/screen_space.vert",		"shaders/black_and_white.frag" );
@@ -52,10 +53,10 @@ void Game::setup( int width, int height )
 	mPlanet->mTexture		= mResourceManager->getTexture( "textures/mars_diffuse.png" );
 	mPlanet->mTextureNormal = mResourceManager->getTexture( "textures/mars_normal.jpg" );
 	mPlanet->mTextureSelfIllumination = mResourceManager->getTexture( "textures/light_map.jpg" );
-	mPlanet->scale			= Vec3f::one() * 3.6f;
+	mPlanet->scale			= Vec3f::one() * 6.0f;
 	mRenderingEngine->addNode( mPlanet );
 	
-	Node* glowSprite		= new Node();
+	/*Node* glowSprite		= new Node();
 	glowSprite->mLayer		= Node::LayerLighting;
 	glowSprite->mFaceCamera = true;
 	glowSprite->mMesh		= mResourceManager->getMesh( "models/quad_plane.obj" );
@@ -63,19 +64,29 @@ void Game::setup( int width, int height )
     glowSprite->mColor		= ci::Vec4f( 1, .5, 0, 0.4 );
 	glowSprite->mShader		= kShaderUnlit;
 	glowSprite->scale		= Vec3f::one() * 9.6f;
-	mRenderingEngine->addNode( glowSprite );
+	mRenderingEngine->addSpriteNode( glowSprite );*/
 	
 	mFocusTarget = mPlanet;
 	
 	Node* skyBox			= new Node();
 	skyBox->mMesh			= mResourceManager->getMesh( "models/skybox.obj" );
-	skyBox->mTexture		= mResourceManager->getTexture( "textures/stars2.jpg" );
+	skyBox->mTexture		= mResourceManager->getTexture( "textures/stars4.jpg" );
 	skyBox->mShader			= kShaderUnlit;
 	skyBox->scale			= Vec3f::one() * 400.0f;
 	mRenderingEngine->setSkyboxNode( skyBox );
 	
+	//mRenderingEngine->setBackgroundTexture( mResourceManager->getTexture( "textures/stars2.jpg" ) );
 	
-	for( int i = 0; i < 6; i++ ) {
+	mSelection				= new Node();
+	mSelection->orientation	= Quatf( Vec3f::xAxis(), -M_PI_2 );
+	mSelection->mLayer		= Node::LayerLighting;
+	mSelection->mMesh		= mResourceManager->getMesh( "models/quad_plane.obj" );
+	mSelection->mTexture	= mResourceManager->getTexture( "textures/selection_ring.png" );
+	mSelection->mShader		= kShaderUnlit;
+	mSelection->scale		= Vec3f::one() * 5.0f;
+	mRenderingEngine->addSpriteNode( mSelection );
+	
+	for( int i = 0; i < 15; i++ ) {
 		Node* glowSprite		= new Node();
 		glowSprite->mLayer		= Node::LayerLighting;
 		glowSprite->mFaceCamera = true;
@@ -83,15 +94,15 @@ void Game::setup( int width, int height )
 		glowSprite->mTexture	= mResourceManager->getTexture( "textures/projectile.png" );
 		glowSprite->mColor		= ci::Vec4f( 1, .5, 0, 1.0f );
 		glowSprite->mShader		= kShaderUnlit;
-		glowSprite->scale		= Vec3f(0.5,0.5,0.5) * 1.0f;
-		int rX = arc4random() % 100;
-		int rY = arc4random() % 100;
-		int rZ = arc4random() % 100;
-		glowSprite->position	= Vec3f( rX, rY, rZ ) * 0.05f;
-		mRenderingEngine->addNode( glowSprite );
+		glowSprite->scale		= Vec3f(0.5,0.5,0.5) * 2.0f;
+		int rX = arc4random() % 200 - 100;
+		int rY = arc4random() % 200 - 100;
+		int rZ = arc4random() % 200 - 100;
+		glowSprite->position	= Vec3f( rX, rY, rZ ) * 0.1f;
+		mRenderingEngine->addSpriteNode( glowSprite );
 	}
 	
-	for( int i = 0; i < 6; i++ ) {
+	/*for( int i = 0; i < 6; i++ ) {
 		int rX = arc4random() % 360;
 		int rY = arc4random() % 360;
 		int rZ = arc4random() % 360;
@@ -111,35 +122,37 @@ void Game::setup( int width, int height )
 		mNodes.push_back( tower );
 		mControllers.push_back( new ObjectController( tower ) );
 		tower->update();
-	}
+	}*/
 	
-	for( int i = 0; i < 30; i++ ) {
+	for( int i = 0; i < 20; i++ ) {
 		Node* shipNode				= new Node();
 		shipNode->mLayer			= Node::LayerObjects;
-		shipNode->mMesh			= mResourceManager->getMesh( "models/cube.obj" );
-		shipNode->mColorSpecular	= ci::Vec4f( 1, 1, 1, 1.0 );
+		shipNode->mMesh				= mResourceManager->getMesh( "models/ship.obj" );
+		shipNode->mColorSpecular	= ci::Vec4f( .5, .5, .5, 1.0 );
 		shipNode->mShininess		= 100.0f;
 		shipNode->mGlossiness		= 1.0f;
-		shipNode->mShader			= kSahderVertexLighting;
-		shipNode->scale			= Vec3f( 1, 2, 3 ) * 0.05f;
-		int rX = arc4random() % 200 - 100;
-		int rY = arc4random() % 200 - 100;
-		int rZ = arc4random() % 200 - 100;
-		shipNode->position			= Vec3f( rX, rY, rZ ) * 0.15f;
-		shipNode->mTexture			= mResourceManager->getTexture( "textures/metal.png" );
-		shipNode->mTextureSelfIllumination = mResourceManager->getTexture( "textures/ship_light_map.png" );
-		shipNode->mColorSelfIllumination = Vec4f( .5, .5, 1, 1 );
+		shipNode->mShader			= kShaderVertexLightColor;
+		shipNode->scale				= Vec3f( 1, 1, 1 ) * 1.5f;
+		int rX = arc4random() % 800 - 400;
+		int rY = arc4random() % 800 - 400;
+		int rZ = arc4random() % 800 - 400;
+		shipNode->position			= Vec3f( rX, -shipNode->scale.y * 0.5f, rZ ) * 0.15f;
+		//shipNode->mTexture			= mResourceManager->getTexture( "textures/metal.png" );
+		//shipNode->mTextureSelfIllumination = mResourceManager->getTexture( "textures/ship_light_map.png" );
+		shipNode->mColorSelfIllumination = Vec4f( 1, 1, 1, 1 );
 		mRenderingEngine->addNode( shipNode );
 		ObjectController* ship = new ObjectController( shipNode, arc4random() % 2 );
 		mControllers.push_back( ship);
 	}
 	
-	mCamera->setZoom( 50.0f );
+	mCamera->setZoom( 400.0f );
+	mCamera->setFov( 20.0f );
 	mZoomStart = mZoomTarget = mCamera->getZoom();
-	mCamera->setAngle( -10.0f );
-	mStartRotation = mRotationTarget = Vec3f( mCamera->getAngle(), mCamera->rotation.y, 0.0f );
+	mCamera->setAngle( -45.0f );
+	mCamera->orientation = Quatf( Vec3f::yAxis(), 45 * kToRad );
+	mStartRotation = mRotationTarget = Vec3f( mCamera->getAngle(), mCamera->orientation.getAngle(), 0.0f );
 	
-	mLensFlare = new LensFlare( this );
+	//mLensFlare = new LensFlare( this );
 	
 	mRootGui = new Node2d();
 	mRenderingEngine->addNode( mRootGui );
@@ -154,12 +167,13 @@ void Game::setup( int width, int height )
 	opts.height = 150;
 	opts.letterSpacing = 2;
 	opts.color = Vec4f( 1, 1, 1, 1 );
+	opts.alignment = Text::RIGHT;
 	opts.truncateWithDots = true;
 	child->mText = new Text( font, opts,  "\"The 14210 quick brown foxes jumped over the 21543 lazy dogs,\" I said.  \"The 1440 quick brown foxes jumped over the 5432142 lazy dogs,\" I said.  \"The 10 quick brown foxes jumped over the 52 lazy dogs,\" I said.  \"The 4320 quick brown foxes jumped over the 52 lazy dogs,\" I said." );
 	child->getNode()->mLayer = Node::LayerGui;
-	Texture* t = mResourceManager->getTexture( "textures/test_dialog.png" );
-	child->setTexture( t );
-	child->position = Vec2i( 0, 0 );
+	//Texture* t = mResourceManager->getTexture( "textures/test_dialog.png" );
+	//child->setTexture( t );
+	child->position = Vec2i( 500, 300 );
 	child->anchor = Vec2f( 0.0f, 0.0f );
 	mRootGui->addChild( child );
 }
@@ -170,36 +184,38 @@ void Game::update( const float deltaTime )
 	
 	mTouch.update( deltaTime );
 	
-	mCamera->position += ( mFocusTarget->getGlobalPosition() - mCamera->position ) / 20.0f;
+	mSelection->position = mFocusTarget->position;
+	mSelection->scale = mFocusTarget->scale * 2.0;
+	//mCamera->position += ( mFocusTarget->getGlobalPosition() Y- mCamera->position ) / 20.0f;
 	
 	// Zooming
-	float targetZ = mZoomStart + mTouch.getTouchesDistance() * -(0.15f);
-	const float maxZoom = 100.0f;
+	float targetZ = mZoomStart + mTouch.getTouchesDistance() * -(0.35f);
+	const float maxZoom = 500.0f;
 	const float minZoom = 9.65f;
 	targetZ = math<float>::clamp( targetZ, minZoom, maxZoom );
-	mZoomTarget += (targetZ - mZoomTarget ) / 10.0f;
+	mZoomTarget += (targetZ - mZoomTarget ) / 5.0f;
 	mCamera->setZoom( mZoomTarget );
 	
 	// Orbiting
-	float targetY = mStartRotation.y + mTouch.getTouchesDifference().x * -0.3f;
-	float targetX = mStartRotation.x + mTouch.getTouchesDifference().y * -0.3f;
-	const float maxAngle = 89.9f;
-	const float minAngle = -89.9f;
+	float targetY = mStartRotation.y + mTouch.getTouchesDifference().x * -0.003f;
+	float targetX = mStartRotation.x + mTouch.getTouchesDifference().y * -0.003f;
+	const float maxAngle = -20.0f * kToRad;
+	const float minAngle = -70.0f * kToRad;
 	targetX = math<float>::clamp( targetX, minAngle, maxAngle );
 	float easing = 10.0f;
 	mAngleTargetX += ( targetX - mAngleTargetX ) / easing;
 	mCamera->setAngle( mAngleTargetX );
 	mAngleTargetY += ( targetY - mAngleTargetY ) / easing;
-	mCamera->rotation.y = mAngleTargetY;
+	mCamera->orientation = Quatf( Vec3f::yAxis(), mAngleTargetY );
 	
 	if ( mPlanet ) {
 		const float planetRotationSpeed = 4.0f;
-		mPlanet->rotation.y += planetRotationSpeed * deltaTime;
+		//mPlanet->rotation.y += planetRotationSpeed * deltaTime;
 	}
 	
-	if ( mLensFlare ) {
+	/*if ( mLensFlare ) {
 		mLensFlare->update( deltaTime );
-	}
+	}*/
 	
 	for( auto iter = mControllers.begin(); iter != mControllers.end(); iter++ ) {
 		(*iter)->update( deltaTime );
@@ -208,25 +224,58 @@ void Game::update( const float deltaTime )
 
 void Game::tapDown(ci::Vec2i position)
 {
-	if ( Node* node = pickObject( mCamera->rayIntoScene( position ) ) ) {
-		//std::cout << "tapDown: " << position << std::endl;
-		//mFocusTarget = node;
-		//mFreeTargetMode = false;
+	// Raycast to select an object
+	if ( ObjectController* controller = pickObject( mCamera->rayIntoScene( position ) ) ) {
+		Node* node = controller->getNode();
+		mFocusTarget = node;
+		mFreeTargetMode = false;
+		
+		deselectAllControllers();
+		selectController( controller );
 	}
+	// Else raycast to find intersection with plane in empty space
+	else {
+		Vec3f position = Vec3f(1,0,1);
+		for( std::list<ObjectController*>::iterator iter = mSelectedControllers.begin(); iter != mSelectedControllers.end(); iter++) {
+			(*iter)->setMoveTarget( position );
+		}
+	}
+}
+
+void Game::selectController( ObjectController* controller )
+{
+	std::list<ObjectController*>::iterator match = std::find( mSelectedControllers.begin(), mSelectedControllers.end(), controller );
+	if ( match == mSelectedControllers.end() ) {
+		mSelectedControllers.push_back( controller );
+	}
+}
+
+void Game::deselectController( ObjectController* controller )
+{
+	std::list<ObjectController*>::iterator match = std::find( mSelectedControllers.begin(), mSelectedControllers.end(), controller );
+	if ( match != mSelectedControllers.end() ) {
+		mSelectedControllers.erase( match );
+	}
+}
+
+void Game::deselectAllControllers()
+{
+	mSelectedControllers.clear();
 }
 
 void Game::debugDraw()
 {
-	return;
 	
 	// Draw grid
-	Vec4f c = Vec4f( 1, 1, 1, 0.1f );
-	float l = 1.5f;
-	int n = 20;
-	for( int i = -n; i <= n; i++ ) {
+	Vec4f c = Vec4f( 1, 1, 1, 0.15f );
+	float l = 5.0f;
+	float n = 10;
+	for( float i = -n; i <= n; i++ ) {
 		mRenderingEngine->debugDrawLine( Vec3f(i,0,-n) * l, Vec3f(i,0,n) * l, c );
 		mRenderingEngine->debugDrawLine( Vec3f(-n,0,i) * l, Vec3f(n,0,i) * l, c );
 	}
+	
+	return;
 	
 	// Draw bounding boxes
 	for( auto iter = mControllers.begin(); iter != mControllers.end(); iter++ ) {
@@ -237,7 +286,7 @@ void Game::debugDraw()
 	}
 }
 
-Node* Game::pickObject( const ci::Ray& ray )
+ObjectController* Game::pickObject( const ci::Ray& ray )
 {
 	for( auto iter = mControllers.begin(); iter != mControllers.end(); iter++ ) {
 		ObjectController* controller = *iter;
@@ -248,7 +297,7 @@ Node* Game::pickObject( const ci::Ray& ray )
 		if ( node == mFocusTarget ) continue;
 		
 		if( controller->getBoundingBox().intersects( ray ) ) {
-			return node;
+			return controller;
 		}
 	}
 	return NULL;
@@ -258,7 +307,7 @@ void Game::gestureStarted( int fingerCount )
 {
 	if ( fingerCount == 2 ) {
 		mZoomStart = mCamera->getZoom();
-		mStartRotation = Vec3f( mCamera->getAngle(), mCamera->rotation.y, 0.0f );
+		mStartRotation = Vec3f( -mCamera->getAngle(), mCamera->orientation.getAngle(), 0.0f );
 	}
 }
 

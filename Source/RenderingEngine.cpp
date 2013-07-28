@@ -19,10 +19,18 @@ RenderingEngine* RenderingEngine::get()
 	return sInstance;
 }
 
-RenderingEngine::RenderingEngine() : mContentScaleFactor(1.0f), mSkyboxNode(NULL)
+RenderingEngine::RenderingEngine() : mContentScaleFactor(1.0f), mSkyboxNode(NULL), mBackgroundTexture(NULL)
 {
     glGenRenderbuffers( 1, &mContextColorRenderbuffer );
     glBindRenderbuffer( GL_RENDERBUFFER, mContextColorRenderbuffer );
+}
+
+void RenderingEngine::addSpriteNode( Node* node )
+{
+	auto match = std::find( mSpriteNodes.begin(), mSpriteNodes.end(), node );
+	if ( match == mSpriteNodes.end() ) {
+		mSpriteNodes.push_back( node );
+	}
 }
 
 void RenderingEngine::addNode( Node* node )
@@ -61,6 +69,11 @@ void RenderingEngine::setSkyboxNode( Node* node )
 {
 	mSkyboxNode = node;
 	mSkyboxNode->update();
+}
+
+void RenderingEngine::setBackgroundTexture( Texture* texture )
+{
+	mBackgroundTexture = texture;
 }
 
 void RenderingEngine::createVbo( Mesh* vboMesh, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& texCoords )
@@ -175,6 +188,10 @@ void RenderingEngine::setup( int width, int height, float contentScaleFactor )
 								   1 / (float) height * 2.0f * -1.0f,
 								  1.0f ) );
 	
+	mScreenTransformFlippedY = mScreenTransform;
+	mScreenTransformFlippedY.translate( Vec3f( 0, mScreenSize.y / mContentScaleFactor, 0 ) );
+	mScreenTransformFlippedY.scale( Vec3f( 1, -1, 1 ) );
+	
 	GLubyte whitePixel[4] = { 255, 255, 255, 255 };
 	mDefaultWhite = new Texture();
 	mDefaultWhite->mWidth = mDefaultWhite->mHeight = 1;
@@ -216,6 +233,10 @@ void RenderingEngine::update( const float deltaTime )
 		(*iter)->update( deltaTime );
 	}
 	
+	for( auto iter = mSpriteNodes.begin(); iter != mSpriteNodes.end(); iter++ ) {
+		(*iter)->update( deltaTime );
+	}
+	
 	for( auto iter = mScreenNodes.begin(); iter != mScreenNodes.end(); iter++ ) {
 		(*iter)->update( deltaTime );
 	}
@@ -226,7 +247,7 @@ void RenderingEngine::bindFrameBufferObject( FramebufferObject* fbo )
 	glBindFramebuffer( GL_FRAMEBUFFER, fbo->mHandle );
 	glBindRenderbuffer( GL_RENDERBUFFER, fbo->mColorRenderbuffer );
 	
-    glClearColor(0.0f, 0.0f, 0.0f, 0.4f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glViewport( 0, 0, mScreenSize.x, mScreenSize.y );
 }
@@ -242,7 +263,7 @@ void RenderingEngine::draw()
 {
 	bindWindowContext();
 	
-    glClearColor(0.5f, 0.5f, 0.5f, 1);
+    glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	
 	// Set the viewport transform.
@@ -251,8 +272,8 @@ void RenderingEngine::draw()
 	glCullFace( GL_BACK );
 	
 	if ( mSkyboxNode ) {
-		Node* node = mSkyboxNode;
 		
+		Node* node = mSkyboxNode;
 		ShaderProgram& shader = mShaders[ node->mShader ];
 		
 		glUseProgram( shader.getHandle() );
@@ -273,58 +294,23 @@ void RenderingEngine::draw()
 		glBindTexture( GL_TEXTURE_2D, 0 );
 	}
 	
+	else if ( mBackgroundTexture ) {
+		
+		glDisable( GL_DEPTH_TEST );
+		setBlendMode( Node::LayerGui );
+		Matrix44f trans = Matrix44f::identity();
+		trans.scale( Vec3f( mBackgroundTexture->mWidth, mBackgroundTexture->mHeight, 1 ) );
+		drawTexture( mBackgroundTexture, trans, true );
+	}
+	
 	glEnable(GL_DEPTH_TEST);
     
 	for( auto iter = mObjectNodes.begin(); iter != mObjectNodes.end(); iter++ ) {
-		Node* node = *iter;
-		
-		ShaderProgram& shader = mShaders[ node->mShader ];
-		
-		glUseProgram( shader.getHandle() );
-		shader.uniform( "AmbientMaterial",		Vec4f( 0.2f, 0.2f, 0.2f, 1.0f ) );
-		//shader.uniform( "LightPosition",		Vec3f( 0, -1, 0 ) );
-		//shader.uniform( "LightColor",			Vec4f( 1, 0, 0, 1 ) );
-		shader.uniform( "LightPosition",		Vec3f( 100.0, 50.0, 50.0 ) );
-		shader.uniform( "LightColor",			Vec4f( 1, 1, 1, 1 ) );
-		shader.uniform( "EyePosition",			mCamera->getGlobalPosition() );
-		shader.uniform( "SpecularMaterial",		node->mColorSpecular );
-		shader.uniform( "SelfIlliminationMaterial", node->mColorSelfIllumination );
-		shader.uniform( "DiffuseMaterial",		node->mColor );
-		shader.uniform( "RimMaterial",			node->mColorRim );
-		shader.uniform( "Shininess",			node->mShininess );
-		shader.uniform( "Glossiness",			node->mGlossiness );
-		shader.uniform( "RimPower",				node->mRimPower );
-		shader.uniform( "Modelview",			mCamera->getModelViewMatrix() );
-		shader.uniform( "Projection",			mCamera->getProjectionMatrix() );
-		shader.uniform( "Transform",			node->getTransform() );
-		
-		glActiveTexture( GL_TEXTURE0 );
-		shader.uniform( "DiffuseTexture", 0 );
-		bool t = node->mTexture == NULL;
-		glBindTexture( GL_TEXTURE_2D, t ? mDefaultWhite->mHandle : node->mTexture->mHandle );
-		
-		if ( node->mTextureNormal != NULL ) {
-			glActiveTexture( GL_TEXTURE1 );
-			shader.uniform( "NormalTexture", 1 );
-			glBindTexture( GL_TEXTURE_2D, node->mTextureNormal->mHandle );
-		}
-		
-		if ( node->mTextureSpecular != NULL ) {
-			glActiveTexture( GL_TEXTURE2 );
-			shader.uniform( "SpecularTexture", 2 );
-			glBindTexture( GL_TEXTURE_2D, node->mTextureSpecular->mHandle );
-		}
-		
-		if ( node->mTextureSelfIllumination != NULL ) {
-			glActiveTexture( GL_TEXTURE3 );
-			shader.uniform( "SelfIlliminationTexture", 3 );
-			glBindTexture( GL_TEXTURE_2D, node->mTextureSelfIllumination->mHandle );
-		}
-		
-		setBlendMode( node->mLayer );
-		drawMesh( node->mMesh );
-		
-		glBindTexture( GL_TEXTURE_2D, 0 );
+		drawNode( *iter );
+	}
+    
+	for( auto iter = mSpriteNodes.begin(); iter != mSpriteNodes.end(); iter++ ) {
+		drawNode( *iter );
 	}
 	
 	glDisable( GL_CULL_FACE );
@@ -366,6 +352,57 @@ void RenderingEngine::draw()
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 }
 
+void RenderingEngine::drawNode( Node* node )
+{
+	ShaderProgram& shader = mShaders[ node->mShader ];
+	
+	glUseProgram( shader.getHandle() );
+	shader.uniform( "AmbientMaterial",		Vec4f( 0.2f, 0.2f, 0.2f, 1.0f ) );
+	//shader.uniform( "LightPosition",		Vec3f( 0, -1, 0 ) );
+	//shader.uniform( "LightColor",			Vec4f( 1, 0, 0, 1 ) );
+	shader.uniform( "LightPosition",		Vec3f( 100.0, 50.0, 50.0 ) );
+	shader.uniform( "LightColor",			Vec4f( 1, 1, 1, 1 ) );
+	shader.uniform( "EyePosition",			mCamera->getGlobalPosition() );
+	shader.uniform( "SpecularMaterial",		node->mColorSpecular );
+	shader.uniform( "SelfIlliminationMaterial", node->mColorSelfIllumination );
+	shader.uniform( "DiffuseMaterial",		node->mColor );
+	shader.uniform( "RimMaterial",			node->mColorRim );
+	shader.uniform( "Shininess",			node->mShininess );
+	shader.uniform( "Glossiness",			node->mGlossiness );
+	shader.uniform( "RimPower",				node->mRimPower );
+	shader.uniform( "Modelview",			mCamera->getModelViewMatrix() );
+	shader.uniform( "Projection",			mCamera->getProjectionMatrix() );
+	shader.uniform( "Transform",			node->getTransform() );
+	
+	glActiveTexture( GL_TEXTURE0 );
+	shader.uniform( "DiffuseTexture", 0 );
+	bool t = node->mTexture == NULL;
+	glBindTexture( GL_TEXTURE_2D, t ? mDefaultWhite->mHandle : node->mTexture->mHandle );
+	
+	if ( node->mTextureNormal != NULL ) {
+		glActiveTexture( GL_TEXTURE1 );
+		shader.uniform( "NormalTexture", 1 );
+		glBindTexture( GL_TEXTURE_2D, node->mTextureNormal->mHandle );
+	}
+	
+	if ( node->mTextureSpecular != NULL ) {
+		glActiveTexture( GL_TEXTURE2 );
+		shader.uniform( "SpecularTexture", 2 );
+		glBindTexture( GL_TEXTURE_2D, node->mTextureSpecular->mHandle );
+	}
+	
+	if ( node->mTextureSelfIllumination != NULL ) {
+		glActiveTexture( GL_TEXTURE3 );
+		shader.uniform( "SelfIlliminationTexture", 3 );
+		glBindTexture( GL_TEXTURE_2D, node->mTextureSelfIllumination->mHandle );
+	}
+	
+	setBlendMode( node->mLayer );
+	drawMesh( node->mMesh );
+	
+	glBindTexture( GL_TEXTURE_2D, 0 );
+}
+
 void RenderingEngine::drawMesh( Mesh* mesh, bool wireframe )
 {
 	glBindBuffer( GL_ARRAY_BUFFER, mesh->vertexBuffer );
@@ -394,9 +431,11 @@ void RenderingEngine::drawText( Text* text )
 {
 	ShaderProgram& shader = mShaders[ kShaderText ];
 	
+	glDisable( GL_CULL_FACE );
+	
 	glUseProgram( shader.getHandle() );
 	shader.uniform( "DiffuseMaterial",		text->getColor() );
-	shader.uniform( "ScreenTransform",		mScreenTransform );
+	shader.uniform( "ScreenTransform",		mScreenTransformFlippedY );
 	
 	glActiveTexture( GL_TEXTURE0 );
 	shader.uniform( "DiffuseTexture", 0 );
@@ -449,23 +488,18 @@ void RenderingEngine::drawGui( Node2d* gui )
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	
 	if ( gui->mText != NULL ) {
-		drawText( gui->mText );
+		drawTexture( gui->mText->getTexture(), node->getTransform(), false );
 	}
 }
 
-void RenderingEngine::drawTexture( Texture* texture, int offsetX, int offsetY )
+void RenderingEngine::drawTexture( Texture* texture, const ci::Matrix44f& transform, bool flipY )
 {
-	ShaderProgram& shader = mShaders[ kShaderScreenText ];
+	ShaderProgram& shader = mShaders[ kShaderScreenSpace ];
 	glUseProgram( shader.getHandle() );
-	
-	float csf = getContentScaleFactor();
-	Matrix44f transform = Matrix44f::identity();
-	transform.translate( Vec3f( ( texture->mWidth / 2 + offsetX ) / csf, ( 1536 - texture->mHeight / 2 + offsetY ) / csf, 0.0f ) );
-	transform.scale( Vec3f( texture->mWidth / csf, -texture->mHeight / csf, 1.0f ) );
 	
 	shader.uniform( "DiffuseMaterial",		Vec4f(1,1,1,1) );
 	shader.uniform( "Transform",			transform );
-	shader.uniform( "ScreenTransform",		mScreenTransform );
+	shader.uniform( "ScreenTransform",		flipY ? mScreenTransformFlippedY : mScreenTransform );
 	
 	glActiveTexture( GL_TEXTURE0 );
 	shader.uniform( "DiffuseTexture", 0 );
@@ -519,19 +553,21 @@ void RenderingEngine::debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::Vec4f
 void RenderingEngine::debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::Vec4f color )
 {
 	glEnable( GL_DEPTH_TEST );
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE );
 	
 	const float vertices[] = {
 		from.x, from.y, from.z, to.x, to.y, to.z
 	};
 	
-	ShaderProgram& shader = mShaders[ kShaderScreenSpace ];
+	ShaderProgram& shader = mShaders[ kShaderDebug ];
 	
 	glUseProgram( shader.getHandle() );
 	shader.uniform( "Color",				color );
 	shader.uniform( "Modelview",			mCamera->getModelViewMatrix() );
 	shader.uniform( "Projection",			mCamera->getProjectionMatrix() );
 
-	GLuint positionSlot = glGetAttribLocation( shader.getHandle(), "Position");
+	GLuint positionSlot = glGetAttribLocation( shader.getHandle(), "Position" );
 	glEnableVertexAttribArray( positionSlot );
 	glVertexAttribPointer( positionSlot, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, &vertices[0] );
 	glDrawArrays( GL_LINES, 0, 2 );
