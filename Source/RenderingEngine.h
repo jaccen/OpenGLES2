@@ -42,7 +42,6 @@ public:
 	void					removeNode( Node* node );
 	void					addNode( Node2d* node );
 	void					removeNode( Node2d* node );
-	void					addShader( std::string key, const char* vShader, const char* fShader );
 	
 	void					debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::Vec4f color );
 	void					debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::Vec4f color );
@@ -54,7 +53,6 @@ public:
 	void					bindFrameBufferObject( FramebufferObject* fbo );
 	void					drawTexture( Texture* texture, const ci::Matrix44f& transform = ci::Matrix44f::identity(), bool flipY = false );
 	void					drawText( Text* text );
-	void					drawNode( Node* node );
 	void					addSpriteNode( Node* node );
 	
 private:
@@ -62,8 +60,11 @@ private:
 	static RenderingEngine*			sInstance;
 	
 	void					drawGui( Node2d* Node2d );
-	void					drawMesh( Mesh* mesh, bool wireframe = false );
-	void					setBlendMode( Node::Layer layerType );
+	inline void				drawNode( const Node* node );
+	inline void				drawMesh( const Mesh* mesh, const ShaderProgram* shader, const bool wireframe = false );
+	inline void				setBlendMode( Node::Layer layerType );
+	inline bool				setUniforms( const Material& material, ShaderProgram* shader );
+	inline void				unbindTextures( Material& material );
 	
 	float					mContentScaleFactor;
 	ci::Matrix44f			mScreenTransform;
@@ -72,7 +73,6 @@ private:
 	std::list<Node*>		mObjectNodes;
 	std::list<Node2d*>		mScreenNodes;
 	std::list<Node*>		mSpriteNodes;
-	std::map<std::string, ShaderProgram> mShaders;
 	GLuint					mContextFramebuffer;
     GLuint					mContextColorRenderbuffer;
     GLuint					mContextDepthRenderbuffer;

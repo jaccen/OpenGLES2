@@ -21,6 +21,10 @@
 		5A27CACC171237D10028DF13 /* Resources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A27CACA171237D10028DF13 /* Resources.cpp */; };
 		5A58E78F16F6463200AA4635 /* Rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E78E16F6463200AA4635 /* Rect.cpp */; };
 		5A58E79116F6464300AA4635 /* Area.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E79016F6464300AA4635 /* Area.cpp */; };
+		5A5DBEFF17A5CBCB00DB031C /* TouchInput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B1716F69D0400F47648 /* TouchInput.cpp */; };
+		5A5DBF0017A5CC0F00DB031C /* CameraController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A5DBEFC17A5CAB300DB031C /* CameraController.cpp */; };
+		5A62F35117A5F9620050B91A /* Light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A62F34D17A5F9620050B91A /* Light.cpp */; };
+		5A62F35217A5F9620050B91A /* Material.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A62F34F17A5F9620050B91A /* Material.cpp */; };
 		5A9B879816F89E4F000B53BF /* ObjectController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A9B879616F89E4F000B53BF /* ObjectController.cpp */; };
 		5A9D974616F96BB60099763E /* LifeMeter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A9D974416F96BB60099763E /* LifeMeter.cpp */; };
 		5A9D976D16FA57710099763E /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 5A9D976C16FA57710099763E /* fonts */; };
@@ -50,7 +54,6 @@
 		5AE85B2216F69D0400F47648 /* ResourceLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B1216F69D0400F47648 /* ResourceLoader.mm */; };
 		5AE85B2316F69D0400F47648 /* ResourceManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B1316F69D0400F47648 /* ResourceManager.cpp */; };
 		5AE85B2416F69D0400F47648 /* ShaderProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B1516F69D0400F47648 /* ShaderProgram.cpp */; };
-		5AE85B2516F69D0400F47648 /* Touch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B1716F69D0400F47648 /* Touch.cpp */; };
 		5AE85B2816F69D4100F47648 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B2616F69D4100F47648 /* Camera.cpp */; };
 		5AE85B2B16F6A84300F47648 /* AxisAlignedBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B2916F6A84300F47648 /* AxisAlignedBox.cpp */; };
 		5AE85B2C16F6A84300F47648 /* TriMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B2A16F6A84300F47648 /* TriMesh.cpp */; };
@@ -79,6 +82,12 @@
 		5A27CACB171237D10028DF13 /* Resources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Resources.h; sourceTree = "<group>"; };
 		5A58E78E16F6463200AA4635 /* Rect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Rect.cpp; path = Cinder/src/cinder/Rect.cpp; sourceTree = "<group>"; };
 		5A58E79016F6464300AA4635 /* Area.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Area.cpp; path = Cinder/src/cinder/Area.cpp; sourceTree = "<group>"; };
+		5A5DBEFC17A5CAB300DB031C /* CameraController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraController.cpp; sourceTree = "<group>"; };
+		5A5DBEFD17A5CAB300DB031C /* CameraController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraController.h; sourceTree = "<group>"; };
+		5A62F34D17A5F9620050B91A /* Light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Light.cpp; sourceTree = "<group>"; };
+		5A62F34E17A5F9620050B91A /* Light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Light.h; sourceTree = "<group>"; };
+		5A62F34F17A5F9620050B91A /* Material.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Material.cpp; sourceTree = "<group>"; };
+		5A62F35017A5F9620050B91A /* Material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Material.h; sourceTree = "<group>"; };
 		5A9B879616F89E4F000B53BF /* ObjectController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ObjectController.cpp; sourceTree = "<group>"; };
 		5A9B879716F89E4F000B53BF /* ObjectController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectController.h; sourceTree = "<group>"; };
 		5A9D974416F96BB60099763E /* LifeMeter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LifeMeter.cpp; sourceTree = "<group>"; };
@@ -123,8 +132,8 @@
 		5AE85B1416F69D0400F47648 /* ResourceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResourceManager.h; sourceTree = "<group>"; };
 		5AE85B1516F69D0400F47648 /* ShaderProgram.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderProgram.cpp; sourceTree = "<group>"; };
 		5AE85B1616F69D0400F47648 /* ShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderProgram.h; sourceTree = "<group>"; };
-		5AE85B1716F69D0400F47648 /* Touch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Touch.cpp; sourceTree = "<group>"; };
-		5AE85B1816F69D0400F47648 /* Touch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Touch.h; sourceTree = "<group>"; };
+		5AE85B1716F69D0400F47648 /* TouchInput.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TouchInput.cpp; sourceTree = "<group>"; };
+		5AE85B1816F69D0400F47648 /* TouchInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TouchInput.h; sourceTree = "<group>"; };
 		5AE85B2616F69D4100F47648 /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		5AE85B2716F69D4100F47648 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		5AE85B2916F6A84300F47648 /* AxisAlignedBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AxisAlignedBox.cpp; path = Cinder/src/cinder/AxisAlignedBox.cpp; sourceTree = "<group>"; };
@@ -204,10 +213,12 @@
 				5AE85B0816F69D0400F47648 /* main.m */,
 				5AE85AFE16F69D0400F47648 /* AppDelegate.h */,
 				5AE85AFF16F69D0400F47648 /* AppDelegate.mm */,
+				5A5DBEFC17A5CAB300DB031C /* CameraController.cpp */,
+				5A5DBEFD17A5CAB300DB031C /* CameraController.h */,
 				5AE85B2616F69D4100F47648 /* Camera.cpp */,
 				5AE85B2716F69D4100F47648 /* Camera.h */,
-				5AE85B0016F69D0400F47648 /* Game.cpp */,
 				5AE85B0116F69D0400F47648 /* Game.h */,
+				5AE85B0016F69D0400F47648 /* Game.cpp */,
 				5AE85B0216F69D0400F47648 /* GameConstants.h */,
 				5AE85B0316F69D0400F47648 /* GLView.h */,
 				5AE85B0416F69D0400F47648 /* GLView.mm */,
@@ -218,6 +229,10 @@
 				5AE85B0A16F69D0400F47648 /* Node.h */,
 				5AE85B0B16F69D0400F47648 /* Node2d.cpp */,
 				5AE85B0C16F69D0400F47648 /* Node2d.h */,
+				5A62F34D17A5F9620050B91A /* Light.cpp */,
+				5A62F34E17A5F9620050B91A /* Light.h */,
+				5A62F34F17A5F9620050B91A /* Material.cpp */,
+				5A62F35017A5F9620050B91A /* Material.h */,
 				5AE85B0D16F69D0400F47648 /* ObjParser.cpp */,
 				5AE85B0E16F69D0400F47648 /* ObjParser.h */,
 				5AE85B0F16F69D0400F47648 /* RenderingEngine.cpp */,
@@ -228,8 +243,8 @@
 				5AE85B1416F69D0400F47648 /* ResourceManager.h */,
 				5AE85B1516F69D0400F47648 /* ShaderProgram.cpp */,
 				5AE85B1616F69D0400F47648 /* ShaderProgram.h */,
-				5AE85B1716F69D0400F47648 /* Touch.cpp */,
-				5AE85B1816F69D0400F47648 /* Touch.h */,
+				5AE85B1716F69D0400F47648 /* TouchInput.cpp */,
+				5AE85B1816F69D0400F47648 /* TouchInput.h */,
 				5A9B879616F89E4F000B53BF /* ObjectController.cpp */,
 				5A9B879716F89E4F000B53BF /* ObjectController.h */,
 				5A9D974416F96BB60099763E /* LifeMeter.cpp */,
@@ -381,7 +396,6 @@
 				5AE85B2216F69D0400F47648 /* ResourceLoader.mm in Sources */,
 				5AE85B2316F69D0400F47648 /* ResourceManager.cpp in Sources */,
 				5AE85B2416F69D0400F47648 /* ShaderProgram.cpp in Sources */,
-				5AE85B2516F69D0400F47648 /* Touch.cpp in Sources */,
 				5AE85B2816F69D4100F47648 /* Camera.cpp in Sources */,
 				5AE85B2B16F6A84300F47648 /* AxisAlignedBox.cpp in Sources */,
 				5AE85B2C16F6A84300F47648 /* TriMesh.cpp in Sources */,
@@ -389,6 +403,10 @@
 				5A9D974616F96BB60099763E /* LifeMeter.cpp in Sources */,
 				5A27CAC9171219100028DF13 /* Text.cpp in Sources */,
 				5A27CACC171237D10028DF13 /* Resources.cpp in Sources */,
+				5A5DBEFF17A5CBCB00DB031C /* TouchInput.cpp in Sources */,
+				5A5DBF0017A5CC0F00DB031C /* CameraController.cpp in Sources */,
+				5A62F35117A5F9620050B91A /* Light.cpp in Sources */,
+				5A62F35217A5F9620050B91A /* Material.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -399,6 +417,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Patrick LYNCH (MVESW3V6MQ)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Patrick LYNCH (MVESW3V6MQ)";
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -422,6 +442,8 @@
 					"\"$(SRCROOT)/../freetype\"",
 				);
 				PRODUCT_NAME = OpenGLES2;
+				PROVISIONING_PROFILE = "BF90B7E8-9C33-43A5-A72E-60DDE15FFDA6";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "BF90B7E8-9C33-43A5-A72E-60DDE15FFDA6";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = ../SmartValues/SmartValues/;
@@ -432,6 +454,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Patrick LYNCH (MVESW3V6MQ)";
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -453,6 +476,7 @@
 					"\"$(SRCROOT)/../freetype\"",
 				);
 				PRODUCT_NAME = OpenGLES2;
+				PROVISIONING_PROFILE = "BF90B7E8-9C33-43A5-A72E-60DDE15FFDA6";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = ../SmartValues/SmartValues/;

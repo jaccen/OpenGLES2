@@ -12,10 +12,13 @@ Node2d::Node2d() : mParent( NULL ), mText( NULL), mIsVisible( true ), mIsEnabled
 	rotation = 0.0f;
 	anchor = Vec2i::zero();
 	childAnchor = Vec2i::zero();
-	mNode->mColor = Vec4f::zero();
-	mNode->mShader = kShaderScreenSpace;
+	mNode->mMaterial.mShader = ResourceManager::get()->getShader( kShaderScreenSpace );
 	mNode->mMesh = ResourceManager::get()->getMesh( "models/quad_plane.obj" );
 	mNode->mLayer = Node::LayerGui;
+	
+	//mNode->mColor = Vec4f::zero();
+	//mNode->mShader = kShaderScreenSpace;
+	//mNode->mMesh = ResourceManager::get()->getMesh( "models/quad_plane.obj" );
 }
 
 Node2d::~Node2d()
@@ -23,17 +26,15 @@ Node2d::~Node2d()
 	delete mNode;
 }
 
+
 void Node2d::setTexture( Texture* texture )
 {
-	mNode->mTexture = texture;
-	if ( mNode->mColor == Vec4f::zero()  ) {
-		mNode->mColor = Vec4f::one();
-	}
-	size = texture->getScaledTextureSize();
+	mNode->mMaterial.setTexture( "DiffuseTexture", texture );
 }
-void Node2d::setColor( ci::Vec4f color )
+
+void Node2d::setColor( ci::ColorA color )
 {
-	mNode->mColor = color;
+	mNode->mMaterial.setColor( "DiffuseMaterial", color );
 }
 
 ci::Vec2i Node2d::getGlobalPosition()
@@ -65,7 +66,7 @@ void Node2d::update( const float deltaTime )
 	mNode->scale.y		= size.y;
 	mNode->position.x	= mNode->scale.x * (0.5f - anchor.x) + p.x;
 	mNode->position.y	= mNode->scale.y * (0.5f - anchor.y) + p.y;
-	mNode->orientation = Quatf( Vec3f::zAxis(), rotation );
+	mNode->rotation.z	= rotation;
 	
 	mNode->update( deltaTime );
 }

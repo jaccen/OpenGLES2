@@ -1,16 +1,26 @@
-#include "Touch.h"
+#include "TouchInput.h"
 
 using namespace ci;
 
-Touch::Touch() : mPrevTouchCount(0), mTouchCount(0), mTouchDistanceStart(0.0f), mTouchDistanceCurrent(0.0f)
+TouchInput* TouchInput::sInstance = NULL;
+
+TouchInput* TouchInput::get()
+{
+	if ( sInstance == NULL ) {
+		sInstance = new TouchInput();
+	}
+	return sInstance;
+}
+
+TouchInput::TouchInput() : mPrevTouchCount(0), mTouchCount(0), mTouchDistanceStart(0.0f), mTouchDistanceCurrent(0.0f)
 {
 	mTouchCenter = Vec2i(0,0);
 	mTouchCenterStart = Vec2i(0,0);
 }
 
-Touch::~Touch() {}
+TouchInput::~TouchInput() {}
 
-void Touch::addDelegate( IDelegate* delegate )
+void TouchInput::addDelegate( IDelegate* delegate )
 {
 	// Check for a duplicate, then add
 	std::list<IDelegate*>::const_iterator existing = std::find( mDelegates.begin(), mDelegates.end(), delegate );
@@ -19,7 +29,7 @@ void Touch::addDelegate( IDelegate* delegate )
 	}
 }
 
-void Touch::removeDelegate( IDelegate* delegate )
+void TouchInput::removeDelegate( IDelegate* delegate )
 {
 	// Check for existence, then erase
 	std::list<IDelegate*>::iterator existing = std::find( mDelegates.begin(), mDelegates.end(), delegate );
@@ -28,12 +38,12 @@ void Touch::removeDelegate( IDelegate* delegate )
 	}
 }
 
-void Touch::removeAllDelegates()
+void TouchInput::removeAllDelegates()
 {
 	mDelegates.clear();
 }
 
-Vec2f Touch::getTouchesCenter( const std::vector<ci::Vec2i>& touches)
+Vec2f TouchInput::getTouchesCenter( const std::vector<ci::Vec2i>& touches)
 {
 	Vec2f total = Vec2f::zero();
 	for( std::vector<ci::Vec2i>::const_iterator iter = touches.begin(); iter != touches.end(); iter++ )
@@ -42,7 +52,7 @@ Vec2f Touch::getTouchesCenter( const std::vector<ci::Vec2i>& touches)
 	return output;
 }
 
-float Touch::getDistance( const std::vector<ci::Vec2i>& touches)
+float TouchInput::getDistance( const std::vector<ci::Vec2i>& touches)
 {
 	float greatestDistance = 0.0f;
 	for( std::vector<ci::Vec2i>::const_iterator iter_a = touches.begin(); iter_a != touches.end(); iter_a++ ) {
@@ -56,7 +66,7 @@ float Touch::getDistance( const std::vector<ci::Vec2i>& touches)
 	return greatestDistance;
 }
 
-ci::Vec2f Touch::getScale( ci::Matrix44f& matrix )
+ci::Vec2f TouchInput::getScale( ci::Matrix44f& matrix )
 {
 	Vec2f scale = Vec2f::zero();
 	Vec3f columns[2] = {
@@ -68,7 +78,7 @@ ci::Vec2f Touch::getScale( ci::Matrix44f& matrix )
 	return scale;
 }
 
-void Touch::update( const float deltaTime )
+void TouchInput::update( const float deltaTime )
 {
 	//std::cout << "mTouchCount = " << mTouchCount;
 	//std::cout << ", mPrevTouchCount = " << mPrevTouchCount << std::endl;
@@ -88,19 +98,19 @@ void Touch::update( const float deltaTime )
 		}
 		else {
 			mTouchCenter = getTouchesCenter( mTouches );
-			mTouchDistanceCurrent = Touch::getDistance( mTouches );
+			mTouchDistanceCurrent = TouchInput::getDistance( mTouches );
 		}
 	}
 	
 	mPrevTouchCount = mTouchCount;
 }
 
-void Touch::touchesEnded( const std::vector<ci::Vec2i>& positions )
+void TouchInput::touchesEnded( const std::vector<ci::Vec2i>& positions )
 {
 	mTouchCount = positions.size()-1;
 }
 
-void Touch::touchesBegan( const std::vector<ci::Vec2i>& positions )
+void TouchInput::touchesBegan( const std::vector<ci::Vec2i>& positions )
 {
 	if ( positions.size() == 1 ) {
 		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
@@ -109,7 +119,7 @@ void Touch::touchesBegan( const std::vector<ci::Vec2i>& positions )
 	}
 }
 
-void Touch::touchesMoved( const std::vector<ci::Vec2i>& positions )
+void TouchInput::touchesMoved( const std::vector<ci::Vec2i>& positions )
 {
 	mTouches = positions;
 	mTouchCount = positions.size();

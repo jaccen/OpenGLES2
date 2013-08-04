@@ -2,11 +2,6 @@
 #include "ResourceManager.h"
 #include "GameConstants.h"
 
-const static int kNormalAttribLoc		= 0;
-const static int kPositionAttribLoc		= 1;
-const static int kTexCoordAttribLoc		= 2;
-const static int kColorAttribLoc		= 3;
-
 using namespace ci;
 
 RenderingEngine* RenderingEngine::sInstance = NULL;
@@ -68,7 +63,6 @@ void RenderingEngine::removeNode( Node2d* node )
 void RenderingEngine::setSkyboxNode( Node* node )
 {
 	mSkyboxNode = node;
-	mSkyboxNode->update();
 }
 
 void RenderingEngine::setBackgroundTexture( Texture* texture )
@@ -168,11 +162,6 @@ void RenderingEngine::createFbo( FramebufferObject* fbo )
 	}
 }
 
-void RenderingEngine::addShader( std::string key, const char* vShader, const char* fShader )
-{
-	mShaders[ key ] = ShaderProgram( vShader, fShader );
-}
-
 void RenderingEngine::setup( int width, int height, float contentScaleFactor )
 {
 	mScreenSize.x = width * contentScaleFactor;
@@ -225,10 +214,6 @@ void RenderingEngine::setup( int width, int height, float contentScaleFactor )
 
 void RenderingEngine::update( const float deltaTime )
 {
-	if ( mSkyboxNode ) {
-		mSkyboxNode->position = mCamera->getGlobalPosition();
-	}
-	
 	for( auto iter = mObjectNodes.begin(); iter != mObjectNodes.end(); iter++ ) {
 		(*iter)->update( deltaTime );
 	}
@@ -259,65 +244,96 @@ void RenderingEngine::bindWindowContext()
     glBindRenderbuffer(GL_RENDERBUFFER, mContextColorRenderbuffer);
 }
 
+bool RenderingEngine::setUniforms( const Material& material, ShaderProgram* shader )
+{
+	bool texturesWereBound = false;
+	int locationIndex = 0;
+	
+	// Loop through map of textures and set uniforms
+	for( std::map<std::string, Texture*>::const_iterator t_iter = material.mTextures.begin(); t_iter != material.mTextures.end(); t_iter++ ) {
+		Texture* texture = t_iter->second;
+		const std::string& locationName = t_iter->first;
+		glActiveTexture( GL_TEXTURE0 + locationIndex );
+		if ( texture ) {
+			glBindTexture( GL_TEXTURE_2D, texture->mHandle );
+		}
+		else {
+			glBindTexture( GL_TEXTURE_2D, mDefaultWhite->mHandle );
+		}
+		shader->uniform( locationName, locationIndex );
+		texturesWereBound = true;
+		locationIndex++;
+	}
+	
+	// Loop through map of colors and set uniforms
+	for( std::map<std::string, ColorA>::const_iterator c_iter = material.mColors.begin(); c_iter != material.mColors.end(); c_iter++ ) {
+		const ColorA& color = c_iter->second;
+		const std::string& locationName = c_iter->first;
+		shader->uniform( locationName, color );
+	}
+	// Loop through map of other properties and set uniforms
+	for( std::map<std::string, float>::const_iterator c_iter = material.mProperties.begin(); c_iter != material.mProperties.end(); c_iter++ ) {
+		float value = c_iter->second;
+		const std::string& locationName = c_iter->first;
+		shader->uniform( locationName, value );
+	}
+	
+	return texturesWereBound;
+}
+
+void RenderingEngine::unbindTextures( Material& material )
+{
+	int locationIndex = 0;
+	for( std::map<std::string, Texture*>::const_iterator iter = material.mTextures.begin(); iter != material.mTextures.end(); iter++ ) {
+		glActiveTexture( GL_TEXTURE0 + locationIndex );
+		glBindTexture( GL_TEXTURE_2D, 0 );
+		locationIndex++;
+	}
+}
+
 void RenderingEngine::draw()
 {
 	bindWindowContext();
 	
+	glViewport( 0, 0, mScreenSize.x, mScreenSize.y );
     glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	
-	// Set the viewport transform.
-	glViewport( 0, 0, mScreenSize.x, mScreenSize.y );
 	glEnable( GL_CULL_FACE );
 	glCullFace( GL_BACK );
 	
+	glDisable( GL_DEPTH_TEST );
 	if ( mSkyboxNode ) {
-		
-		Node* node = mSkyboxNode;
-		ShaderProgram& shader = mShaders[ node->mShader ];
-		
-		glUseProgram( shader.getHandle() );
-		shader.uniform( "DiffuseMaterial",		node->mColor );
-		shader.uniform( "Modelview",			mCamera->getModelViewMatrix() );
-		shader.uniform( "Projection",			mCamera->getProjectionMatrix() );
-		shader.uniform( "Transform",			node->getTransform() );
-		
-		if ( node->mTexture != NULL ) {
-			glActiveTexture( GL_TEXTURE0 );
-			shader.uniform( "DiffuseTexture", 0 );
-			glBindTexture( GL_TEXTURE_2D, node->mTexture->mHandle );
-		}
-		
-		setBlendMode( node->mLayer );
-		drawMesh( node->mMesh );
-		
-		glBindTexture( GL_TEXTURE_2D, 0 );
+		mSkyboxNode->position = mCamera->getGlobalPosition();
+		mSkyboxNode->rotation.x = 180.0f;
+		mSkyboxNode->update();
+		drawNode( mSkyboxNode );
 	}
 	
 	else if ( mBackgroundTexture ) {
 		
-		glDisable( GL_DEPTH_TEST );
 		setBlendMode( Node::LayerGui );
 		Matrix44f trans = Matrix44f::identity();
 		trans.scale( Vec3f( mBackgroundTexture->mWidth, mBackgroundTexture->mHeight, 1 ) );
 		drawTexture( mBackgroundTexture, trans, true );
 	}
 	
+	glClear( GL_DEPTH_BUFFER_BIT );
 	glEnable(GL_DEPTH_TEST);
     
-	for( auto iter = mObjectNodes.begin(); iter != mObjectNodes.end(); iter++ ) {
-		drawNode( *iter );
+	for( auto objNode : mObjectNodes ) {
+		drawNode( objNode );
 	}
     
-	for( auto iter = mSpriteNodes.begin(); iter != mSpriteNodes.end(); iter++ ) {
-		drawNode( *iter );
+	for( auto sprNode : mSpriteNodes ) {
+		drawNode( sprNode );
 	}
 	
 	glDisable( GL_CULL_FACE );
 	glDisable( GL_DEPTH_TEST );
 	
-	for( auto iter = mScreenNodes.begin(); iter != mScreenNodes.end(); iter++ ) {
-		drawGui( *iter );
+	for( auto node2d : mScreenNodes ) {
+		drawGui( node2d );
 	}
 	
 	/*
@@ -352,74 +368,49 @@ void RenderingEngine::draw()
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 }
 
-void RenderingEngine::drawNode( Node* node )
+void RenderingEngine::drawNode( const Node* node )
 {
-	ShaderProgram& shader = mShaders[ node->mShader ];
+	ShaderProgram* shader = node->mMaterial.mShader;
 	
-	glUseProgram( shader.getHandle() );
-	shader.uniform( "AmbientMaterial",		Vec4f( 0.2f, 0.2f, 0.2f, 1.0f ) );
-	//shader.uniform( "LightPosition",		Vec3f( 0, -1, 0 ) );
-	//shader.uniform( "LightColor",			Vec4f( 1, 0, 0, 1 ) );
-	shader.uniform( "LightPosition",		Vec3f( 100.0, 50.0, 50.0 ) );
-	shader.uniform( "LightColor",			Vec4f( 1, 1, 1, 1 ) );
-	shader.uniform( "EyePosition",			mCamera->getGlobalPosition() );
-	shader.uniform( "SpecularMaterial",		node->mColorSpecular );
-	shader.uniform( "SelfIlliminationMaterial", node->mColorSelfIllumination );
-	shader.uniform( "DiffuseMaterial",		node->mColor );
-	shader.uniform( "RimMaterial",			node->mColorRim );
-	shader.uniform( "Shininess",			node->mShininess );
-	shader.uniform( "Glossiness",			node->mGlossiness );
-	shader.uniform( "RimPower",				node->mRimPower );
-	shader.uniform( "Modelview",			mCamera->getModelViewMatrix() );
-	shader.uniform( "Projection",			mCamera->getProjectionMatrix() );
-	shader.uniform( "Transform",			node->getTransform() );
+	glUseProgram( shader->getHandle() );
+	shader->uniform( "Modelview",			mCamera->getModelViewMatrix() );
+	shader->uniform( "Projection",			mCamera->getProjectionMatrix() );
+	shader->uniform( "Transform",			node->getTransform() );
+	shader->uniform( "AmbientMaterial",		Vec4f( 0.2f, 0.2f, 0.2f, 1.0f ) );
+	shader->uniform( "LightPosition",		Vec3f( 3000, 4000, 0 ) );
+	shader->uniform( "LightColor",			Vec4f( 1, 1, 1, 1 ) );
+	shader->uniform( "EyePosition",			Vec3f( mCamera->getGlobalPosition() ) );
 	
-	glActiveTexture( GL_TEXTURE0 );
-	shader.uniform( "DiffuseTexture", 0 );
-	bool t = node->mTexture == NULL;
-	glBindTexture( GL_TEXTURE_2D, t ? mDefaultWhite->mHandle : node->mTexture->mHandle );
-	
-	if ( node->mTextureNormal != NULL ) {
-		glActiveTexture( GL_TEXTURE1 );
-		shader.uniform( "NormalTexture", 1 );
-		glBindTexture( GL_TEXTURE_2D, node->mTextureNormal->mHandle );
-	}
-	
-	if ( node->mTextureSpecular != NULL ) {
-		glActiveTexture( GL_TEXTURE2 );
-		shader.uniform( "SpecularTexture", 2 );
-		glBindTexture( GL_TEXTURE_2D, node->mTextureSpecular->mHandle );
-	}
-	
-	if ( node->mTextureSelfIllumination != NULL ) {
-		glActiveTexture( GL_TEXTURE3 );
-		shader.uniform( "SelfIlliminationTexture", 3 );
-		glBindTexture( GL_TEXTURE_2D, node->mTextureSelfIllumination->mHandle );
-	}
+	setUniforms( node->getMaterial(), shader );
 	
 	setBlendMode( node->mLayer );
-	drawMesh( node->mMesh );
+	drawMesh( node->mMesh, node->getMaterial().mShader );
 	
 	glBindTexture( GL_TEXTURE_2D, 0 );
 }
 
-void RenderingEngine::drawMesh( Mesh* mesh, bool wireframe )
+void RenderingEngine::drawMesh( const Mesh* mesh, const ShaderProgram* shader, const bool wireframe )
 {
 	glBindBuffer( GL_ARRAY_BUFFER, mesh->vertexBuffer );
 	
-	glEnableVertexAttribArray( kPositionAttribLoc );
-	glVertexAttribPointer( kPositionAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
+	{
+		GLint loc = glGetAttribLocation( shader->getHandle(), "Position" );
+		glEnableVertexAttribArray( loc );
+		glVertexAttribPointer( loc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
+	}
 	
 	if ( mesh->normalBuffer > 0 ) {
+		GLint loc = glGetAttribLocation( shader->getHandle(), "Normal" );
 		glBindBuffer( GL_ARRAY_BUFFER, mesh->normalBuffer );
-		glEnableVertexAttribArray( kNormalAttribLoc );
-		glVertexAttribPointer( kNormalAttribLoc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
+		glEnableVertexAttribArray( loc );
+		glVertexAttribPointer( loc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
 	}
 	
 	if ( mesh->texCoordBuffer > 0 ) {
+		GLint loc = glGetAttribLocation( shader->getHandle(), "TextureCoord" );
 		glBindBuffer( GL_ARRAY_BUFFER, mesh->texCoordBuffer );
-		glEnableVertexAttribArray( kTexCoordAttribLoc );
-		glVertexAttribPointer( kTexCoordAttribLoc, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2f), 0 );
+		glEnableVertexAttribArray( loc );
+		glVertexAttribPointer( loc, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2f), 0 );
 	}
 	
 	glDrawArrays( wireframe ? GL_LINES : GL_TRIANGLES, 0, mesh->vertexCount );
@@ -429,7 +420,7 @@ void RenderingEngine::drawMesh( Mesh* mesh, bool wireframe )
 
 void RenderingEngine::drawText( Text* text )
 {
-	ShaderProgram& shader = mShaders[ kShaderText ];
+	/*ShaderProgram& shader = mShaders[ kShaderText ];
 	
 	glDisable( GL_CULL_FACE );
 	
@@ -453,7 +444,7 @@ void RenderingEngine::drawText( Text* text )
 		}
 	}
 	
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );*/
 }
 
 void RenderingEngine::drawGui( Node2d* gui )
@@ -466,24 +457,16 @@ void RenderingEngine::drawGui( Node2d* gui )
 	
 	Node* node = gui->getNode();
 	
-	ShaderProgram& shader = mShaders[ node->mShader ];
+	ShaderProgram* shader = node->mMaterial.mShader;
 	
-	glUseProgram( shader.getHandle() );
-	shader.uniform( "DiffuseMaterial",		node->mColor );
-	shader.uniform( "Transform",			node->getTransform() );
-	shader.uniform( "ScreenTransform",		mScreenTransform );
+	glUseProgram( shader->getHandle() );
+	shader->uniform( "ScreenTransform",		mScreenTransform );
+	shader->uniform( "Transform",			gui->getNode()->getTransform() );
 	
-	glActiveTexture( GL_TEXTURE0 );
-	shader.uniform( "DiffuseTexture", 0 );
-	bool t = node->mTexture == NULL;
-	glBindTexture( GL_TEXTURE_2D, t ? mDefaultWhite->mHandle : node->mTexture->mHandle );
+	setUniforms( node->mMaterial, node->mMaterial.mShader );
 	
 	setBlendMode( node->mLayer );
-	drawMesh( node->mMesh );
-	
-	if ( node->mTexture != NULL ) {
-		glBindTexture( GL_TEXTURE_2D, 0 );
-	}
+	drawMesh( node->mMesh, node->getMaterial().mShader );
 	
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	
@@ -494,7 +477,7 @@ void RenderingEngine::drawGui( Node2d* gui )
 
 void RenderingEngine::drawTexture( Texture* texture, const ci::Matrix44f& transform, bool flipY )
 {
-	ShaderProgram& shader = mShaders[ kShaderScreenSpace ];
+	/*ShaderProgram& shader = mShaders[ kShaderScreenSpace ];
 	glUseProgram( shader.getHandle() );
 	
 	shader.uniform( "DiffuseMaterial",		Vec4f(1,1,1,1) );
@@ -509,7 +492,7 @@ void RenderingEngine::drawTexture( Texture* texture, const ci::Matrix44f& transf
 	drawMesh( ResourceManager::get()->getMesh( "models/quad_plane.obj" ) );
 	
 	glBindTexture( GL_TEXTURE_2D, 0 );
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );*/
 }
 
 void RenderingEngine::setBlendMode( Node::Layer layer )
@@ -552,7 +535,7 @@ void RenderingEngine::debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::Vec4f
 
 void RenderingEngine::debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::Vec4f color )
 {
-	glEnable( GL_DEPTH_TEST );
+	/*glEnable( GL_DEPTH_TEST );
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE );
 	
@@ -572,6 +555,7 @@ void RenderingEngine::debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::Vec4f col
 	glVertexAttribPointer( positionSlot, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, &vertices[0] );
 	glDrawArrays( GL_LINES, 0, 2 );
 	glDisableVertexAttribArray( positionSlot );
+	 */
 }
 
 

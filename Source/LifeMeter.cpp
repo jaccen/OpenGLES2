@@ -4,6 +4,8 @@
 #include "ObjectController.h"
 #include "Camera.h"
 
+#include "cinder/Color.h"
+
 using namespace ci;
 
 LifeMeter::LifeMeter()
@@ -36,10 +38,10 @@ void LifeMeter::setOwner( ObjectController* owner )
 {
 	mOwner = owner;
 	
-	Vec3f color = owner->mFaction == 0 ? Vec3f( 0, 1, 0 ) : Vec3f( 1, 0, 0 );
-	mBackground.setColor( Vec4f( color, 0.2f ) );
-	mBar.setColor( Vec4f( color, 0.7f ) );
-	mIcon.setColor( Vec4f( color, 0.5f ) );
+	/*Vec3f color = owner->mFaction == 0 ? Vec3f( 0, 1, 0 ) : Vec3f( 1, 0, 0 );
+	mBackground.setColor( ColorA( color, 0.2f ) );
+	mBar.setColor( ColorA( color, 0.7f ) );
+	mIcon.setColor( ColorA( color, 0.5f ) );*/
 }
 
 LifeMeter::~LifeMeter()

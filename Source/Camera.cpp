@@ -67,7 +67,7 @@ Camera::Camera()
 	
 	mFov = 45.0f;
 	
-	mPivot.orientation	= ci::Quatf( ci::Vec3f::xAxis(), -13.0f );
+	mPivot.rotation.x	= -13.0f;
 	mBody.position.z	= 30.0f;
 	
 	mBody.setParent( &mPivot );

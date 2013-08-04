@@ -20,12 +20,11 @@ public:
 	void setMoveTarget( ci::Vec3f target );
 	
 private:
-	bool mShouldMove;
-	ci::Vec3f mMoveTarget;
-	ci::Vec2i mScreenPosition;
-	Node* mNode;
-	//ActiveRecordRef mModel;
-	ci::AxisAlignedBox3f mBoundingBox;
-	LifeMeter mLifeMeter;
-	ci::Vec3f mVelocity;
+	bool					mShouldMove;
+	ci::Vec3f				mMoveTarget;
+	ci::Vec2i				mScreenPosition;
+	Node*					mNode;
+	ci::AxisAlignedBox3f	mBoundingBox;
+	LifeMeter				mLifeMeter;
+	ci::Vec3f				mVelocity;
 };

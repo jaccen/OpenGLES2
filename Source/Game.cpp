@@ -1,9 +1,12 @@
 #include "Game.h"
-#include "Touch.h"
+#include "TouchInput.h"
 
 using namespace ci;
 
-Game::Game(RenderingEngine* renderingEngine ) : mRenderingEngine(renderingEngine), mFreeTargetMode( true ), mPlanet(NULL), /*mLensFlare(NULL),*/ mAngleTargetX( 0.0f ), mAngleTargetY( 0.0f )
+Game::Game(RenderingEngine* renderingEngine ) :
+	mRenderingEngine(renderingEngine),
+	mPlanet(NULL),
+	mLensFlare(NULL)
 {
 }
 
@@ -15,9 +18,7 @@ Game::~Game()
 void Game::remove( Node2d* Node2d ) {}
 
 void Game::setup( int width, int height )
-{	
-	mTouch.addDelegate( this );
-	
+{
 	mResourceManager = ResourceManager::get();
 	mResourceManager->setup( mRenderingEngine );
 	
@@ -35,130 +36,72 @@ void Game::setup( int width, int height )
 	
 	mResourceManager->loadMesh( "models/sphere_globe.obj" );
 	mResourceManager->loadMesh( "models/skybox.obj" );
-	//mResourceManager->loadMesh( "models/tower.obj" );
+	mResourceManager->loadMesh( "models/skybox_unwrapped.obj" );
 	mResourceManager->loadMesh( "models/quad_plane.obj" );
 	
 	mCamera = Camera::get();
+	mCamera->setZoom( 100.0f );
+	mCamera->setFov( 60.0f );
+	mCamera->setAngle( -30.0f );
+	mCamera->rotation.y = 90;
 	
-	mPlanet					= new Node();
-	mPlanet->mLayer			= Node::LayerObjects;
-	mPlanet->mMesh			= mResourceManager->getMesh( "models/sphere_globe.obj" );
-	mPlanet->mColorSelfIllumination	= ci::Vec4f( 1, 0, 0, 1.0 );
-	mPlanet->mColorRim		= ci::Vec4f( 1, .15, 0, 0.1 );
-    mPlanet->mColorSpecular	= ci::Vec4f( 1, 1, 1, 0.8f );
-	mPlanet->mRimPower		= 0.15f;
-	mPlanet->mShininess		= 50.0f;
-	mPlanet->mGlossiness	= 0.0f;
-	mPlanet->mShader		= kSahderVertexLighting;
-	mPlanet->mTexture		= mResourceManager->getTexture( "textures/mars_diffuse.png" );
-	mPlanet->mTextureNormal = mResourceManager->getTexture( "textures/mars_normal.jpg" );
-	mPlanet->mTextureSelfIllumination = mResourceManager->getTexture( "textures/light_map.jpg" );
-	mPlanet->scale			= Vec3f::one() * 6.0f;
+	//mCameraController		= EditorCamera( mCamera );
+	
+	mPlanet = new Node();
+	mPlanet->mLayer = Node::LayerObjects;
+	mPlanet->mMesh = mResourceManager->getMesh( "models/sphere_high.obj" );
+	mPlanet->scale = Vec3f::one() * 20.0f;
+	mPlanet->mMaterial.mShader = mResourceManager->getShader( kSahderVertexLighting );
+	mPlanet->mMaterial.setTexture( "DiffuseTexture", mResourceManager->getTexture( "textures/mars_diffuse.png" ) );
+	mPlanet->mMaterial.setColor( "DiffuseMaterial", ColorA( 1, 1, 1, 1 ) );
+	mPlanet->mMaterial.setColor( "SpecularMaterial", ColorA( 1, 1, 1, 0.5f ));
+	mPlanet->mMaterial.setColor( "AmbientMaterial", ColorA( 0.1, 0.1, 0.1, 1.0f ));
+	//mPlanet->mMaterial.setTexture( "NormalTexture", mResourceManager->getTexture( "textures/mars_normal.jpg" ) );
+	//mPlanet->mMaterial.setColor( "SelfIlluminationColor", ColorA( 1, 0, 0, 1.0 ) );
+	//mPlanet->mMaterial.setColor( "RimColor", ColorA( 1, 0, 0, 1.0 ) );
+	//mPlanet->mMaterial.setColor( "SpecularColor", ColorA( 1, 0, 0, 1.0 ) );
+	mPlanet->mMaterial.setProperty( "RimPower", 0.15f );
+	mPlanet->mMaterial.setProperty( "Shininess", 10.0f );
 	mRenderingEngine->addNode( mPlanet );
 	
-	/*Node* glowSprite		= new Node();
-	glowSprite->mLayer		= Node::LayerLighting;
+	Node* glowSprite = new Node();
+	glowSprite->mLayer = Node::LayerLighting;
 	glowSprite->mFaceCamera = true;
-	glowSprite->mMesh		= mResourceManager->getMesh( "models/quad_plane.obj" );
-	glowSprite->mTexture	= mResourceManager->getTexture( "textures/sphere_glow.png" );
-    glowSprite->mColor		= ci::Vec4f( 1, .5, 0, 0.4 );
-	glowSprite->mShader		= kShaderUnlit;
-	glowSprite->scale		= Vec3f::one() * 9.6f;
-	mRenderingEngine->addSpriteNode( glowSprite );*/
+	glowSprite->mMesh = mResourceManager->getMesh( "models/quad_plane.obj" );
+	glowSprite->scale = Vec3f::one() * 50.0f;
+	mRenderingEngine->addSpriteNode( glowSprite );
+	glowSprite->mMaterial.mShader = mResourceManager->getShader( kShaderUnlit );
+	glowSprite->mMaterial.setTexture( "DiffuseTexture", mResourceManager->getTexture( "textures/sphere_glow.png" ) );
+	glowSprite->mMaterial.setColor( "DiffuseMaterial", ColorA( 1, .5, 0, 0.4 ) );
+	glowSprite->mMaterial.setProperty( "rimPower", 0.15f );
 	
-	mFocusTarget = mPlanet;
-	
-	Node* skyBox			= new Node();
-	skyBox->mMesh			= mResourceManager->getMesh( "models/skybox.obj" );
-	skyBox->mTexture		= mResourceManager->getTexture( "textures/stars4.jpg" );
-	skyBox->mShader			= kShaderUnlit;
-	skyBox->scale			= Vec3f::one() * 400.0f;
+	Node* skyBox = new Node();
+	skyBox->mMesh = mResourceManager->getMesh( "models/skysphere.obj" );
+	skyBox->scale = Vec3f::one() * 200.0f;
+	skyBox->mMaterial.setTexture( "DiffuseTexture", mResourceManager->getTexture( "textures/stars.jpg" ) );
+	skyBox->mMaterial.setColor( "DiffuseMaterial", ColorA::white() );
+	skyBox->mMaterial.mShader = mResourceManager->getShader( kShaderUnlit );
 	mRenderingEngine->setSkyboxNode( skyBox );
 	
 	//mRenderingEngine->setBackgroundTexture( mResourceManager->getTexture( "textures/stars2.jpg" ) );
 	
-	mSelection				= new Node();
-	mSelection->orientation	= Quatf( Vec3f::xAxis(), -M_PI_2 );
-	mSelection->mLayer		= Node::LayerLighting;
-	mSelection->mMesh		= mResourceManager->getMesh( "models/quad_plane.obj" );
-	mSelection->mTexture	= mResourceManager->getTexture( "textures/selection_ring.png" );
-	mSelection->mShader		= kShaderUnlit;
-	mSelection->scale		= Vec3f::one() * 5.0f;
-	mRenderingEngine->addSpriteNode( mSelection );
-	
-	for( int i = 0; i < 15; i++ ) {
-		Node* glowSprite		= new Node();
-		glowSprite->mLayer		= Node::LayerLighting;
-		glowSprite->mFaceCamera = true;
-		glowSprite->mMesh		= mResourceManager->getMesh( "models/quad_plane.obj" );
-		glowSprite->mTexture	= mResourceManager->getTexture( "textures/projectile.png" );
-		glowSprite->mColor		= ci::Vec4f( 1, .5, 0, 1.0f );
-		glowSprite->mShader		= kShaderUnlit;
-		glowSprite->scale		= Vec3f(0.5,0.5,0.5) * 2.0f;
-		int rX = arc4random() % 200 - 100;
-		int rY = arc4random() % 200 - 100;
-		int rZ = arc4random() % 200 - 100;
-		glowSprite->position	= Vec3f( rX, rY, rZ ) * 0.1f;
-		mRenderingEngine->addSpriteNode( glowSprite );
-	}
-	
-	/*for( int i = 0; i < 6; i++ ) {
-		int rX = arc4random() % 360;
-		int rY = arc4random() % 360;
-		int rZ = arc4random() % 360;
-		Node* tower				= new Node();
-		tower->mMesh			= mResourceManager->getMesh( "models/cube.obj" );
-		tower->mColorSpecular	= ci::Vec4f( 1, 1, 1, 1.0 );
-		tower->mShininess		= 100.0f;
-		tower->mShader			= kSahderVertexLighting;
-		tower->rotation			= Vec3f( rX, rY, rZ );
-		tower->scale			= Vec3f( 1, 2, 1 ) * 0.04f;
-		tower->pivotOffset.y	= 0.98f;
-		tower->mTexture			= mResourceManager->getTexture( "textures/metal.png" );
-		tower->mTextureSelfIllumination = mResourceManager->getTexture( "textures/ship_light_map.png" );
-		tower->mColorSelfIllumination = Vec4f( 1, 0, 0, 1 );
-		tower->setParent( mPlanet );
-		mRenderingEngine->addNode( tower );
-		mNodes.push_back( tower );
-		mControllers.push_back( new ObjectController( tower ) );
-		tower->update();
-	}*/
-	
-	for( int i = 0; i < 20; i++ ) {
-		Node* shipNode				= new Node();
-		shipNode->mLayer			= Node::LayerObjects;
-		shipNode->mMesh				= mResourceManager->getMesh( "models/ship.obj" );
-		shipNode->mColorSpecular	= ci::Vec4f( .5, .5, .5, 1.0 );
-		shipNode->mShininess		= 100.0f;
-		shipNode->mGlossiness		= 1.0f;
-		shipNode->mShader			= kShaderVertexLightColor;
-		shipNode->scale				= Vec3f( 1, 1, 1 ) * 1.5f;
-		int rX = arc4random() % 800 - 400;
-		int rY = arc4random() % 800 - 400;
-		int rZ = arc4random() % 800 - 400;
-		shipNode->position			= Vec3f( rX, -shipNode->scale.y * 0.5f, rZ ) * 0.15f;
-		//shipNode->mTexture			= mResourceManager->getTexture( "textures/metal.png" );
-		//shipNode->mTextureSelfIllumination = mResourceManager->getTexture( "textures/ship_light_map.png" );
-		shipNode->mColorSelfIllumination = Vec4f( 1, 1, 1, 1 );
-		mRenderingEngine->addNode( shipNode );
-		ObjectController* ship = new ObjectController( shipNode, arc4random() % 2 );
-		mControllers.push_back( ship);
-	}
-	
-	mCamera->setZoom( 400.0f );
-	mCamera->setFov( 20.0f );
-	mZoomStart = mZoomTarget = mCamera->getZoom();
-	mCamera->setAngle( -45.0f );
-	mCamera->orientation = Quatf( Vec3f::yAxis(), 45 * kToRad );
-	mStartRotation = mRotationTarget = Vec3f( mCamera->getAngle(), mCamera->orientation.getAngle(), 0.0f );
-	
-	//mLensFlare = new LensFlare( this );
+	mLensFlare = new LensFlare();
+	mLensFlare->setLightPosition( Vec3f( 3000, 4000, 0 ) );
 	
 	mRootGui = new Node2d();
 	mRenderingEngine->addNode( mRootGui );
 	
-	Font* font = ResourceManager::get()->getFont( "fonts/menlo.fnt" );
+	Node2d* test = new Node2d();
+	test->name = "test_node";
+	test->setColor( ColorA(1,1,1,1) );
+	test->setTexture( mResourceManager->getTexture( "textures/gui_test.png" ) );
+	test->position = Vec2f( 100, 100 );
+	test->size = Vec2f( 100, 100 );
+	mRootGui->addChild( test );
 	
+	return;
+	
+	Font* font = ResourceManager::get()->getFont( "fonts/menlo.fnt" );
 	Node2d* child = new Node2d();
 	Text::Options opts;
 	opts.scale = 0.4f;
@@ -178,93 +121,32 @@ void Game::setup( int width, int height )
 	mRootGui->addChild( child );
 }
 
+float ___angle = 0.0f;
+float ___angleZ = 0.0f;
+
 void Game::update( const float deltaTime )
 {
+	float target = math<float>::sin( ___angle += 0.025f ) * 80.0f;
+	float targetZ = math<float>::sin( ___angleZ += 0.05f ) * 250.0f;
+	mCamera->setAngle( target );
+	mCamera->setZoom( 350.0f + targetZ );
+	mCamera->rotation.y += 20.0f * deltaTime;
 	mCamera->update( deltaTime );
 	
-	mTouch.update( deltaTime );
-	
-	mSelection->position = mFocusTarget->position;
-	mSelection->scale = mFocusTarget->scale * 2.0;
-	//mCamera->position += ( mFocusTarget->getGlobalPosition() Y- mCamera->position ) / 20.0f;
-	
-	// Zooming
-	float targetZ = mZoomStart + mTouch.getTouchesDistance() * -(0.35f);
-	const float maxZoom = 500.0f;
-	const float minZoom = 9.65f;
-	targetZ = math<float>::clamp( targetZ, minZoom, maxZoom );
-	mZoomTarget += (targetZ - mZoomTarget ) / 5.0f;
-	mCamera->setZoom( mZoomTarget );
-	
-	// Orbiting
-	float targetY = mStartRotation.y + mTouch.getTouchesDifference().x * -0.003f;
-	float targetX = mStartRotation.x + mTouch.getTouchesDifference().y * -0.003f;
-	const float maxAngle = -20.0f * kToRad;
-	const float minAngle = -70.0f * kToRad;
-	targetX = math<float>::clamp( targetX, minAngle, maxAngle );
-	float easing = 10.0f;
-	mAngleTargetX += ( targetX - mAngleTargetX ) / easing;
-	mCamera->setAngle( mAngleTargetX );
-	mAngleTargetY += ( targetY - mAngleTargetY ) / easing;
-	mCamera->orientation = Quatf( Vec3f::yAxis(), mAngleTargetY );
+	//mCameraController.update( deltaTime );
 	
 	if ( mPlanet ) {
-		const float planetRotationSpeed = 4.0f;
-		//mPlanet->rotation.y += planetRotationSpeed * deltaTime;
+		mPlanet->rotation.y += 4.0f * deltaTime;
 	}
 	
-	/*if ( mLensFlare ) {
+	if ( mLensFlare ) {
 		mLensFlare->update( deltaTime );
-	}*/
-	
-	for( auto iter = mControllers.begin(); iter != mControllers.end(); iter++ ) {
-		(*iter)->update( deltaTime );
 	}
-}
-
-void Game::tapDown(ci::Vec2i position)
-{
-	// Raycast to select an object
-	if ( ObjectController* controller = pickObject( mCamera->rayIntoScene( position ) ) ) {
-		Node* node = controller->getNode();
-		mFocusTarget = node;
-		mFreeTargetMode = false;
-		
-		deselectAllControllers();
-		selectController( controller );
-	}
-	// Else raycast to find intersection with plane in empty space
-	else {
-		Vec3f position = Vec3f(1,0,1);
-		for( std::list<ObjectController*>::iterator iter = mSelectedControllers.begin(); iter != mSelectedControllers.end(); iter++) {
-			(*iter)->setMoveTarget( position );
-		}
-	}
-}
-
-void Game::selectController( ObjectController* controller )
-{
-	std::list<ObjectController*>::iterator match = std::find( mSelectedControllers.begin(), mSelectedControllers.end(), controller );
-	if ( match == mSelectedControllers.end() ) {
-		mSelectedControllers.push_back( controller );
-	}
-}
-
-void Game::deselectController( ObjectController* controller )
-{
-	std::list<ObjectController*>::iterator match = std::find( mSelectedControllers.begin(), mSelectedControllers.end(), controller );
-	if ( match != mSelectedControllers.end() ) {
-		mSelectedControllers.erase( match );
-	}
-}
-
-void Game::deselectAllControllers()
-{
-	mSelectedControllers.clear();
 }
 
 void Game::debugDraw()
 {
+	return;
 	
 	// Draw grid
 	Vec4f c = Vec4f( 1, 1, 1, 0.15f );
@@ -274,21 +156,11 @@ void Game::debugDraw()
 		mRenderingEngine->debugDrawLine( Vec3f(i,0,-n) * l, Vec3f(i,0,n) * l, c );
 		mRenderingEngine->debugDrawLine( Vec3f(-n,0,i) * l, Vec3f(n,0,i) * l, c );
 	}
-	
-	return;
-	
-	// Draw bounding boxes
-	for( auto iter = mControllers.begin(); iter != mControllers.end(); iter++ ) {
-		ObjectController* controller = *iter;
-		const AxisAlignedBox3f& b = controller->getBoundingBox();
-		Vec4f color = controller->getNode() == mFocusTarget ? Vec4f( 0, 1, 0, 1 ) : Vec4f( 1, 1, 1, 0.4f );
-		mRenderingEngine->debugDrawCube( b.getCenter(), b.getSize(), color );
-	}
 }
 
-ObjectController* Game::pickObject( const ci::Ray& ray )
+ObjectController* Game::pickObject( const Ray& ray )
 {
-	for( auto iter = mControllers.begin(); iter != mControllers.end(); iter++ ) {
+	/*for( auto iter = mControllers.begin(); iter != mControllers.end(); iter++ ) {
 		ObjectController* controller = *iter;
 		Node* node = controller->getNode();
 		
@@ -300,21 +172,7 @@ ObjectController* Game::pickObject( const ci::Ray& ray )
 			return controller;
 		}
 	}
-	return NULL;
-}
-
-void Game::gestureStarted( int fingerCount )
-{
-	if ( fingerCount == 2 ) {
-		mZoomStart = mCamera->getZoom();
-		mStartRotation = Vec3f( -mCamera->getAngle(), mCamera->orientation.getAngle(), 0.0f );
-	}
-}
-
-void Game::gestureEnded( int fingerCount )
-{
-	if ( fingerCount == 2 ) {
-	}
+	return NULL;*/
 }
 
 

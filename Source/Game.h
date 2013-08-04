@@ -8,8 +8,9 @@
 #include "GameConstants.h"
 #include "Camera.h"
 #include "LensFlare.h"
-#include "Touch.h"
+#include "TouchInput.h"
 #include "Text.h"
+#include "CameraController.h"
 
 #include "ObjectController.h"
 
@@ -17,7 +18,7 @@
 
 #include <list>
 
-class Game : Touch::IDelegate {
+class Game {
 public:
     Game( RenderingEngine* renderingEngine );
     ~Game();
@@ -25,10 +26,6 @@ public:
     void				setup( int width, int height );
     void				update( const float deltaTime = 0.0f );
 	void				debugDraw();
-	
-    void				touchesBegan( const std::vector<ci::Vec2i>& positions ) { mTouch.touchesBegan( positions ); }
-    void				touchesMoved( const std::vector<ci::Vec2i>& positions ) { mTouch.touchesMoved( positions ); }
-    void				touchesEnded( const std::vector<ci::Vec2i>& positions ) { mTouch.touchesEnded( positions ); }
 	
 	Node2d*				getRootGui() const { return mRootGui; }
 	Camera*				getCamera() const { return mCamera; }
@@ -41,17 +38,9 @@ public:
 	
 	const std::list<Node*>& getNodes() { return mNodes; }
 	
-	void				gestureStarted( int fingerCount );
-	void				gestureEnded( int fingerCount );
-	void				tapDown(ci::Vec2i position);
-	void				tapUp(ci::Vec2i position) {}
-	
 private:
 	Camera* mCamera;
-	std::list<ObjectController*> mControllers;
-	std::list<ObjectController*> mSelectedControllers;
-	
-	Touch mTouch;
+	EditorCamera mCameraController;
 	
 	Node2d* mRootGui;
 	Node* mPlanet;
@@ -60,18 +49,7 @@ private:
     RenderingEngine* mRenderingEngine;
     ResourceManager* mResourceManager;
 	
-	// Camera controls
-	bool mFreeTargetMode;
-	Node* mFocusTarget;
-	Node* mSelection;
-	float mZoomStart;
-	float mZoomTarget;
-	float mAngleTargetX;
-	float mAngleTargetY;
-	ci::Vec3f mStartRotation;
-	ci::Vec3f mRotationTarget;
-	
-	//LensFlare* mLensFlare;
+	LensFlare* mLensFlare;
 		
 	void selectController( ObjectController* controller );
 	void deselectController( ObjectController* controller );

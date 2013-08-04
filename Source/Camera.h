@@ -24,8 +24,8 @@ public:
 	void setZoom( float zoom );
 	float getZoom() const { return mBody.position.z; }
 	
-	float getAngle() const { return mPivot.orientation.getAngle(); }
-	void setAngle( const float angleX ) { mPivot.orientation = ci::Quatf( ci::Vec3f::xAxis(), angleX ); }
+	float getAngle() const { return mPivot.rotation.x; }
+	void setAngle( const float angleX ) { mPivot.rotation.x = angleX; }
 	
 	ci::Ray rayIntoScene( ci::Vec2i screenPoint );
 	

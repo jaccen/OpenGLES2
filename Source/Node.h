@@ -7,6 +7,7 @@
 
 #include "SmartValue.h"
 #include "Resources.h"
+#include "Material.h"
 
 #include <vector>
 
@@ -30,46 +31,29 @@ public:
 	const ci::Matrix44f&	getTransform() const { return mTransform; }
 	
 	ci::Vec3f				position;
-	ci::Quatf				orientation;
+	ci::Vec3f				rotation;
 	ci::Vec3f				scale;
 	ci::Vec3f				pivotOffset;
 	bool					mFaceCamera;
 	
-	std::string				mShader;
 	Mesh*					mMesh;
-	ci::Vec4f				mColor;
-	ci::Vec4f				mColorSpecular;
-	ci::Vec4f				mColorRim;
-	ci::Vec4f				mColorSelfIllumination;
-	float					mRimPower;
-	float					mShininess;
-	float					mGlossiness;
-	Texture*				mTexture;
-	Texture*				mTexture2;
-	Texture*				mTexture3;
-	Texture*				mTextureNormal;
-	Texture*				mTextureSpecular;
-	Texture*				mTextureAlpha;
-	Texture*				mTextureSelfIllumination;
+	
+	Material				mMaterial;
+	const Material&			getMaterial() const { return mMaterial; }
 	
 	void					setParent( Node* parent );
 	Node*					getParent() const { return mParent; }
-	bool					isDirty();
 	const float&			getDistanceFromCamera() { return mDistanceFromCamera; }
 	ci::Vec3f				getGlobalPosition();
 	void					setForward( const ci::Vec3f forward );
 	
 	Layer					mLayer;
 	
-private:
-	void					updateTransform();
-	
+private:	
 	Node*					mParent;
 	bool					mIsDirty;
 	ci::Matrix44f			mTransform;
 	ci::Matrix44f			mLocalTransform;
-	ci::Vec3f				mLastPosition;
-	ci::Quatf				mLastOrientation;
 	ci::Vec3f				mLastScale;
 	float					mDistanceFromCamera;
 };

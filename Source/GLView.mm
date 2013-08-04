@@ -1,4 +1,5 @@
 #import "GLView.h"
+#include "TouchInput.h"
 
 #define GL_RENDERBUFFER 0x8d41
 
@@ -70,6 +71,7 @@ const static int kFps = 60;
     if (displayLink != nil) {
         float elapsedSeconds = displayLink.timestamp - mTimestamp;
 		if ( elapsedSeconds >= frameRate ) {
+			TouchInput::get()->update( elapsedSeconds );
 			mGame->update( elapsedSeconds );
 			mRenderingEngine->update( elapsedSeconds );
 			mTimestamp = displayLink.timestamp;
@@ -93,7 +95,7 @@ const static int kFps = 60;
 		CGPoint location  = [touch locationInView:self];
 		mTouches.push_back( ci::Vec2i( location.x, location.y ) );
 	}
-	mGame->touchesBegan( mTouches );
+	TouchInput::get()->touchesBegan( mTouches );
 }
 
 - (void) touchesEnded: (NSSet*) touches withEvent: (UIEvent*) event
@@ -103,7 +105,7 @@ const static int kFps = 60;
 		CGPoint location  = [touch locationInView:self];
 		mTouches.push_back( ci::Vec2i( location.x, location.y ) );
 	}
-	mGame->touchesEnded( mTouches );
+	TouchInput::get()->touchesEnded( mTouches );
 }
 
 - (void) touchesMoved: (NSSet*) touches withEvent: (UIEvent*) event
@@ -113,7 +115,7 @@ const static int kFps = 60;
 		CGPoint location  = [touch locationInView:self];
 		mTouches.push_back( ci::Vec2i( location.x, location.y ) );
 	}
-	mGame->touchesMoved( mTouches );
+	TouchInput::get()->touchesMoved( mTouches );
 }
 
 @end

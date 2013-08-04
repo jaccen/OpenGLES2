@@ -6,18 +6,18 @@ using namespace ci;
 
 const static int kNumSprites = 9;
 
-LensFlare::LensFlare( Game* game ) : mGame( game )
+LensFlare::LensFlare()
 {
 	LensFlare::Sprite sprites[ kNumSprites ];
-	sprites[0] = (Sprite) { 200,		Vec4f(0.48,.35,.22,0.5),	"textures/flare_sprite_1.png" };
-	sprites[1] = (Sprite) { 600,		Vec4f(1,1,1,1),				"textures/flare_sprite_0.png" };
-	sprites[2] = (Sprite) { 50,			Vec4f(1,.2,.2,.5),			"textures/flare_sprite_1.png" };
-	sprites[3] = (Sprite) { 20,			Vec4f(1,1,1,.5),			"textures/flare_sprite_2.png" };
-	sprites[4] = (Sprite) { 100,		Vec4f(1,.2,.2,.5),			"textures/flare_sprite_1.png" };
-	sprites[5] = (Sprite) { 80,			Vec4f(.2,.2,1,.5),			"textures/flare_sprite_1.png" };
-	sprites[6] = (Sprite) { 30,			Vec4f(.2,.2,1,.5),			"textures/flare_sprite_1.png" };
-	sprites[7] = (Sprite) { 200,		Vec4f(1,1,1,.25),			"textures/flare_sprite_3.png" };
-	sprites[8] = (Sprite) { 300,		Vec4f(1,1,1,.1),			"textures/flare_sprite_4.png" };
+	sprites[0] = (Sprite) { 200,		ColorA(0.48,.35,.22,0.5),	"textures/flare_sprite_1.png" };
+	sprites[1] = (Sprite) { 600,		ColorA(1,1,1,1),			"textures/flare_sprite_0.png" };
+	sprites[2] = (Sprite) { 50,			ColorA(1,.2,.2,.5),			"textures/flare_sprite_1.png" };
+	sprites[3] = (Sprite) { 20,			ColorA(1,1,1,.5),			"textures/flare_sprite_2.png" };
+	sprites[4] = (Sprite) { 100,		ColorA(1,.2,.2,.5),			"textures/flare_sprite_1.png" };
+	sprites[5] = (Sprite) { 80,			ColorA(.2,.2,1,.5),			"textures/flare_sprite_1.png" };
+	sprites[6] = (Sprite) { 30,			ColorA(.2,.2,1,.5),			"textures/flare_sprite_1.png" };
+	sprites[7] = (Sprite) { 200,		ColorA(1,1,1,.25),			"textures/flare_sprite_3.png" };
+	sprites[8] = (Sprite) { 300,		ColorA(1,1,1,.1),			"textures/flare_sprite_4.png" };
 	
 	for( int i = 0; i < kNumSprites; i++ ) {
 		Node2d* sprite = new Node2d();
@@ -29,7 +29,7 @@ LensFlare::LensFlare( Game* game ) : mGame( game )
 		mRoot.addChild( sprite );
 		mSprites.push_back( sprite );
 	}
-	mLightPosition = Vec3f( 100.0, 50.0, 50.0 );
+	mLightPosition = Vec3f::zero();
 	
 	RenderingEngine::get()->addNode( &mRoot );
 }

@@ -28,7 +28,7 @@ GLuint ShaderProgram::buildShader(const char* source, GLenum shaderType) const
     if (compileSuccess == GL_FALSE) {
         GLchar messages[256];
         glGetShaderInfoLog(shaderHandle, sizeof(messages), 0, &messages[0]);
-        std::cout << messages;
+        std::cout << messages << std::endl;
         exit(1);
     }
     
@@ -50,7 +50,7 @@ GLuint ShaderProgram::buildProgram(const char* vertexShaderSource, const char* f
     if (linkSuccess == GL_FALSE) {
         GLchar messages[256];
         glGetProgramInfoLog(programHandle, sizeof(messages), 0, &messages[0]);
-        std::cout << messages;
+        std::cout << messages << std::endl;
         exit(1);
     }
     
@@ -120,6 +120,12 @@ void ShaderProgram::uniform( const std::string &name, const Vec4f &data )
 {
 	GLint loc = getUniformLocation( name );
 	glUniform4f( loc, data.x, data.y, data.z, data.w );
+}
+
+void ShaderProgram::uniform( const std::string &name, const ci::ColorA &data )
+{
+	GLint loc = getUniformLocation( name );
+	glUniform4f( loc, data.r, data.g, data.b, data.a );
 }
 
 void ShaderProgram::uniform( const std::string &name, const float *data, int count )

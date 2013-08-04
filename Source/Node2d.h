@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cinder/Vector.h"
+#include "cinder/Color.h"
 
 #include <vector>
 
@@ -26,7 +27,7 @@ public:
 	void update( const float deltaTime = 0.0f );
 	
 	void setTexture( Texture* texture );
-	void setColor( ci::Vec4f color );
+	void setColor( ci::ColorA color );
 	
 	void hide( bool andChildren = true );
 	void show( bool andChildren = true );
@@ -52,6 +53,7 @@ public:
 	Node* getNode() const { return mNode; }
 	ci::Vec2i getGlobalPosition();
 	
+	std::string name;
 	ci::Vec2f anchor;
 	ci::Vec2f childAnchor;
 	ci::Vec2i size;

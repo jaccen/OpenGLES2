@@ -10,28 +10,17 @@ Node::Node() :
 	mLayer( Node::LayerNone ),
 	mIsDirty( true ),
 	mMesh( NULL ),
-	mTexture( NULL ),
-	mTexture2( NULL ),
-	mTexture3( NULL ),
-	mTextureNormal( NULL ),
-	mTextureSpecular( NULL ),
-	mTextureAlpha( NULL ),
-	mTextureSelfIllumination( NULL ),
 	mParent( NULL ),
 	mFaceCamera( false )
 {
 	mTransform			= Matrix44f::identity();
 	mLocalTransform		= Matrix44f::identity();
 	position			= Vec3f::zero();
-	orientation			= Quatf::identity();
+	rotation			= Vec3f::zero();
 	scale				= Vec3f::one();
-	mColor				= Vec4f::one();
 	pivotOffset			= Vec3f::zero();
-	mColorSpecular		= Vec4f::zero();
-	mGlossiness			= 0.0f;
-	mRimPower			= 0.0f;
 	
-	updateTransform();
+	update();
 }
 
 Node::~Node()
@@ -43,7 +32,7 @@ Node::~Node()
 void Node::setForward( const ci::Vec3f forward )
 {
 	ci::Matrix44f trans = ci::Matrix44f::alignZAxisWithTarget( forward.normalized(), ci::Vec3f::yAxis() );
-	orientation = Quatf( trans );
+	//orientation = Quatf( trans );
 }
 
 ci::Vec3f Node::getGlobalPosition()
@@ -57,31 +46,13 @@ void Node::setParent( Node* parent )
 	mIsDirty = true;
 }
 
-bool Node::isDirty()
-{
-	return  mIsDirty ||
-			mLastPosition != position ||
-			mLastOrientation != orientation ||
-			mLastScale != scale;
-}
-
 void Node::update( const float deltaTime )
-{
-	// // Try to optimize mFaceCamera for spirtes, don't do it every frame if possible:
-	if ( isDirty() || ( mParent && mParent->isDirty() ) || mFaceCamera ) {
-		updateTransform();
-		mIsDirty = false;
-	}
-}
-
-void Node::updateTransform()
 {
 	mLocalTransform = Matrix44f::identity();
 	mLocalTransform.translate( position );
 	if ( !mFaceCamera ) {
-		mLocalTransform *= orientation.toMatrix44();
+		mLocalTransform.rotate( rotation * M_PI / 180.0f );
 	}
-	//mLocalTransform.translate( pivotOffset );
 	mLocalTransform.scale( scale );
 	
 	if ( mParent != NULL ) {
@@ -97,9 +68,5 @@ void Node::updateTransform()
 		// Try to optimize this, don't do it every frame if possible:
 		//mDistanceFromCamera = Camera::get()->getGlobalPosition().distance( getGlobalPosition() );
 	}
-	
-	mLastOrientation = orientation;
-	mLastPosition = position;
-	mLastScale = scale;
 }
 

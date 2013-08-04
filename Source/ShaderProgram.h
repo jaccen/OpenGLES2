@@ -5,6 +5,7 @@
 
 #include "cinder/Matrix.h"
 #include "cinder/Vector.h"
+#include "cinder/Color.h"
 
 #include <map>
 #include <string>
@@ -28,6 +29,7 @@ public:
 	void					uniform( const std::string &name, const ci::Vec2f &data );
 	void					uniform( const std::string &name, const ci::Vec3f &data );
 	void					uniform( const std::string &name, const ci::Vec4f &data );
+	void					uniform( const std::string &name, const ci::ColorA &data );
 	void					uniform( const std::string &name, const ci::Matrix33f &data, bool transpose = false );
 	void					uniform( const std::string &name, const ci::Matrix44f &data, bool transpose = false );
 	void					uniform( const std::string &name, const float *data, int count );

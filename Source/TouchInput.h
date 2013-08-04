@@ -8,7 +8,7 @@
 #include <vector>
 #include <list>
 
-class Touch {
+class TouchInput {
 public:
 	class IDelegate {
 	public:
@@ -19,8 +19,7 @@ public:
 		virtual void tapUp( ci::Vec2i position ) = 0;
 	};
 	
-	Touch();
-	~Touch();
+	static TouchInput*	get();
 	
 	void addDelegate( IDelegate* delegate );
 	void removeDelegate( IDelegate* delegate );
@@ -39,7 +38,13 @@ public:
 	float				getTouchesDistance() const { return mTouchDistanceCurrent - mTouchDistanceStart; }
 	ci::Vec2i			getTouchesDifference() const { return mTouchCenter - mTouchCenterStart; }
 	
+	int					getTouchCount() const { return mTouchCount; }
+	
 private:
+	TouchInput();
+	~TouchInput();
+	static TouchInput* sInstance;
+	
 	std::vector<ci::Vec2i> mTouches;
 	ci::Vec2i			mTouchCenter;
 	ci::Vec2i			mTouchCenterStart;

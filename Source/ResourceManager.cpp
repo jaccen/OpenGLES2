@@ -69,7 +69,7 @@ void ResourceManager::loadShader( std::string key, std::string vertexShaderPath,
 {
 	char* vShader = mResourceLoader.loadShader( vertexShaderPath );
 	char* fShader = mResourceLoader.loadShader( fragmentShaderPath );
-	mRenderingEngine->addShader( key, vShader, fShader );
+	mShaders[ key] = new ShaderProgram( vShader, fShader );
 	free( vShader );
 	free( fShader );
 }
