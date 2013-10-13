@@ -51,6 +51,12 @@ void RenderingEngine::removeNode( Node* node )
 	if ( match != mObjectNodes.end() ) {
 		mObjectNodes.erase( match );
 	}
+	else {
+		auto match = std::find( mSpriteNodes.begin(), mSpriteNodes.end(), node );
+		if ( match == mSpriteNodes.end() ) {
+			mSpriteNodes.push_back( node );
+		}
+	}
 }
 
 void RenderingEngine::addNode( Node2d* node )
@@ -235,6 +241,7 @@ void RenderingEngine::update( const float deltaTime )
 	for( auto iter = mSpriteNodes.begin(); iter != mSpriteNodes.end(); iter++ ) {
 		(*iter)->update( deltaTime );
 	}
+	//std::sort( mSpriteNodes.begin(), mSpriteNodes.end(), Node::sortByDistanceFromCamera );
 	
 	for( auto iter = mScreenNodes.begin(); iter != mScreenNodes.end(); iter++ ) {
 		(*iter)->update( deltaTime );
@@ -342,19 +349,21 @@ void RenderingEngine::draw()
 	}
 	
 	glClear( GL_DEPTH_BUFFER_BIT );
-	glEnable(GL_DEPTH_TEST);
+	glEnable( GL_DEPTH_TEST );
+	glDepthMask( GL_TRUE );
     
 	for( auto objNode : mObjectNodes ) {
 		drawNode( objNode );
 	}
+	
+	glDisable( GL_DEPTH_TEST );
+	glDisable( GL_CULL_FACE );
     
 	for( auto sprNode : mSpriteNodes ) {
 		drawNode( sprNode );
 	}
 	
-	glDisable( GL_CULL_FACE );
 	glDisable( GL_DEPTH_TEST );
-	
 	for( auto node2d : mScreenNodes ) {
 		drawGui( node2d );
 	}
@@ -394,6 +403,7 @@ void RenderingEngine::draw()
 void RenderingEngine::drawNode( const Node* node )
 {
 	ShaderProgram* shader = node->mMaterial.mShader;
+	if ( shader == NULL ) return;
 	
 	glUseProgram( shader->getHandle() );
 	shader->uniform( "Modelview",			mCamera->getModelViewMatrix() );

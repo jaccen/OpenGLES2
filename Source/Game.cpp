@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "TouchInput.h"
 #include "TargetConditionals.h"
+#include "Projectile.h"
 
 using namespace ci;
 
@@ -79,12 +80,21 @@ void Game::setup( int width, int height )
 	glowSprite->mMesh = mResourceManager->getMesh( "models/quad_plane.obj" );
 	glowSprite->scale = mPlanet->scale * 2.6;
 	glowSprite->position = mPlanet->position;
-	mRenderingEngine->addSpriteNode( glowSprite );
 	glowSprite->mMaterial.mShader = mResourceManager->getShader( "unlit" );
 	glowSprite->mMaterial.setProperty( "Scale",	Vec2f::one() );
 	glowSprite->mMaterial.setTexture( "DiffuseTexture", mResourceManager->getTexture( "textures/sphere_glow.png" ) );
 	glowSprite->mMaterial.setColor( "DiffuseMaterial", ColorA( 1, .5, 0, 0.4 ) );
-	glowSprite->mMaterial.setProperty( "rimPower", 0.15f );
+	mRenderingEngine->addSpriteNode( glowSprite );
+		
+	Projectile* proj = new Projectile();
+	proj->mNode.mLayer = Node::LayerLighting;
+	proj->mNode.mFaceCamera = true;
+	proj->mNode.mMesh = mResourceManager->getMesh( "models/quad_plane.obj" );
+	proj->mNode.scale = Vec3f( 10.0f, 1.0f, 1.0f ) * 20.0f;
+	proj->mNode.mMaterial.mShader = mResourceManager->getShader( "unlit" );
+	proj->mNode.mMaterial.setProperty( "Scale", Vec2f::one() );
+	proj->mNode.mMaterial.setTexture( "DiffuseTexture", mResourceManager->getTexture( "textures/projectile.png" ) );
+	proj->mNode.mMaterial.setColor( "DiffuseMaterial", ColorA::white() );
 	
 	Node* asteroid = new Node();
 	asteroid->mLayer = Node::LayerObjects;
@@ -100,26 +110,35 @@ void Game::setup( int width, int height )
 	asteroid->position = Vec3f( 300, 50, 0 );
 	mRenderingEngine->addNode( asteroid );
 	
-	Node* ship = new Node();
-	ship->mLayer = Node::LayerObjects;
-	ship->mMesh = mResourceManager->getMesh( "models/teapot_low.obj" );
-	ship->mMaterial.mShader = mResourceManager->getShader( "ship" );
-	ship->mMaterial.setTexture( "DiffuseTexture",	mResourceManager->getTexture( "textures/metal.png" ) );
-	ship->mMaterial.setTexture( "SelfIlluminationTexture",	mResourceManager->getTexture( "textures/ship_selfillum.png" ) );
-	ship->mMaterial.setColor( "DiffuseMaterial",		ColorA( 1, 1, 1, 1 ) );
-	ship->mMaterial.setColor( "SpecularMaterial",		ColorA( 1, 1, 1, 0.5f ));
-	ship->mMaterial.setColor( "SelfIlluminationColor",	ColorA( 1, 0, 0, 1.0 ) );
-	ship->mMaterial.setColor( "RimMaterial",			ColorA( 0.35, 0.1, 0, 0.5 ) );
-	ship->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.5, 0.5, 1.0f ));
-	ship->mMaterial.setProperty( "Shininess", 10.0f );
-	ship->scale = Vec3f::one() * 50.0f;
-	mRenderingEngine->addNode( ship );
+	for( int i = 0; i < 5; i++ ) {
+		Node* ship = new Node();
+		ship->mLayer = Node::LayerObjects;
+		ship->mMesh = mResourceManager->getMesh( "models/teapot_low.obj" );
+		ship->mMaterial.mShader = mResourceManager->getShader( "ship" );
+		ship->mMaterial.setTexture( "DiffuseTexture",	mResourceManager->getTexture( "textures/metal.png" ) );
+		ship->mMaterial.setTexture( "SelfIlluminationTexture",	mResourceManager->getTexture( "textures/ship_selfillum.png" ) );
+		ship->mMaterial.setColor( "DiffuseMaterial",		ColorA( 1, 1, 1, 1 ) );
+		ship->mMaterial.setColor( "SpecularMaterial",		ColorA( 1, 1, 1, 0.5f ));
+		ship->mMaterial.setColor( "SelfIlluminationColor",	ColorA( 1, 0, 0, 1.0 ) );
+		ship->mMaterial.setColor( "RimMaterial",			ColorA( 0.35, 0.1, 0, 0.5 ) );
+		ship->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.5, 0.5, 1.0f ));
+		ship->mMaterial.setProperty( "Shininess", 10.0f );
+		ship->scale = Vec3f::one() * 50.0f;
+		ship->position = Vec3f( randFloat(-1.0f,1.0f) * 500.0f, 0.0f, randFloat(-1.0f,1.0f) * 500.0f );
+		mRenderingEngine->addNode( ship );
+	}
+	
+	ParticleSystem* ps = new ParticleSystem();
+	ps->createParticles( 10, mResourceManager->getTexture( "textures/explosion.png" ) );
+	ps->setVelocity( Vec3f::yAxis() * 100.0f, Vec3f::one() );
+	ps->setRotationalVelocity( 0.0f, 100.0f );
+	ps->setStartPositionRange( Vec3f::one() * 100.0f );
 	
 	//mRenderingEngine->setBackgroundTexture( mResourceManager->getTexture( "textures/stars2.jpg" ) );
 	
 	Light* light = new Light();
 	light->mColor = ColorA::white();
-	light->mAmbientColor = ColorA( 0.2f, 0.2f, 0.2f, 1.0f );
+	light->mAmbientColor = ColorA( 0.1f, 0.1f, 0.1f, 1.0f );
 	light->mNode.position = Vec3f( 10000, 10000, 0 );
 	mRenderingEngine->addLight( light );
 	

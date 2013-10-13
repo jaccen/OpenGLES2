@@ -8,6 +8,7 @@
 #include "Text.h"
 #include "Camera.h"
 #include "LensFlare.h"
+#include "ParticleSystem.h"
 
 #include "cinder/Matrix.h"
 #include "cinder/Quaternion.h"
@@ -85,7 +86,7 @@ private:
 	ci::Vec2i				mScreenSize;
 	std::list<Node*>		mObjectNodes;
 	std::list<Node2d*>		mScreenNodes;
-	std::list<Node*>		mSpriteNodes;
+	std::vector<Node*>		mSpriteNodes;
 	GLuint					mContextFramebuffer;
     GLuint					mContextColorRenderbuffer;
     GLuint					mContextDepthRenderbuffer;

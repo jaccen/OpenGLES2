@@ -11,7 +11,8 @@ Node::Node() :
 	mIsDirty( true ),
 	mMesh( NULL ),
 	mParent( NULL ),
-	mFaceCamera( false )
+	mFaceCamera( false ),
+	mFaceCameraAsLine( false )
 {
 	mTransform			= Matrix44f::identity();
 	mLocalTransform		= Matrix44f::identity();
@@ -24,15 +25,12 @@ Node::Node() :
 }
 
 Node::~Node()
-{    
+{
 	                              
 }
 
-
 void Node::setForward( const ci::Vec3f forward )
 {
-	ci::Matrix44f trans = ci::Matrix44f::alignZAxisWithTarget( forward.normalized(), ci::Vec3f::yAxis() );
-	//orientation = Quatf( trans );
 }
 
 ci::Vec3f Node::getGlobalPosition()
@@ -63,10 +61,27 @@ void Node::update( const float deltaTime )
 	}
 	
 	if ( mFaceCamera ) {
-		Vec3f cameraDirection = Camera::get()->getGlobalPosition() - getGlobalPosition();
-		mTransform *= ci::Matrix44f::alignZAxisWithTarget( cameraDirection.normalized(), ci::Vec3f::yAxis() );
-		// Try to optimize this, don't do it every frame if possible:
-		//mDistanceFromCamera = Camera::get()->getGlobalPosition().distance( getGlobalPosition() );
+		const Vec3f cameraDirection = ( Camera::get()->getGlobalPosition() - getGlobalPosition() ).normalized();
+		mTransform *= ci::Matrix44f::alignZAxisWithTarget( cameraDirection, ci::Vec3f::yAxis() );
+		mTransform.rotate( cross( cameraDirection, Vec3f::zAxis() ), mFaceCameraRotation * kToRad );
+		
+		updateCameraDistance();
+	}
+	
+	if ( mFaceCameraAsLine ) {
+		const Vec3f cameraDirection = ( Camera::get()->getGlobalPosition() - getGlobalPosition() ).normalized();
+		mTransform *= ci::Matrix44f::alignZAxisWithTarget( cameraDirection, ci::Vec3f::yAxis() );
+		
+		updateCameraDistance();
+	}
+	
+	for( auto delegate : mDelegates ) {
+		delegate->update( deltaTime );
 	}
 }
 
+void Node::updateCameraDistance()
+{
+	// Try to optimize this, don't do it every frame if possible:
+	mDistanceFromCamera = Camera::get()->getGlobalPosition().distance( getGlobalPosition() );
+}

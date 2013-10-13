@@ -19,6 +19,8 @@
 		5A27CAC6171210B40028DF13 /* boost.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A27CAC5171210B40028DF13 /* boost.framework */; };
 		5A27CAC9171219100028DF13 /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A27CAC7171219100028DF13 /* Text.cpp */; };
 		5A27CACC171237D10028DF13 /* Resources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A27CACA171237D10028DF13 /* Resources.cpp */; };
+		5A3E621B180B243900214718 /* ParticleSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A3E6219180B243900214718 /* ParticleSystem.cpp */; };
+		5A3E621E180B4DB900214718 /* Projectile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A3E621C180B4DB900214718 /* Projectile.cpp */; };
 		5A58E78F16F6463200AA4635 /* Rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E78E16F6463200AA4635 /* Rect.cpp */; };
 		5A58E79116F6464300AA4635 /* Area.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E79016F6464300AA4635 /* Area.cpp */; };
 		5A5DBEFF17A5CBCB00DB031C /* TouchInput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B1716F69D0400F47648 /* TouchInput.cpp */; };
@@ -79,6 +81,10 @@
 		5A27CAC8171219100028DF13 /* Text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Text.h; sourceTree = "<group>"; };
 		5A27CACA171237D10028DF13 /* Resources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Resources.cpp; sourceTree = "<group>"; };
 		5A27CACB171237D10028DF13 /* Resources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Resources.h; sourceTree = "<group>"; };
+		5A3E6219180B243900214718 /* ParticleSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParticleSystem.cpp; sourceTree = "<group>"; };
+		5A3E621A180B243900214718 /* ParticleSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleSystem.h; sourceTree = "<group>"; };
+		5A3E621C180B4DB900214718 /* Projectile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Projectile.cpp; sourceTree = "<group>"; };
+		5A3E621D180B4DB900214718 /* Projectile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Projectile.h; sourceTree = "<group>"; };
 		5A58E78E16F6463200AA4635 /* Rect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Rect.cpp; path = Cinder/src/cinder/Rect.cpp; sourceTree = "<group>"; };
 		5A58E79016F6464300AA4635 /* Area.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Area.cpp; path = Cinder/src/cinder/Area.cpp; sourceTree = "<group>"; };
 		5A5DBEFC17A5CAB300DB031C /* CameraController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraController.cpp; sourceTree = "<group>"; };
@@ -248,6 +254,10 @@
 				5A27CAC8171219100028DF13 /* Text.h */,
 				5A27CACA171237D10028DF13 /* Resources.cpp */,
 				5A27CACB171237D10028DF13 /* Resources.h */,
+				5A3E6219180B243900214718 /* ParticleSystem.cpp */,
+				5A3E621A180B243900214718 /* ParticleSystem.h */,
+				5A3E621C180B4DB900214718 /* Projectile.cpp */,
+				5A3E621D180B4DB900214718 /* Projectile.h */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -390,7 +400,9 @@
 				5AE85B1F16F69D0400F47648 /* Node2d.cpp in Sources */,
 				5AE85B2016F69D0400F47648 /* ObjParser.cpp in Sources */,
 				5AE85B2116F69D0400F47648 /* RenderingEngine.cpp in Sources */,
+				5A3E621B180B243900214718 /* ParticleSystem.cpp in Sources */,
 				5AE85B2216F69D0400F47648 /* ResourceLoader.mm in Sources */,
+				5A3E621E180B4DB900214718 /* Projectile.cpp in Sources */,
 				5AE85B2316F69D0400F47648 /* ResourceManager.cpp in Sources */,
 				5AE85B2416F69D0400F47648 /* ShaderProgram.cpp in Sources */,
 				5AE85B2816F69D4100F47648 /* Camera.cpp in Sources */,

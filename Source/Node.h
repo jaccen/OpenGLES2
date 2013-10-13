@@ -10,6 +10,7 @@
 #include "Material.h"
 
 #include <vector>
+#include <list>
 
 class Node {
 public:
@@ -23,6 +24,11 @@ public:
 	
 	static bool				sortByDistanceFromCamera( Node* a, Node* b ) { return a->getDistanceFromCamera() > b->getDistanceFromCamera(); }		
 	
+	class IDelegate {
+	public:
+		virtual void update( const float deltaTime ) = 0;
+	};
+	
 	Node();
 	virtual~ Node();
 	
@@ -35,6 +41,8 @@ public:
 	ci::Vec3f				scale;
 	ci::Vec3f				pivotOffset;
 	bool					mFaceCamera;
+	bool					mFaceCameraAsLine;
+	float					mFaceCameraRotation;
 	
 	Mesh*					mMesh;
 	
@@ -49,11 +57,18 @@ public:
 	
 	Layer					mLayer;
 	
-private:	
+	void					addDelegate( IDelegate* delegate ) { mDelegates.push_back( delegate ); }
+	void					removeDelegate( IDelegate* delegate ) {} // TODO: MAke this work
+	
+private:
+	inline void				updateCameraDistance();
+	
 	Node*					mParent;
 	bool					mIsDirty;
 	ci::Matrix44f			mTransform;
 	ci::Matrix44f			mLocalTransform;
 	ci::Vec3f				mLastScale;
 	float					mDistanceFromCamera;
+	
+	std::list<IDelegate*>	mDelegates;
 };

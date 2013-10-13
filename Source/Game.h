@@ -36,15 +36,12 @@ public:
 	
 	ObjectController*	pickObject( const ci::Ray& ray );
 	
-	const std::list<Node*>& getNodes() { return mNodes; }
-	
 private:
 	Camera* mCamera;
 	EditorCamera mCameraController;
 	
 	Node2d* mRootGui;
 	Node* mPlanet;
-	std::list<Node*> mNodes;
 	
     RenderingEngine* mRenderingEngine;
     ResourceManager* mResourceManager;
