@@ -25,3 +25,13 @@ void Material::setProperty( const std::string& location, float value )
 {
 	mProperties[ location ] = value;
 }
+
+void Material::setProperty( const std::string& location, ci::Vec2f value )
+{
+	mPropertiesVec2[ location ] = value;
+}
+
+void Material::setProperty( const std::string& location, ci::Vec3f value )
+{
+	mPropertiesVec3[ location ] = value;
+}

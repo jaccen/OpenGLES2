@@ -7,6 +7,7 @@
 #include "Node2d.h"
 #include "Text.h"
 #include "Camera.h"
+#include "LensFlare.h"
 
 #include "cinder/Matrix.h"
 #include "cinder/Quaternion.h"
@@ -23,6 +24,16 @@
 enum VertexFlags {
     VertexFlagsNormals = 1 << 0,
     VertexFlagsTexCoords = 1 << 1,
+};
+
+class Light {
+public:
+	Light() : mAmbientColor( ci::ColorA::black() ), mColor( ci::ColorA::white() ) {}
+	void update( const float deltaTime );
+	ci::ColorA mColor;
+	ci::ColorA mAmbientColor;
+	Node mNode;
+	LensFlare mLensFlare;
 };
 
 class RenderingEngine {
@@ -55,6 +66,8 @@ public:
 	void					drawText( Text* text );
 	void					addSpriteNode( Node* node );
 	
+	void					addLight( Light* light );
+	
 private:
     RenderingEngine();
 	static RenderingEngine*			sInstance;
@@ -83,4 +96,6 @@ private:
 	Texture*				mDefaultWhite;
 	Texture*				mDefaultBlack;
 	FramebufferObject*		mMainFbo;
+	
+	std::list<Light*>		mLights;
 };

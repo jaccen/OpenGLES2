@@ -47,6 +47,8 @@ private:
 	float mContentScaleFactor;
 	float mFov;
 	Node mBody;
+	float mNear;
+	float mFar;
 	Node mPivot;
 	ci::Vec2i mScreenSize;
 	float mScreenAspectRatio;

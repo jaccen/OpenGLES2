@@ -30,6 +30,12 @@ void Camera::setScreenSize( int width, int height, float contentScaleFactor )
 	mContentScaleFactor = contentScaleFactor;
 }
 
+void Camera::setRange( float near, float far )
+{
+	mNear = near;
+	mFar = far;
+}
+
 void Camera::setZoom( float zoom )
 {
 	mBody.position.z = zoom;
@@ -65,6 +71,8 @@ Camera::Camera()
 {
 	mCinderCamera = new ci::CameraPersp();
 	
+	mNear = 1.0f;
+	mFar = 100.0f;
 	mFov = 45.0f;
 	
 	mPivot.rotation.x	= -13.0f;
@@ -93,7 +101,7 @@ void Camera::update( const float deltaTime )
 	mBody.update( deltaTime );
 	
 	glViewport( 0, 0, mScreenSize.x, mScreenSize.x );
-	mCinderCamera->setPerspective( mFov, mScreenAspectRatio, 0.01f, 4000.0f );
+	mCinderCamera->setPerspective( mFov, mScreenAspectRatio, mNear, mFar );
 	mCinderCamera->setWorldUp( ci::Vec3f::yAxis() );
 	mCinderCamera->setEyePoint( mBody.getGlobalPosition() );
 	mCinderCamera->setOrientation( ci::Quatf( mBody.getTransform() ) );

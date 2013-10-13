@@ -48,8 +48,6 @@ private:
 	
     RenderingEngine* mRenderingEngine;
     ResourceManager* mResourceManager;
-	
-	LensFlare* mLensFlare;
 		
 	void selectController( ObjectController* controller );
 	void deselectController( ObjectController* controller );

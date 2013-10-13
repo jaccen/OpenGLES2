@@ -23,7 +23,6 @@
 		5A58E79116F6464300AA4635 /* Area.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E79016F6464300AA4635 /* Area.cpp */; };
 		5A5DBEFF17A5CBCB00DB031C /* TouchInput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B1716F69D0400F47648 /* TouchInput.cpp */; };
 		5A5DBF0017A5CC0F00DB031C /* CameraController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A5DBEFC17A5CAB300DB031C /* CameraController.cpp */; };
-		5A62F35117A5F9620050B91A /* Light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A62F34D17A5F9620050B91A /* Light.cpp */; };
 		5A62F35217A5F9620050B91A /* Material.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A62F34F17A5F9620050B91A /* Material.cpp */; };
 		5A9B879816F89E4F000B53BF /* ObjectController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A9B879616F89E4F000B53BF /* ObjectController.cpp */; };
 		5A9D974616F96BB60099763E /* LifeMeter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A9D974416F96BB60099763E /* LifeMeter.cpp */; };
@@ -84,8 +83,6 @@
 		5A58E79016F6464300AA4635 /* Area.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Area.cpp; path = Cinder/src/cinder/Area.cpp; sourceTree = "<group>"; };
 		5A5DBEFC17A5CAB300DB031C /* CameraController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CameraController.cpp; sourceTree = "<group>"; };
 		5A5DBEFD17A5CAB300DB031C /* CameraController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraController.h; sourceTree = "<group>"; };
-		5A62F34D17A5F9620050B91A /* Light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Light.cpp; sourceTree = "<group>"; };
-		5A62F34E17A5F9620050B91A /* Light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Light.h; sourceTree = "<group>"; };
 		5A62F34F17A5F9620050B91A /* Material.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Material.cpp; sourceTree = "<group>"; };
 		5A62F35017A5F9620050B91A /* Material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Material.h; sourceTree = "<group>"; };
 		5A9B879616F89E4F000B53BF /* ObjectController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ObjectController.cpp; sourceTree = "<group>"; };
@@ -229,8 +226,6 @@
 				5AE85B0A16F69D0400F47648 /* Node.h */,
 				5AE85B0B16F69D0400F47648 /* Node2d.cpp */,
 				5AE85B0C16F69D0400F47648 /* Node2d.h */,
-				5A62F34D17A5F9620050B91A /* Light.cpp */,
-				5A62F34E17A5F9620050B91A /* Light.h */,
 				5A62F34F17A5F9620050B91A /* Material.cpp */,
 				5A62F35017A5F9620050B91A /* Material.h */,
 				5AE85B0D16F69D0400F47648 /* ObjParser.cpp */,
@@ -332,6 +327,8 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "OpenGLES2" */;
 			compatibilityVersion = "Xcode 3.1";
 			developmentRegion = English;
@@ -405,7 +402,6 @@
 				5A27CACC171237D10028DF13 /* Resources.cpp in Sources */,
 				5A5DBEFF17A5CBCB00DB031C /* TouchInput.cpp in Sources */,
 				5A5DBF0017A5CC0F00DB031C /* CameraController.cpp in Sources */,
-				5A62F35117A5F9620050B91A /* Light.cpp in Sources */,
 				5A62F35217A5F9620050B91A /* Material.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

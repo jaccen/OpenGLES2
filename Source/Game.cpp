@@ -1,12 +1,12 @@
 #include "Game.h"
 #include "TouchInput.h"
+#include "TargetConditionals.h"
 
 using namespace ci;
 
 Game::Game(RenderingEngine* renderingEngine ) :
 	mRenderingEngine(renderingEngine),
-	mPlanet(NULL),
-	mLensFlare(NULL)
+	mPlanet(NULL)
 {
 }
 
@@ -22,17 +22,14 @@ void Game::setup( int width, int height )
 	mResourceManager = ResourceManager::get();
 	mResourceManager->setup( mRenderingEngine );
 	
-	mResourceManager->loadShader( kShaderText,				"shaders/text.vert",				"shaders/text.frag" );
-	mResourceManager->loadShader( kShaderFragmentLighting,	"shaders/planet.vert",				"shaders/planet.frag" );
-	mResourceManager->loadShader( kSahderClouds,			"shaders/pixel_lighting.vert",		"shaders/clouds.frag" );
-	mResourceManager->loadShader( kSahderVertexLighting,	"shaders/vertex_lighting.vert",		"shaders/vertex_lighting.frag" );
-	mResourceManager->loadShader( kShaderVertexLightColor,	"shaders/vertex_lighting.vert",		"shaders/color.frag" );
-	mResourceManager->loadShader( kShaderUnlit,				"shaders/unlit.vert",				"shaders/unlit.frag" );
-	mResourceManager->loadShader( kShaderScreenSpace,		"shaders/screen_space.vert",		"shaders/screen_space.frag" );
-	mResourceManager->loadShader( kShaderScreenSpaceBW,		"shaders/screen_space.vert",		"shaders/black_and_white.frag" );
-	mResourceManager->loadShader( kShaderDebug,				"shaders/debug.vert",				"shaders/debug.frag" );
-	mResourceManager->loadShader( kShaderShip,				"shaders/ship.vert",				"shaders/ship.frag" );
-	mResourceManager->loadShader( kShaderScreenText,		"shaders/screen_space.vert",		"shaders/screen_space_text.frag" );
+	mResourceManager->loadShader( "screen",			"shaders/screen_space.vert",		"shaders/screen_space.frag" );
+	mResourceManager->loadShader( "debug",			"shaders/debug.vert",				"shaders/debug.frag" );
+	mResourceManager->loadShader( "planet",			"shaders/planet.vert",				"shaders/planet.frag" );
+	mResourceManager->loadShader( "body",			"shaders/body.vert",				"shaders/body.frag" );
+	mResourceManager->loadShader( "unlit",			"shaders/unlit.vert",				"shaders/unlit.frag" );
+	mResourceManager->loadShader( "ship",			"shaders/ship.vert",				"shaders/ship.frag" );
+	mResourceManager->loadShader( "text",			"shaders/text.vert",				"shaders/text.frag" );
+	mResourceManager->loadShader( "screen_text",	"shaders/screen_space.vert",		"shaders/screen_space_text.frag" );
 	
 	mResourceManager->loadMesh( "models/sphere_globe.obj" );
 	mResourceManager->loadMesh( "models/skybox.obj" );
@@ -40,27 +37,39 @@ void Game::setup( int width, int height )
 	mResourceManager->loadMesh( "models/quad_plane.obj" );
 	
 	mCamera = Camera::get();
-	mCamera->setZoom( 100.0f );
+	mCamera->setZoom( 200.0f );
 	mCamera->setFov( 60.0f );
 	mCamera->setAngle( -30.0f );
 	mCamera->rotation.y = 90;
+	mCamera->setRange( 10.0f, 1500.0f );
 	
-	//mCameraController		= EditorCamera( mCamera );
+#if TARGET_IPHONE_SIMULATOR
+#else
+	mCameraController = EditorCamera( mCamera );
+#endif
+	
+	Node* skyBox = new Node();
+	skyBox->mMesh = mResourceManager->getMesh( "models/skysphere.obj" );
+	skyBox->scale = Vec3f::one() * 600.0f;
+	skyBox->mMaterial.setTexture( "DiffuseTexture", mResourceManager->getTexture( "textures/stars2.jpg" ) );
+	skyBox->mMaterial.setColor( "DiffuseMaterial", ColorA::white() );
+	skyBox->mMaterial.mShader = mResourceManager->getShader( "unlit" );
+	skyBox->mMaterial.setProperty( "Scale",	Vec2f( 2.0f, 2.0f ) );
+	mRenderingEngine->setSkyboxNode( skyBox );
 	
 	mPlanet = new Node();
 	mPlanet->mLayer = Node::LayerObjects;
 	mPlanet->mMesh = mResourceManager->getMesh( "models/sphere_high.obj" );
-	mPlanet->scale = Vec3f::one() * 20.0f;
-	mPlanet->mMaterial.mShader = mResourceManager->getShader( kSahderVertexLighting );
-	mPlanet->mMaterial.setTexture( "DiffuseTexture", mResourceManager->getTexture( "textures/mars_diffuse.png" ) );
-	mPlanet->mMaterial.setColor( "DiffuseMaterial", ColorA( 1, 1, 1, 1 ) );
-	mPlanet->mMaterial.setColor( "SpecularMaterial", ColorA( 1, 1, 1, 0.5f ));
-	mPlanet->mMaterial.setColor( "AmbientMaterial", ColorA( 0.1, 0.1, 0.1, 1.0f ));
-	//mPlanet->mMaterial.setTexture( "NormalTexture", mResourceManager->getTexture( "textures/mars_normal.jpg" ) );
-	//mPlanet->mMaterial.setColor( "SelfIlluminationColor", ColorA( 1, 0, 0, 1.0 ) );
-	//mPlanet->mMaterial.setColor( "RimColor", ColorA( 1, 0, 0, 1.0 ) );
-	//mPlanet->mMaterial.setColor( "SpecularColor", ColorA( 1, 0, 0, 1.0 ) );
-	mPlanet->mMaterial.setProperty( "RimPower", 0.15f );
+	//mPlanet->scale = Vec3f::one() * 20.0f;
+	mPlanet->scale = Vec3f::one() * 200.0f;
+	mPlanet->position = Vec3f( 600, 0, 0 );
+	mPlanet->mMaterial.mShader = mResourceManager->getShader( "planet" );
+	mPlanet->mMaterial.setTexture( "DiffuseTexture",		mResourceManager->getTexture( "textures/mars_diffuse.png" ) );
+	mPlanet->mMaterial.setColor( "DiffuseMaterial",			ColorA( 1, 1, 1, 1 ) );
+	mPlanet->mMaterial.setColor( "SpecularMaterial",		ColorA( 1, 1, 1, 0.5f ));
+	mPlanet->mMaterial.setColor( "RimMaterial",				ColorA( 0.35, 0.1, 0, 0.5 ) );
+	mPlanet->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.2, 0.0, 1.0f ));
+	mPlanet->mMaterial.setProperty( "RimPower", 0.35f );
 	mPlanet->mMaterial.setProperty( "Shininess", 10.0f );
 	mRenderingEngine->addNode( mPlanet );
 	
@@ -68,25 +77,63 @@ void Game::setup( int width, int height )
 	glowSprite->mLayer = Node::LayerLighting;
 	glowSprite->mFaceCamera = true;
 	glowSprite->mMesh = mResourceManager->getMesh( "models/quad_plane.obj" );
-	glowSprite->scale = Vec3f::one() * 50.0f;
+	glowSprite->scale = mPlanet->scale * 2.6;
+	glowSprite->position = mPlanet->position;
 	mRenderingEngine->addSpriteNode( glowSprite );
-	glowSprite->mMaterial.mShader = mResourceManager->getShader( kShaderUnlit );
+	glowSprite->mMaterial.mShader = mResourceManager->getShader( "unlit" );
+	glowSprite->mMaterial.setProperty( "Scale",	Vec2f::one() );
 	glowSprite->mMaterial.setTexture( "DiffuseTexture", mResourceManager->getTexture( "textures/sphere_glow.png" ) );
 	glowSprite->mMaterial.setColor( "DiffuseMaterial", ColorA( 1, .5, 0, 0.4 ) );
 	glowSprite->mMaterial.setProperty( "rimPower", 0.15f );
 	
-	Node* skyBox = new Node();
-	skyBox->mMesh = mResourceManager->getMesh( "models/skysphere.obj" );
-	skyBox->scale = Vec3f::one() * 200.0f;
-	skyBox->mMaterial.setTexture( "DiffuseTexture", mResourceManager->getTexture( "textures/stars.jpg" ) );
-	skyBox->mMaterial.setColor( "DiffuseMaterial", ColorA::white() );
-	skyBox->mMaterial.mShader = mResourceManager->getShader( kShaderUnlit );
-	mRenderingEngine->setSkyboxNode( skyBox );
+	Node* asteroid = new Node();
+	asteroid->mLayer = Node::LayerObjects;
+	asteroid->mMesh = mResourceManager->getMesh( "models/sphere_high.obj" );
+	asteroid->mMaterial.mShader = mResourceManager->getShader( "body" );
+	asteroid->mMaterial.setTexture( "DiffuseTexture",		mResourceManager->getTexture( "textures/asteroid.png" ) );
+	asteroid->mMaterial.setTexture( "SpecularMapTexture",	mResourceManager->getTexture( "textures/asteroid_spec.png" ) );
+	asteroid->mMaterial.setColor( "DiffuseMaterial",		ColorA( 1, 1, 1, 1 ) );
+	asteroid->mMaterial.setColor( "SpecularMaterial",		ColorA( 1, 1, 1, 0.5f ));
+	asteroid->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.5, 0.5, 1.0f ));
+	asteroid->mMaterial.setProperty( "Shininess", 10.0f );
+	asteroid->scale = Vec3f::one() * 50.0f;
+	asteroid->position = Vec3f( 300, 50, 0 );
+	mRenderingEngine->addNode( asteroid );
+	
+	Node* ship = new Node();
+	ship->mLayer = Node::LayerObjects;
+	ship->mMesh = mResourceManager->getMesh( "models/teapot_low.obj" );
+	ship->mMaterial.mShader = mResourceManager->getShader( "ship" );
+	ship->mMaterial.setTexture( "DiffuseTexture",	mResourceManager->getTexture( "textures/metal.png" ) );
+	ship->mMaterial.setTexture( "SelfIlluminationTexture",	mResourceManager->getTexture( "textures/ship_selfillum.png" ) );
+	ship->mMaterial.setColor( "DiffuseMaterial",		ColorA( 1, 1, 1, 1 ) );
+	ship->mMaterial.setColor( "SpecularMaterial",		ColorA( 1, 1, 1, 0.5f ));
+	ship->mMaterial.setColor( "SelfIlluminationColor",	ColorA( 1, 0, 0, 1.0 ) );
+	ship->mMaterial.setColor( "RimMaterial",			ColorA( 0.35, 0.1, 0, 0.5 ) );
+	ship->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.5, 0.5, 1.0f ));
+	ship->mMaterial.setProperty( "Shininess", 10.0f );
+	ship->scale = Vec3f::one() * 50.0f;
+	mRenderingEngine->addNode( ship );
 	
 	//mRenderingEngine->setBackgroundTexture( mResourceManager->getTexture( "textures/stars2.jpg" ) );
 	
-	mLensFlare = new LensFlare();
-	mLensFlare->setLightPosition( Vec3f( 3000, 4000, 0 ) );
+	Light* light = new Light();
+	light->mColor = ColorA::white();
+	light->mAmbientColor = ColorA( 0.2f, 0.2f, 0.2f, 1.0f );
+	light->mNode.position = Vec3f( 10000, 10000, 0 );
+	mRenderingEngine->addLight( light );
+	
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(0.48,.35,.22,0.5),	Vec2i( 200, 200 ) );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_0.png" ), ColorA(1,1,1,1),			Vec2i( 600, 600 ) );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(1,.2,.2,.5),		Vec2i( 50, 50 ) );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_2.png" ), ColorA(1,1,1,.5),			Vec2i( 20, 20 ) );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(1,.2,.2,.5),		Vec2i( 100, 100 ) );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(.2,.2,1,.5),		Vec2i( 80, 80 ) );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(.2,.2,1,.5),		Vec2i( 30, 30 ) );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_3.png" ), ColorA(1,1,1,.25),			Vec2i( 200, 200 ) );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_4.png" ), ColorA(1,1,1,.1),			Vec2i( 300, 300 ) );
+	
+	return;
 	
 	mRootGui = new Node2d();
 	mRenderingEngine->addNode( mRootGui );
@@ -98,8 +145,6 @@ void Game::setup( int width, int height )
 	test->position = Vec2f( 100, 100 );
 	test->size = Vec2f( 100, 100 );
 	mRootGui->addChild( test );
-	
-	return;
 	
 	Font* font = ResourceManager::get()->getFont( "fonts/menlo.fnt" );
 	Node2d* child = new Node2d();
@@ -121,26 +166,26 @@ void Game::setup( int width, int height )
 	mRootGui->addChild( child );
 }
 
+#if TARGET_IPHONE_SIMULATOR
 float ___angle = 0.0f;
 float ___angleZ = 0.0f;
+#endif
 
 void Game::update( const float deltaTime )
 {
+#if TARGET_IPHONE_SIMULATOR
 	float target = math<float>::sin( ___angle += 0.025f ) * 80.0f;
 	float targetZ = math<float>::sin( ___angleZ += 0.05f ) * 250.0f;
 	mCamera->setAngle( target );
 	mCamera->setZoom( 350.0f + targetZ );
 	mCamera->rotation.y += 20.0f * deltaTime;
+#else
+	mCameraController.update( deltaTime );
+#endif
 	mCamera->update( deltaTime );
-	
-	//mCameraController.update( deltaTime );
 	
 	if ( mPlanet ) {
 		mPlanet->rotation.y += 4.0f * deltaTime;
-	}
-	
-	if ( mLensFlare ) {
-		mLensFlare->update( deltaTime );
 	}
 }
 

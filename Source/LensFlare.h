@@ -21,9 +21,12 @@ public:
 	LensFlare();
 	virtual ~LensFlare();
 	
+	void addSprite( Texture* texture, const ci::ColorA color, const ci::Vec2i size );
 	void debugDraw();
 	void update( const float deltaTime = 0.0f );
 	void setLightPosition( const ci::Vec3f lightPosition ) { mLightPosition = lightPosition; }
+	
+	bool canDraw() const { return !mSprites.empty(); }
 	
 private:
 	Node* rayCast( const ci::Ray& ray );

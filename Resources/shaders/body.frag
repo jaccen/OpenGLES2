@@ -1,7 +1,7 @@
 precision mediump float;
 
 uniform sampler2D			DiffuseTexture;
-uniform sampler2D			SelfIlliminationTexture;
+uniform sampler2D			SpecularMapTexture;
 
 uniform mediump vec4		LightColor;
 uniform mediump vec3		LightPosition;
@@ -11,8 +11,6 @@ uniform mediump vec4		AmbientMaterial;
 uniform mediump vec4		SelfIlliminationMaterial;
 uniform mediump vec4		SpecularMaterial;
 uniform mediump float		Shininess;
-uniform mediump vec4		RimMaterial;
-uniform mediump float		RimPower;
 
 varying lowp vec2			vTexCoord;
 varying lowp vec3			vNormal;
@@ -30,11 +28,11 @@ void main(void)
 	
     float df = max( 0.0, dot( N, L ) );
     float sf = max( 0.0, dot( N, H ) );
-    float rf = 1.0 - max( 0.0, dot( ViewDir, N ) );
-	rf = pow( rf, 1.0 / RimPower );
     sf = pow( max( 0.0, dot( N, H ) ), Shininess );
+	float specAmt = texture2D( SpecularMapTexture, vTexCoord ).r;
 	
 	vec4 texColor = texture2D( DiffuseTexture, vTexCoord );
-	vec4 pixelLitColor = AmbientMaterial * texColor + df * texColor + SpecularMaterial * sf;
-    gl_FragColor = pixelLitColor * LightColor + rf * RimMaterial;
+	
+	vec4 pixelLitColor = AmbientMaterial * texColor + df * texColor + SpecularMaterial * sf * specAmt;
+    gl_FragColor = pixelLitColor * LightColor;
 }

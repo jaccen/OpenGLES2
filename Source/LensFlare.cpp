@@ -8,29 +8,7 @@ const static int kNumSprites = 9;
 
 LensFlare::LensFlare()
 {
-	LensFlare::Sprite sprites[ kNumSprites ];
-	sprites[0] = (Sprite) { 200,		ColorA(0.48,.35,.22,0.5),	"textures/flare_sprite_1.png" };
-	sprites[1] = (Sprite) { 600,		ColorA(1,1,1,1),			"textures/flare_sprite_0.png" };
-	sprites[2] = (Sprite) { 50,			ColorA(1,.2,.2,.5),			"textures/flare_sprite_1.png" };
-	sprites[3] = (Sprite) { 20,			ColorA(1,1,1,.5),			"textures/flare_sprite_2.png" };
-	sprites[4] = (Sprite) { 100,		ColorA(1,.2,.2,.5),			"textures/flare_sprite_1.png" };
-	sprites[5] = (Sprite) { 80,			ColorA(.2,.2,1,.5),			"textures/flare_sprite_1.png" };
-	sprites[6] = (Sprite) { 30,			ColorA(.2,.2,1,.5),			"textures/flare_sprite_1.png" };
-	sprites[7] = (Sprite) { 200,		ColorA(1,1,1,.25),			"textures/flare_sprite_3.png" };
-	sprites[8] = (Sprite) { 300,		ColorA(1,1,1,.1),			"textures/flare_sprite_4.png" };
-	
-	for( int i = 0; i < kNumSprites; i++ ) {
-		Node2d* sprite = new Node2d();
-		sprite->getNode()->mLayer = Node::LayerLighting;
-		sprite->setTexture( ResourceManager::get()->getTexture( sprites[i].texture ) );
-		sprite->size = Vec2i( sprites[i].size, sprites[i].size ) / 2.0f;
-		sprite->setColor( sprites[i].color );
-		sprite->anchor = Vec2f( 0.5f, 0.5f );
-		mRoot.addChild( sprite );
-		mSprites.push_back( sprite );
-	}
 	mLightPosition = Vec3f::zero();
-	
 	RenderingEngine::get()->addNode( &mRoot );
 }
 
@@ -40,6 +18,18 @@ LensFlare::~LensFlare()
 		delete *mSprites.begin();
 		mSprites.erase( mSprites.begin() );
 	}
+}
+
+void LensFlare::addSprite( Texture* texture, const ci::ColorA color, const ci::Vec2i size )
+{
+	Node2d* sprite = new Node2d();
+	sprite->getNode()->mLayer = Node::LayerLighting;
+	sprite->setTexture( texture );
+	sprite->size = size / 2.0f;
+	sprite->setColor( color );
+	sprite->anchor = Vec2f( 0.5f, 0.5f );
+	mRoot.addChild( sprite );
+	mSprites.push_back( sprite );
 }
 
 void LensFlare::debugDraw()
@@ -95,7 +85,7 @@ void LensFlare::update( const float deltaTime )
 		bool rayHit = rayCast( mRay );
 		if ( !rayHit ) {
 			int i = -1;
-			int total = kNumSprites;
+			int total = mSprites.size();
 			for( auto iter = mSprites.begin(); iter != mSprites.end(); iter++ ) {
 				float r = (float) i++ / (float) total;
 				(*iter)->position = start + r * ( end - start );

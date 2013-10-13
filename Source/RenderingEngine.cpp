@@ -4,6 +4,15 @@
 
 using namespace ci;
 
+void Light::update(const float deltaTime)
+{
+	if ( mLensFlare.canDraw() ) {
+		mLensFlare.setLightPosition( mNode.getGlobalPosition() );
+		mLensFlare.update();
+	}
+	mNode.update( deltaTime );
+}
+
 RenderingEngine* RenderingEngine::sInstance = NULL;
 
 RenderingEngine* RenderingEngine::get()
@@ -60,6 +69,11 @@ void RenderingEngine::removeNode( Node2d* node )
 	}
 }
 
+void RenderingEngine::addLight( Light* light )
+{
+	mLights.push_back( light );
+}
+
 void RenderingEngine::setSkyboxNode( Node* node )
 {
 	mSkyboxNode = node;
@@ -97,8 +111,8 @@ bool RenderingEngine::createTexture( Texture* texture )
 	glBindTexture( GL_TEXTURE_2D, texture->mHandle );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 	glTexImage2D( GL_TEXTURE_2D, 0, texture->mFormat, texture->mWidth, texture->mHeight, 0, texture->mFormat, GL_UNSIGNED_BYTE, texture->mImageData );
 	glGenerateMipmap( GL_TEXTURE_2D );
 	
@@ -225,6 +239,10 @@ void RenderingEngine::update( const float deltaTime )
 	for( auto iter = mScreenNodes.begin(); iter != mScreenNodes.end(); iter++ ) {
 		(*iter)->update( deltaTime );
 	}
+	
+	for( auto iter = mLights.begin(); iter != mLights.end(); iter++ ) {
+		(*iter)->update( deltaTime );
+	}
 }
 
 void RenderingEngine::bindFrameBufferObject( FramebufferObject* fbo )
@@ -272,10 +290,17 @@ bool RenderingEngine::setUniforms( const Material& material, ShaderProgram* shad
 		shader->uniform( locationName, color );
 	}
 	// Loop through map of other properties and set uniforms
-	for( std::map<std::string, float>::const_iterator c_iter = material.mProperties.begin(); c_iter != material.mProperties.end(); c_iter++ ) {
-		float value = c_iter->second;
-		const std::string& locationName = c_iter->first;
-		shader->uniform( locationName, value );
+	for( auto prop : material.mProperties ) {
+		const std::string& locationName = prop.first;
+		shader->uniform( locationName, prop.second );
+	}
+	for( auto prop : material.mPropertiesVec2 ) {
+		const std::string& locationName = prop.first;
+		shader->uniform( locationName, prop.second );
+	}
+	for( auto prop : material.mPropertiesVec3 ) {
+		const std::string& locationName = prop.first;
+		shader->uniform( locationName, prop.second );
 	}
 	
 	return texturesWereBound;
@@ -296,7 +321,7 @@ void RenderingEngine::draw()
 	bindWindowContext();
 	
 	glViewport( 0, 0, mScreenSize.x, mScreenSize.y );
-    glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+    glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	
 	glEnable( GL_CULL_FACE );
@@ -311,8 +336,6 @@ void RenderingEngine::draw()
 	}
 	
 	else if ( mBackgroundTexture ) {
-		
-		setBlendMode( Node::LayerGui );
 		Matrix44f trans = Matrix44f::identity();
 		trans.scale( Vec3f( mBackgroundTexture->mWidth, mBackgroundTexture->mHeight, 1 ) );
 		drawTexture( mBackgroundTexture, trans, true );
@@ -376,10 +399,13 @@ void RenderingEngine::drawNode( const Node* node )
 	shader->uniform( "Modelview",			mCamera->getModelViewMatrix() );
 	shader->uniform( "Projection",			mCamera->getProjectionMatrix() );
 	shader->uniform( "Transform",			node->getTransform() );
-	shader->uniform( "AmbientMaterial",		Vec4f( 0.2f, 0.2f, 0.2f, 1.0f ) );
-	shader->uniform( "LightPosition",		Vec3f( 3000, 4000, 0 ) );
-	shader->uniform( "LightColor",			Vec4f( 1, 1, 1, 1 ) );
 	shader->uniform( "EyePosition",			Vec3f( mCamera->getGlobalPosition() ) );
+	
+	for( auto light : mLights ) {
+		shader->uniform( "AmbientMaterial",		light->mAmbientColor );
+		shader->uniform( "LightPosition",		light->mNode.getGlobalPosition() );
+		shader->uniform( "LightColor",			light->mColor );
+	}
 	
 	setUniforms( node->getMaterial(), shader );
 	
