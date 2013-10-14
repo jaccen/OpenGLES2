@@ -38,11 +38,11 @@ void Game::setup( int width, int height )
 	mResourceManager->loadMesh( "models/quad_plane.obj" );
 	
 	mCamera = Camera::get();
-	mCamera->setZoom( 200.0f );
+	mCamera->setZoom( 600.0f );
 	mCamera->setFov( 60.0f );
 	mCamera->setAngle( -30.0f );
 	mCamera->rotation.y = 90;
-	mCamera->setRange( 10.0f, 1500.0f );
+	mCamera->setRange( 10.0f, 5000.0f );
 	
 #if TARGET_IPHONE_SIMULATOR
 #else
@@ -57,6 +57,8 @@ void Game::setup( int width, int height )
 	skyBox->mMaterial.mShader = mResourceManager->getShader( "unlit" );
 	skyBox->mMaterial.setProperty( "Scale",	Vec2f( 2.0f, 2.0f ) );
 	mRenderingEngine->setSkyboxNode( skyBox );
+	
+	//mRenderingEngine->setBackgroundTexture( mResourceManager->getTexture( "textures/stars2.jpg" ) );
 	
 	mPlanet = new Node();
 	mPlanet->mLayer = Node::LayerObjects;
@@ -134,8 +136,6 @@ void Game::setup( int width, int height )
 	ps->setRotationalVelocity( 0.0f, 100.0f );
 	ps->setStartPositionRange( Vec3f::one() * 100.0f );
 	
-	//mRenderingEngine->setBackgroundTexture( mResourceManager->getTexture( "textures/stars2.jpg" ) );
-	
 	Light* light = new Light();
 	light->mColor = ColorA::white();
 	light->mAmbientColor = ColorA( 0.1f, 0.1f, 0.1f, 1.0f );
@@ -152,8 +152,6 @@ void Game::setup( int width, int height )
 	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_3.png" ), ColorA(1,1,1,.25),			Vec2i( 200, 200 ) );
 	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_4.png" ), ColorA(1,1,1,.1),			Vec2i( 300, 300 ) );
 	
-	return;
-	
 	mRootGui = new Node2d();
 	mRenderingEngine->addNode( mRootGui );
 	
@@ -164,6 +162,8 @@ void Game::setup( int width, int height )
 	test->position = Vec2f( 100, 100 );
 	test->size = Vec2f( 100, 100 );
 	mRootGui->addChild( test );
+	
+	return;
 	
 	Font* font = ResourceManager::get()->getFont( "fonts/menlo.fnt" );
 	Node2d* child = new Node2d();

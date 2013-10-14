@@ -15,7 +15,7 @@
 class Texture {
 public:
 	Texture( int width, int height );
-	Texture() : mFormat( GL_RGBA ) {}
+	Texture() : mFormat( GL_RGBA ), mImageData( NULL ) {}
 	void setSize( int width, int height );
 	~Texture() { free( mImageData ); }
 	GLuint					mFormat;

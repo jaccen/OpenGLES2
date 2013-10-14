@@ -10,7 +10,7 @@ using namespace boost::property_tree;
 
 using namespace ci;
 
-Texture::Texture( int width, int height ) : mFormat( GL_RGBA )
+Texture::Texture( int width, int height ) : mFormat( GL_RGBA ), mImageData( NULL )
 {
 	setSize( width, height );
 }

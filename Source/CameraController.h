@@ -34,6 +34,8 @@ private:
 	float mZoomSpeed;
 	ci::Vec2f mOrbitSpeed;
 	float mPanSpeed;
+	float mMoveSpeed;
+	ci::Vec3f mPositionStart;
 };
 
 class FirstPersonCamera : public CameraController {

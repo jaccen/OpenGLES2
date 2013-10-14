@@ -91,15 +91,13 @@ void TouchInput::update( const float deltaTime )
 		}
 	}
 	
-	if ( mTouchCount == 2 ) {
-		if ( didChange ) {
-			mTouchCenter = mTouchCenterStart = getTouchesCenter( mTouches );
-			mTouchDistanceStart = mTouchDistanceCurrent = getDistance( mTouches );
-		}
-		else {
-			mTouchCenter = getTouchesCenter( mTouches );
-			mTouchDistanceCurrent = TouchInput::getDistance( mTouches );
-		}
+	if ( didChange ) {
+		mTouchCenter = mTouchCenterStart = getTouchesCenter( mTouches );
+		mTouchDistanceStart = mTouchDistanceCurrent = getDistance( mTouches );
+	}
+	else {
+		mTouchCenter = getTouchesCenter( mTouches );
+		mTouchDistanceCurrent = TouchInput::getDistance( mTouches );
 	}
 	
 	mPrevTouchCount = mTouchCount;

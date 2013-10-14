@@ -63,7 +63,7 @@ void Node::update( const float deltaTime )
 	if ( mFaceCamera ) {
 		const Vec3f cameraDirection = ( Camera::get()->getGlobalPosition() - getGlobalPosition() ).normalized();
 		mTransform *= ci::Matrix44f::alignZAxisWithTarget( cameraDirection, ci::Vec3f::yAxis() );
-		mTransform.rotate( cross( cameraDirection, Vec3f::zAxis() ), mFaceCameraRotation * kToRad );
+		//mTransform.rotate( cross( cameraDirection, Vec3f::zAxis() ), mFaceCameraRotation * kToRad );
 		
 		updateCameraDistance();
 	}

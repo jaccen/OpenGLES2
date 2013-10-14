@@ -142,20 +142,16 @@ void RenderingEngine::createFbo( FramebufferObject* fbo )
 	std::cout << "Creating FBO of size: " << fbo->mWidth << "x" << fbo->mHeight << std::endl;
 	
 	// Create renderbuffer object
-	glGenRenderbuffers( 1, &fbo->mColorRenderbuffer );
-	glBindRenderbuffer( GL_RENDERBUFFER, fbo->mColorRenderbuffer );
-	glRenderbufferStorage( GL_RENDERBUFFER, fbo->mFormat, fbo->mWidth, fbo->mHeight );
+	glGenRenderbuffers( 1, &fbo->mDepthRenderbuffer );
+	glBindRenderbuffer( GL_RENDERBUFFER, fbo->mDepthRenderbuffer );
+	glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, fbo->mWidth, fbo->mHeight );
 	
 	// Create framebuffer object
 	glGenFramebuffers( 1, &fbo->mHandle  );
 	glBindFramebuffer( GL_FRAMEBUFFER, fbo->mHandle  );
 	
-	if ( fbo->mTexture ) {
-		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo->mTexture->mHandle, 0 );
-	}
-	else {
-		//glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorFramebuffer );
-	}
+	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo->mTexture->mHandle, 0 );
+	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fbo->mDepthRenderbuffer );
 	
 	// Check status
 	GLenum status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
@@ -225,11 +221,12 @@ void RenderingEngine::setup( int width, int height, float contentScaleFactor )
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mContextDepthRenderbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, mContextColorRenderbuffer);
 	
-	/*ci::Vec2i size = Vec2i( 1024, 1024 ) * getContentScaleFactor();
+	ci::Vec2i size = Vec2i( 1024, 1024 ) * getContentScaleFactor();
 	Texture* texture = new Texture( size.x, size.y );
+	texture->mFormat = GL_RGB;
 	createTexture( texture );
 	mMainFbo = new FramebufferObject( texture );
-	createFbo( mMainFbo );*/
+	createFbo( mMainFbo );
 }
 
 void RenderingEngine::update( const float deltaTime )
@@ -241,7 +238,7 @@ void RenderingEngine::update( const float deltaTime )
 	for( auto iter = mSpriteNodes.begin(); iter != mSpriteNodes.end(); iter++ ) {
 		(*iter)->update( deltaTime );
 	}
-	//std::sort( mSpriteNodes.begin(), mSpriteNodes.end(), Node::sortByDistanceFromCamera );
+	std::sort( mSpriteNodes.begin(), mSpriteNodes.end(), Node::sortByDistanceFromCamera );
 	
 	for( auto iter = mScreenNodes.begin(); iter != mScreenNodes.end(); iter++ ) {
 		(*iter)->update( deltaTime );
@@ -257,9 +254,9 @@ void RenderingEngine::bindFrameBufferObject( FramebufferObject* fbo )
 	glBindFramebuffer( GL_FRAMEBUFFER, fbo->mHandle );
 	glBindRenderbuffer( GL_RENDERBUFFER, fbo->mColorRenderbuffer );
 	
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glViewport( 0, 0, mScreenSize.x, mScreenSize.y );
+    glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
 void RenderingEngine::bindWindowContext()
@@ -267,6 +264,10 @@ void RenderingEngine::bindWindowContext()
 	glBindFramebuffer( GL_FRAMEBUFFER, mContextFramebuffer );
     glBindRenderbuffer(GL_RENDERBUFFER, mContextDepthRenderbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, mContextColorRenderbuffer);
+	
+	glViewport( 0, 0, mScreenSize.x, mScreenSize.y );
+    glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
 bool RenderingEngine::setUniforms( const Material& material, ShaderProgram* shader )
@@ -325,11 +326,7 @@ void RenderingEngine::unbindTextures( Material& material )
 
 void RenderingEngine::draw()
 {
-	bindWindowContext();
-	
-	glViewport( 0, 0, mScreenSize.x, mScreenSize.y );
-    glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	bindFrameBufferObject( mMainFbo );
 	
 	glEnable( GL_CULL_FACE );
 	glCullFace( GL_BACK );
@@ -356,48 +353,25 @@ void RenderingEngine::draw()
 		drawNode( objNode );
 	}
 	
-	glDisable( GL_DEPTH_TEST );
+	//glDisable( GL_DEPTH_TEST );
 	glDisable( GL_CULL_FACE );
     
 	for( auto sprNode : mSpriteNodes ) {
 		drawNode( sprNode );
 	}
 	
+	bindWindowContext();
+	
+	// Draw the main FBO's texture
+	Matrix44f trans = Matrix44f::identity();
+	trans.translate( Vec3f( mMainFbo->mTexture->mWidth / 4, mMainFbo->mTexture->mHeight / 4, 0.0f ) );
+	trans.scale( Vec3f( mMainFbo->mTexture->mWidth / 2, mMainFbo->mTexture->mHeight / 2, 0.0f ) );
+	drawTexture( mMainFbo->mTexture, trans, true );
+	
 	glDisable( GL_DEPTH_TEST );
 	for( auto node2d : mScreenNodes ) {
 		drawGui( node2d );
 	}
-	
-	/*
-	// Bind back to the main context framebuffer and renderbuffers
-	glBindFramebuffer( GL_FRAMEBUFFER, mContextFramebuffer );
-    glBindRenderbuffer(GL_RENDERBUFFER, mContextDepthRenderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, mContextColorRenderbuffer);
-	
-    glClearColor(0.0f, 0.0f, 0.0f, 1);
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	
-	float csf = getContentScaleFactor();
-	Matrix44f transform = Matrix44f::identity();
-	transform.translate( Vec3f( mMainFbo->mWidth / 2 / csf, mMainFbo->mHeight / 4 / csf, 0.0f ) );
-	transform.scale( Vec3f( mMainFbo->mWidth / csf, -mMainFbo->mHeight / csf, 1.0f ) );
-	
-	ShaderProgram& shader = mShaders[ kShaderScreenSpace ];
-	glUseProgram( shader.getHandle() );
-	shader.uniform( "DiffuseMaterial",		Vec4f(1, 1, 1, 1 ) );
-	shader.uniform( "Transform",			transform );
-	shader.uniform( "ScreenTransform",		mScreenTransform );
-	
-	glActiveTexture( GL_TEXTURE0 );
-	shader.uniform( "DiffuseTexture", 0 );
-	glBindTexture( GL_TEXTURE_2D, mMainFbo->mTexture->mHandle );
-	
-	setBlendMode( Node::LayerGui );
-	drawMesh( ResourceManager::get()->getMesh( "models/quad_plane.obj" ) );
-	 */
-	
-	glBindTexture( GL_TEXTURE_2D, 0 );
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 }
 
 void RenderingEngine::drawNode( const Node* node )
@@ -513,22 +487,22 @@ void RenderingEngine::drawGui( Node2d* gui )
 
 void RenderingEngine::drawTexture( Texture* texture, const ci::Matrix44f& transform, bool flipY )
 {
-	/*ShaderProgram& shader = mShaders[ kShaderScreenSpace ];
-	glUseProgram( shader.getHandle() );
+	ShaderProgram* shader = ResourceManager::get()->getShader( "screen" );
+	glUseProgram( shader->getHandle() );
 	
-	shader.uniform( "DiffuseMaterial",		Vec4f(1,1,1,1) );
-	shader.uniform( "Transform",			transform );
-	shader.uniform( "ScreenTransform",		flipY ? mScreenTransformFlippedY : mScreenTransform );
+	shader->uniform( "DiffuseMaterial",		Vec4f(1,1,1,1) );
+	shader->uniform( "Transform",			transform );
+	shader->uniform( "ScreenTransform",		flipY ? mScreenTransformFlippedY : mScreenTransform );
 	
 	glActiveTexture( GL_TEXTURE0 );
-	shader.uniform( "DiffuseTexture", 0 );
+	shader->uniform( "DiffuseTexture", 0 );
 	glBindTexture( GL_TEXTURE_2D, texture->mHandle );
 	
 	setBlendMode( Node::LayerGui );
-	drawMesh( ResourceManager::get()->getMesh( "models/quad_plane.obj" ) );
+	drawMesh( ResourceManager::get()->getMesh( "models/quad_plane.obj" ), shader );
 	
 	glBindTexture( GL_TEXTURE_2D, 0 );
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );*/
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 }
 
 void RenderingEngine::setBlendMode( Node::Layer layer )
