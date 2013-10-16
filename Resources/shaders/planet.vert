@@ -9,13 +9,10 @@ uniform mat4		Transform;
 varying vec2		vTexCoord;
 varying vec3		vNormal;
 varying vec4		vWorldPos;
-varying mat4		vTransform;
 
 void main(void)
 {
-	vTransform = Transform;
-	
-    vNormal = vec4( Transform * vec4( Normal, 0 ) ).xyz;
+    vNormal = vec4( Transform * vec4( Normal, 0.0 ) ).xyz;
 	
 	vTexCoord = TextureCoord;
 	

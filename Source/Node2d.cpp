@@ -13,7 +13,7 @@ Node2d::Node2d() : mParent( NULL ), mText( NULL), mIsVisible( true ), mIsEnabled
 	anchor = Vec2i::zero();
 	childAnchor = Vec2i::zero();
 	mNode->mMaterial.mShader = ResourceManager::get()->getShader( "screen" );
-	mNode->mMesh = ResourceManager::get()->getMesh( "models/quad_plane.obj" );
+	mNode->setMesh( ResourceManager::get()->getMesh( "models/quad_plane.obj" ) );
 	mNode->mLayer = Node::LayerGui;
 	
 	//mNode->mColor = Vec4f::zero();

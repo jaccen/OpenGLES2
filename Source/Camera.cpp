@@ -22,6 +22,11 @@ ci::Matrix44f Camera::getProjectionMatrix() const
 	return mCinderCamera->getProjectionMatrix();
 }
 
+const ci::Vec3f& Camera::getDirection() const
+{
+	return mLookDirection;
+}
+
 void Camera::setScreenSize( int width, int height, float contentScaleFactor )
 {
 	mScreenSize = ci::Vec2i( width, height );
@@ -106,4 +111,5 @@ void Camera::update( const float deltaTime )
 	mCinderCamera->setEyePoint( mBody.getGlobalPosition() );
 	mCinderCamera->setOrientation( ci::Quatf( mBody.getTransform() ) );
 	
+	mLookDirection = ( mCinderCamera->getEyePoint() - mCinderCamera->getCenterOfInterestPoint() ).normalized();
 }

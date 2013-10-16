@@ -30,7 +30,7 @@ void main(void)
 	vec4 selfIllum = texture2D( SelfIlluminationTexture, vTexCoord );
     sf = pow( max( 0.0, dot( N, H ) ), Shininess );
 	
-	vec4 texColor = texture2D( DiffuseTexture, vTexCoord );
+	vec4 texColor = texture2D( DiffuseTexture, vTexCoord ) * DiffuseMaterial;
 	vec4 pixelLitColor = AmbientMaterial * texColor + df * texColor + SpecularMaterial * sf;
     gl_FragColor = pixelLitColor * LightColor + selfIllum;
 }

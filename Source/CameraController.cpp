@@ -14,9 +14,9 @@ EditorCamera::EditorCamera( Camera* camera ) : CameraController()
 	mPositionStart = mCamera->position;
 	
 	mOrbitSpeed = Vec2f( 0.5f, 0.5f );
-	mZoomSpeed = 2.5f;
+	mZoomSpeed = 10.5f;
 	mPanSpeed = 0.2f;
-	mMoveSpeed = 0.001f;
+	mMoveSpeed = 0.003f;
 }
 
 void EditorCamera::gestureStarted( int fingerCount ) {}
@@ -36,7 +36,8 @@ void EditorCamera::update( const float deltaTime )
 		mCamera->rotation.x += (target.x - mCamera->rotation.x ) / 10.0f;
 		
 		float zoomTarget = mZoomStart - touch->getTouchesDistance() * mZoomSpeed;
-		if ( zoomTarget <= 4000.0f && zoomTarget >= 100.0f ) {
+		if ( zoomTarget <= 5000.0f && zoomTarget >= 80.0f ) {
+			//mCamera->setZoom( mCamera->getZoom() + (zoomTarget - mCamera->getZoom() ) / 20.0f );
 			mCamera->setZoom( zoomTarget );
 		}
 	}
@@ -48,14 +49,14 @@ void EditorCamera::update( const float deltaTime )
 	}
 	
 	// One-finger control for panning
-	if ( touch->getTouchCount() == 1  ) {
+	/*if ( touch->getTouchCount() == 1  ) {
 		const Vec3f direction = Vec3f( touch->getTouchesDifference().x, 0.0f, touch->getTouchesDifference().y );
 		const Vec3f target = mPositionStart - mCamera->getTransform().transformVec( direction ) * mMoveSpeed * mCamera->getZoom();
 		mCamera->position += ( target - mCamera->position ) / 2.0f;
 	}
 	else {
 		mPositionStart = mCamera->position;
-	}
+	}*/
 }
 
 FirstPersonCamera::FirstPersonCamera( Camera* camera )

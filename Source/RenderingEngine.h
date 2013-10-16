@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "LensFlare.h"
 #include "ParticleSystem.h"
+#include "Timer.h"
 
 #include "cinder/Matrix.h"
 #include "cinder/Quaternion.h"
@@ -51,14 +52,15 @@ public:
 	void					setBackgroundTexture( Texture* texture );
 	void					setSkyboxNode( Node* node );
 	void					addNode( Node* node );
-	void					removeNode( Node* node );
+	void					removeNode( Node* node, bool andCleanUp = true );
 	void					addNode( Node2d* node );
+	void					addBackgroundNode( Node* node );
 	void					removeNode( Node2d* node );
 	
-	void					debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::Vec4f color );
-	void					debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::Vec4f color );
+	void					debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::ColorA color );
+	void					debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::ColorA color );
+	void					debugDrawStrokedRect( const ci::Rectf& rect, const ci::ColorA color, ci::Matrix44f = ci::Matrix44f::identity() );
 	
-	const					std::list<Node*>& getObjectNodes() { return mObjectNodes; }
 	
 	float					getContentScaleFactor() const { return mContentScaleFactor; }
 	void					bindWindowContext();
@@ -69,9 +71,13 @@ public:
 	
 	void					addLight( Light* light );
 	
+	const std::list<Node*>& getObjectNodes() const { return mObjectNodes; }
+	
 private:
     RenderingEngine();
 	static RenderingEngine*			sInstance;
+	
+	void					sortSprites( const float deltaTime );
 	
 	void					drawGui( Node2d* Node2d );
 	inline void				drawNode( const Node* node );
@@ -85,6 +91,7 @@ private:
 	ci::Matrix44f			mScreenTransformFlippedY;
 	ci::Vec2i				mScreenSize;
 	std::list<Node*>		mObjectNodes;
+	std::list<Node*>		mBackgroundNodes;
 	std::list<Node2d*>		mScreenNodes;
 	std::vector<Node*>		mSpriteNodes;
 	GLuint					mContextFramebuffer;
@@ -97,6 +104,9 @@ private:
 	Texture*				mDefaultWhite;
 	Texture*				mDefaultBlack;
 	FramebufferObject*		mMainFbo;
+	FramebufferObject*		mDepthMapFbo;
 	
 	std::list<Light*>		mLights;
+	
+	ly::Timer				mSortTimer;
 };

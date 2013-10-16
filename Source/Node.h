@@ -44,7 +44,12 @@ public:
 	bool					mFaceCameraAsLine;
 	float					mFaceCameraRotation;
 	
-	Mesh*					mMesh;
+	const ci::Vec3f			getForward() const { return mTransform.transformVec( ci::Vec3f::zAxis() ).normalized(); }
+	const ci::Vec3f			getBack() const { return mTransform.transformVec( -ci::Vec3f::zAxis() ).normalized(); }
+	const ci::Vec3f			getLeft() const { return mTransform.transformVec( -ci::Vec3f::xAxis() ).normalized(); }
+	const ci::Vec3f			getRight() const { return mTransform.transformVec( ci::Vec3f::xAxis() ).normalized(); }
+	const ci::Vec3f			getDown() const { return mTransform.transformVec( -ci::Vec3f::yAxis() ).normalized(); }
+	const ci::Vec3f			getUp() const { return mTransform.transformVec( ci::Vec3f::yAxis() ).normalized(); }
 	
 	Material				mMaterial;
 	const Material&			getMaterial() const { return mMaterial; }
@@ -60,15 +65,27 @@ public:
 	void					addDelegate( IDelegate* delegate ) { mDelegates.push_back( delegate ); }
 	void					removeDelegate( IDelegate* delegate ) {} // TODO: MAke this work
 	
+	const ci::AxisAlignedBox3f& getBoundingBox() const { return mBoundingBox; }
+	ci::AxisAlignedBox3f&	getBoundingBox() { return mBoundingBox; }
+	
+	ci::Matrix44f			mSpriteTransform;
+	
+	void					setMesh( Mesh* mesh );
+	Mesh*					getMesh() const { return mMesh; }
+	
 private:
+	
+	Mesh*					mMesh;
 	inline void				updateCameraDistance();
 	
 	Node*					mParent;
-	bool					mIsDirty;
 	ci::Matrix44f			mTransform;
 	ci::Matrix44f			mLocalTransform;
 	ci::Vec3f				mLastScale;
 	float					mDistanceFromCamera;
 	
 	std::list<IDelegate*>	mDelegates;
+	
+	ci::AxisAlignedBox3f	mBoundingBox;
+	ci::AxisAlignedBox3f	mObjectBounds;
 };

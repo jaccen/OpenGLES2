@@ -11,8 +11,8 @@
 #include "TouchInput.h"
 #include "Text.h"
 #include "CameraController.h"
-
-#include "ObjectController.h"
+#include "Unit.h"
+#include "UniformGrid.h"
 
 #include "cinder/Ray.h"
 
@@ -20,8 +20,7 @@
 
 class Game {
 public:
-    Game( RenderingEngine* renderingEngine );
-    ~Game();
+	static Game*		get();
 	
     void				setup( int width, int height );
     void				update( const float deltaTime = 0.0f );
@@ -34,19 +33,30 @@ public:
 	void				remove( Node* node );
 	void				remove( Node2d* Node2d );
 	
-	ObjectController*	pickObject( const ci::Ray& ray );
+	const std::list<Unit*>& getUnits() const { return mUnits; }
+	
+	const UniformGrid&	getUniformGrid() const { return mUniformGrid; }
 	
 private:
+    Game();
+    ~Game();
+	
+	static Game* sInstance;
+	
 	Camera* mCamera;
 	EditorCamera mCameraController;
 	
 	Node2d* mRootGui;
-	Node* mPlanet;
 	
     RenderingEngine* mRenderingEngine;
     ResourceManager* mResourceManager;
 		
-	void selectController( ObjectController* controller );
-	void deselectController( ObjectController* controller );
 	void deselectAllControllers();
+	
+	std::list<Unit*> mUnits;
+	std::list<Unit*> mDeletionQueue;
+	
+	Node* lineTest;
+	
+	UniformGrid mUniformGrid;
 };

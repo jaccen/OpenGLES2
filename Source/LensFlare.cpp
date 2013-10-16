@@ -41,24 +41,22 @@ Node* LensFlare::rayCast( const ci::Ray& ray )
 	for( auto iter = RenderingEngine::get()->getObjectNodes().begin(); iter != RenderingEngine::get()->getObjectNodes().end(); iter++ ) {
 		Node* node = *iter;
 		if ( node->mLayer == Node::LayerLighting || node->mLayer == Node::LayerNone ) continue;
-		if ( node->mMesh == NULL ) continue;
+		if ( node->getMesh() == NULL ) continue;
 		
-		// TODO: Get this fracking optimization working:
-		//AxisAlignedBox3f worldBounds = node->mMesh->triMesh.calcBoundingBox( node->getTransform() );
-		//if( worldBounds.intersects( ray ) ) {
-		float distance = 0.0f;
-		int len = node->mMesh->triMesh.getNumTriangles();
-		for( size_t i = 0; i < len; i++ ) {
-			Vec3f v0, v1, v2;
-			node->mMesh->triMesh.getTriangleVertices(i, &v0, &v1, &v2);
-			v0 = node->getTransform().transformPointAffine(v0);
-			v1 = node->getTransform().transformPointAffine(v1);
-			v2 = node->getTransform().transformPointAffine(v2);
-			if( ray.calcTriangleIntersection(v0, v1, v2, &distance) ) {
-				return node;
+		if( node->getBoundingBox().intersects( ray ) ) {
+			float distance = 0.0f;
+			int len = node->getMesh()->triMesh.getNumTriangles();
+			for( size_t i = 0; i < len; i++ ) {
+				Vec3f v0, v1, v2;
+				node->getMesh()->triMesh.getTriangleVertices(i, &v0, &v1, &v2);
+				v0 = node->getTransform().transformPointAffine(v0);
+				v1 = node->getTransform().transformPointAffine(v1);
+				v2 = node->getTransform().transformPointAffine(v2);
+				if( ray.calcTriangleIntersection(v0, v1, v2, &distance) ) {
+					return node;
+				}
 			}
 		}
-		//}
 	}
 	return NULL;
 }

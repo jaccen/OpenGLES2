@@ -33,7 +33,7 @@ const static int kFps = 60;
         }
         
 		mRenderingEngine		= RenderingEngine::get();
-		mGame					= new Game( mRenderingEngine );
+		mGame					= Game::get();
 
         [mContext renderbufferStorage:GL_RENDERBUFFER fromDrawable: eaglLayer];
                 
@@ -58,9 +58,6 @@ const static int kFps = 60;
 
 -(void) dealloc
 {
-	delete mGame;
-	delete mRenderingEngine;
-	
 	[super dealloc];
 }
 
@@ -70,19 +67,17 @@ const static int kFps = 60;
 	
     if (displayLink != nil) {
         float elapsedSeconds = displayLink.timestamp - mTimestamp;
-		if ( elapsedSeconds >= frameRate ) {
+		//if ( elapsedSeconds >= frameRate ) {
 			TouchInput::get()->update( elapsedSeconds );
 			mGame->update( elapsedSeconds );
 			mRenderingEngine->update( elapsedSeconds );
 			mTimestamp = displayLink.timestamp;
 			hasUpdatedOnce = true;
-		}
+		//}
     }
     
 	if ( hasUpdatedOnce ) {
 		mRenderingEngine->draw();
-		glEnable( GL_BLEND );
-		glBlendFunc( GL_SRC_ALPHA, GL_ONE );
 		mGame->debugDraw();
 		[mContext presentRenderbuffer:GL_RENDERBUFFER];
 	}

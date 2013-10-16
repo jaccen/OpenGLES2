@@ -33,6 +33,7 @@ public:
 	
 	ci::Matrix44f getModelViewMatrix() const;
 	ci::Matrix44f getProjectionMatrix() const;
+	const ci::Vec3f& getDirection() const;
 	
 	ci::Vec2i getScreenSize() const { return mScreenSize; }
 	ci::Vec2i getScaledScreenSize() const { return mScreenSize * mContentScaleFactor; }
@@ -41,6 +42,9 @@ public:
 	ci::Vec2i getScreenCenter() const { return mScreenSize / 2; }
 	ci::Vec2f getWorldToScreen( const ci::Vec3f &worldCoord ) const;
 	ci::Rectf getScreenRect() const { return mScreenRect; }
+	
+	const float getFarPlaneDistance() const { return mFar; }
+	const float getNearPlaneDistance() const { return mNear; }
 	
 private:
 	static Camera* sInstance;
@@ -55,6 +59,7 @@ private:
 	ci::Vec2i mScreenSize;
 	float mScreenAspectRatio;
 	ci::Rectf mScreenRect;
+	ci::Vec3f mLookDirection;
 	ci::CameraPersp* mCinderCamera;
 	
 };

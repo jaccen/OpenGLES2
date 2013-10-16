@@ -27,34 +27,55 @@ RenderingEngine::RenderingEngine() : mContentScaleFactor(1.0f), mSkyboxNode(NULL
 {
     glGenRenderbuffers( 1, &mContextColorRenderbuffer );
     glBindRenderbuffer( GL_RENDERBUFFER, mContextColorRenderbuffer );
+	
+	mSortTimer = ly::Timer( boost::bind( &RenderingEngine::sortSprites, this, boost::arg<1>() ), 1.0f / 15.0f, 0 );
+	mSortTimer.start();
 }
 
 void RenderingEngine::addSpriteNode( Node* node )
 {
-	auto match = std::find( mSpriteNodes.begin(), mSpriteNodes.end(), node );
-	if ( match == mSpriteNodes.end() ) {
-		mSpriteNodes.push_back( node );
-	}
+	//node->mMaterial.setTexture( "DepthMapTexture", mDepthMapFbo->mTexture );
+	mSpriteNodes.push_back( node );
 }
 
 void RenderingEngine::addNode( Node* node )
 {
-	auto match = std::find( mObjectNodes.begin(), mObjectNodes.end(), node );
-	if ( match == mObjectNodes.end() ) {
-		mObjectNodes.push_back( node );
-	}
+	mObjectNodes.push_back( node );
 }
 
-void RenderingEngine::removeNode( Node* node )
+void RenderingEngine::addBackgroundNode( Node* node )
 {
-	auto match = std::find( mObjectNodes.begin(), mObjectNodes.end(), node );
-	if ( match != mObjectNodes.end() ) {
-		mObjectNodes.erase( match );
-	}
-	else {
+	mBackgroundNodes.push_back( node );
+}
+
+void RenderingEngine::removeNode( Node* node, bool andCleanUp )
+{
+	{
+		auto match = std::find( mObjectNodes.begin(), mObjectNodes.end(), node );
+		if ( match != mObjectNodes.end() ) {
+			if ( andCleanUp ) {
+				delete *match;
+			}
+			mObjectNodes.erase( match );
+			return;
+		}
+	}{
 		auto match = std::find( mSpriteNodes.begin(), mSpriteNodes.end(), node );
-		if ( match == mSpriteNodes.end() ) {
-			mSpriteNodes.push_back( node );
+		if ( match != mSpriteNodes.end() ) {
+			if ( andCleanUp ) {
+				delete *match;
+			}
+			mSpriteNodes.erase( match );
+			return;
+		}
+	}{
+		auto match = std::find( mBackgroundNodes.begin(), mBackgroundNodes.end(), node );
+		if ( match != mBackgroundNodes.end() ) {
+			if ( andCleanUp ) {
+				delete *match;
+			}
+			mBackgroundNodes.erase( match );
+			return;
 		}
 	}
 }
@@ -227,10 +248,27 @@ void RenderingEngine::setup( int width, int height, float contentScaleFactor )
 	createTexture( texture );
 	mMainFbo = new FramebufferObject( texture );
 	createFbo( mMainFbo );
+	
+	texture = new Texture( size.x, size.y );
+	texture->mFormat = GL_RGBA;
+	createTexture( texture );
+	mDepthMapFbo = new FramebufferObject( texture );
+	createFbo( mDepthMapFbo );
+}
+
+void RenderingEngine::sortSprites( const float deltaTime )
+{
+	std::sort( mSpriteNodes.begin(), mSpriteNodes.end(), Node::sortByDistanceFromCamera );
 }
 
 void RenderingEngine::update( const float deltaTime )
 {
+	if ( mSkyboxNode ) {
+		mSkyboxNode->position = mCamera->getGlobalPosition();
+		mSkyboxNode->rotation.x = 180.0f;
+		mSkyboxNode->update();
+	}
+	
 	for( auto iter = mObjectNodes.begin(); iter != mObjectNodes.end(); iter++ ) {
 		(*iter)->update( deltaTime );
 	}
@@ -238,7 +276,6 @@ void RenderingEngine::update( const float deltaTime )
 	for( auto iter = mSpriteNodes.begin(); iter != mSpriteNodes.end(); iter++ ) {
 		(*iter)->update( deltaTime );
 	}
-	std::sort( mSpriteNodes.begin(), mSpriteNodes.end(), Node::sortByDistanceFromCamera );
 	
 	for( auto iter = mScreenNodes.begin(); iter != mScreenNodes.end(); iter++ ) {
 		(*iter)->update( deltaTime );
@@ -247,23 +284,26 @@ void RenderingEngine::update( const float deltaTime )
 	for( auto iter = mLights.begin(); iter != mLights.end(); iter++ ) {
 		(*iter)->update( deltaTime );
 	}
+	
+	mSortTimer.update( deltaTime );
 }
 
 void RenderingEngine::bindFrameBufferObject( FramebufferObject* fbo )
 {
 	glBindFramebuffer( GL_FRAMEBUFFER, fbo->mHandle );
 	glBindRenderbuffer( GL_RENDERBUFFER, fbo->mColorRenderbuffer );
+	glBindRenderbuffer( GL_RENDERBUFFER, fbo->mDepthRenderbuffer );
 	
 	glViewport( 0, 0, mScreenSize.x, mScreenSize.y );
-    glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
 void RenderingEngine::bindWindowContext()
 {
 	glBindFramebuffer( GL_FRAMEBUFFER, mContextFramebuffer );
-    glBindRenderbuffer(GL_RENDERBUFFER, mContextDepthRenderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, mContextColorRenderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, mContextDepthRenderbuffer );
+    glBindRenderbuffer(GL_RENDERBUFFER, mContextColorRenderbuffer );
 	
 	glViewport( 0, 0, mScreenSize.x, mScreenSize.y );
     glClearColor( 0.5f, 0.5f, 0.5f, 1.0f );
@@ -326,19 +366,39 @@ void RenderingEngine::unbindTextures( Material& material )
 
 void RenderingEngine::draw()
 {
+	/*bindFrameBufferObject( mDepthMapFbo );
+	glEnable( GL_DEPTH_TEST );
+	glDepthMask( GL_TRUE );
+	glDisable( GL_BLEND );
+	ShaderProgram* shader = ResourceManager::get()->getShader( "depth_map" );
+	glUseProgram( shader->getHandle() );
+	const float restoreNear = mCamera->getNearPlaneDistance();
+	const float restoreFar = mCamera->getFarPlaneDistance();
+	mCamera->setRange( 1.0f, 750.0f );
+	shader->uniform( "Modelview", mCamera->getModelViewMatrix() );
+	shader->uniform( "Projection", mCamera->getProjectionMatrix() );
+	shader->uniform( "FarPlane", mCamera->getFarPlaneDistance() );
+	for( auto node : mObjectNodes ) {
+		shader->uniform( "Transform", node->getTransform() );
+		drawMesh( node->mMesh, shader );
+	}
+	for( auto node : mSpriteNodes ) {
+		shader->uniform( "Transform", node->getTransform() );
+		drawMesh( node->mMesh, shader );
+	}
+	mCamera->setRange( restoreNear, restoreFar );*/
+	
 	bindFrameBufferObject( mMainFbo );
 	
 	glEnable( GL_CULL_FACE );
 	glCullFace( GL_BACK );
-	
 	glDisable( GL_DEPTH_TEST );
+	//const float restoreNear = mCamera->getNearPlaneDistance();
+	//const float restoreFar = mCamera->getFarPlaneDistance();
+	//mCamera->setRange( 500.0f, 20000.0f );
 	if ( mSkyboxNode ) {
-		mSkyboxNode->position = mCamera->getGlobalPosition();
-		mSkyboxNode->rotation.x = 180.0f;
-		mSkyboxNode->update();
 		drawNode( mSkyboxNode );
 	}
-	
 	else if ( mBackgroundTexture ) {
 		Matrix44f trans = Matrix44f::identity();
 		trans.scale( Vec3f( mBackgroundTexture->mWidth, mBackgroundTexture->mHeight, 1 ) );
@@ -348,6 +408,11 @@ void RenderingEngine::draw()
 	glClear( GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
 	glDepthMask( GL_TRUE );
+    
+	for( auto bgNode : mBackgroundNodes ) {
+		drawNode( bgNode );
+	}
+	//mCamera->setRange( restoreNear, restoreFar );
     
 	for( auto objNode : mObjectNodes ) {
 		drawNode( objNode );
@@ -364,8 +429,8 @@ void RenderingEngine::draw()
 	
 	// Draw the main FBO's texture
 	Matrix44f trans = Matrix44f::identity();
-	trans.translate( Vec3f( mMainFbo->mTexture->mWidth / 4, mMainFbo->mTexture->mHeight / 4, 0.0f ) );
-	trans.scale( Vec3f( mMainFbo->mTexture->mWidth / 2, mMainFbo->mTexture->mHeight / 2, 0.0f ) );
+	trans.translate( Vec3f( mMainFbo->mTexture->mWidth / (2 * getContentScaleFactor()), mMainFbo->mTexture->mHeight / (2 * getContentScaleFactor()), 0.0f ) );
+	trans.scale( Vec3f( mMainFbo->mTexture->mWidth / getContentScaleFactor(), mMainFbo->mTexture->mHeight / getContentScaleFactor(), 0.0f ) );
 	drawTexture( mMainFbo->mTexture, trans, true );
 	
 	glDisable( GL_DEPTH_TEST );
@@ -382,8 +447,14 @@ void RenderingEngine::drawNode( const Node* node )
 	glUseProgram( shader->getHandle() );
 	shader->uniform( "Modelview",			mCamera->getModelViewMatrix() );
 	shader->uniform( "Projection",			mCamera->getProjectionMatrix() );
-	shader->uniform( "Transform",			node->getTransform() );
 	shader->uniform( "EyePosition",			Vec3f( mCamera->getGlobalPosition() ) );
+	
+	if ( node->mFaceCamera || node->mFaceCameraAsLine ) {
+		shader->uniform( "Transform", node->getTransform() * node->mSpriteTransform );
+	}
+	else {
+		shader->uniform( "Transform", node->getTransform() );
+	}
 	
 	for( auto light : mLights ) {
 		shader->uniform( "AmbientMaterial",		light->mAmbientColor );
@@ -394,17 +465,19 @@ void RenderingEngine::drawNode( const Node* node )
 	setUniforms( node->getMaterial(), shader );
 	
 	setBlendMode( node->mLayer );
-	drawMesh( node->mMesh, node->getMaterial().mShader );
+	drawMesh( node->getMesh(), node->getMaterial().mShader );
 	
 	glBindTexture( GL_TEXTURE_2D, 0 );
+	glUseProgram( 0 );
 }
 
 void RenderingEngine::drawMesh( const Mesh* mesh, const ShaderProgram* shader, const bool wireframe )
 {
-	glBindBuffer( GL_ARRAY_BUFFER, mesh->vertexBuffer );
+	if ( mesh == NULL ) return;
 	
 	{
 		GLint loc = glGetAttribLocation( shader->getHandle(), "Position" );
+		glBindBuffer( GL_ARRAY_BUFFER, mesh->vertexBuffer );
 		glEnableVertexAttribArray( loc );
 		glVertexAttribPointer( loc, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0 );
 	}
@@ -476,13 +549,14 @@ void RenderingEngine::drawGui( Node2d* gui )
 	setUniforms( node->mMaterial, node->mMaterial.mShader );
 	
 	setBlendMode( node->mLayer );
-	drawMesh( node->mMesh, node->getMaterial().mShader );
+	drawMesh( node->getMesh(), node->getMaterial().mShader );
 	
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	
 	if ( gui->mText != NULL ) {
 		drawTexture( gui->mText->getTexture(), node->getTransform(), false );
 	}
+	glUseProgram( 0 );
 }
 
 void RenderingEngine::drawTexture( Texture* texture, const ci::Matrix44f& transform, bool flipY )
@@ -503,6 +577,7 @@ void RenderingEngine::drawTexture( Texture* texture, const ci::Matrix44f& transf
 	
 	glBindTexture( GL_TEXTURE_2D, 0 );
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glUseProgram( 0 );
 }
 
 void RenderingEngine::setBlendMode( Node::Layer layer )
@@ -511,7 +586,7 @@ void RenderingEngine::setBlendMode( Node::Layer layer )
 	if ( layer == Node::LayerLighting ) {
 		glBlendFunc( GL_SRC_ALPHA, GL_ONE );
 	}
-	else if ( layer == Node::LayerGui | layer == Node::LayerObjects ) {
+	else if ( layer == Node::LayerGui ) {
 		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	}
 	else if ( layer == Node::LayerClouds ) {
@@ -522,7 +597,7 @@ void RenderingEngine::setBlendMode( Node::Layer layer )
 	}
 }
 
-void RenderingEngine::debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::Vec4f color )
+void RenderingEngine::debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::ColorA color )
 {
 	Vec3f min = center - size * 0.5f;
 	Vec3f max = center + size * 0.5f;
@@ -543,29 +618,49 @@ void RenderingEngine::debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::Vec4f
 	debugDrawLine( Vec3f(max.x, min.y, min.z), Vec3f(max.x, min.y, max.z), color );
 }
 
-void RenderingEngine::debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::Vec4f color )
+void RenderingEngine::debugDrawStrokedRect( const ci::Rectf &rect, const ci::ColorA color, ci::Matrix44f transform )
 {
-	/*glEnable( GL_DEPTH_TEST );
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE );
 	
+	GLfloat verts[8];
+	verts[0] = rect.getX1();	verts[1] = rect.getY1();
+	verts[2] = rect.getX2();	verts[3] = rect.getY1();
+	verts[4] = rect.getX2();	verts[5] = rect.getY2();
+	verts[6] = rect.getX1();	verts[7] = rect.getY2();
+	
+	ShaderProgram* shader = ResourceManager::get()->getShader( "debug" );
+	
+	glUseProgram( shader->getHandle() );
+	shader->uniform( "Color",				color );
+	shader->uniform( "Modelview",			mCamera->getModelViewMatrix() * transform );
+	shader->uniform( "Projection",			mCamera->getProjectionMatrix() );
+	
+	GLuint positionSlot = glGetAttribLocation( shader->getHandle(), "Position" );
+	glEnableVertexAttribArray( positionSlot );
+	glVertexAttribPointer( positionSlot, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, &verts[0] );
+	glDrawArrays( GL_LINE_LOOP, 0, 4 );
+	glDisableVertexAttribArray( positionSlot );
+}
+
+void RenderingEngine::debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::ColorA color )
+{
 	const float vertices[] = {
 		from.x, from.y, from.z, to.x, to.y, to.z
 	};
 	
-	ShaderProgram& shader = mShaders[ kShaderDebug ];
+	ShaderProgram* shader = ResourceManager::get()->getShader( "debug" );
 	
-	glUseProgram( shader.getHandle() );
-	shader.uniform( "Color",				color );
-	shader.uniform( "Modelview",			mCamera->getModelViewMatrix() );
-	shader.uniform( "Projection",			mCamera->getProjectionMatrix() );
-
-	GLuint positionSlot = glGetAttribLocation( shader.getHandle(), "Position" );
+	glUseProgram( shader->getHandle() );
+	shader->uniform( "Color",				color );
+	shader->uniform( "Modelview",			mCamera->getModelViewMatrix() );
+	shader->uniform( "Projection",			mCamera->getProjectionMatrix() );
+	
+	GLuint positionSlot = glGetAttribLocation( shader->getHandle(), "Position" );
 	glEnableVertexAttribArray( positionSlot );
 	glVertexAttribPointer( positionSlot, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, &vertices[0] );
 	glDrawArrays( GL_LINES, 0, 2 );
 	glDisableVertexAttribArray( positionSlot );
-	 */
 }
 
 

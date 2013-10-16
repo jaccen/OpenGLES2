@@ -1,14 +1,24 @@
 #include "Game.h"
 #include "TouchInput.h"
 #include "TargetConditionals.h"
-#include "Projectile.h"
+#include "ProjectileManager.h"
+#include "Planet.h"
 
 using namespace ci;
 
-Game::Game(RenderingEngine* renderingEngine ) :
-	mRenderingEngine(renderingEngine),
-	mPlanet(NULL)
+Game* Game::sInstance = NULL;
+
+Game* Game::get()
 {
+	if ( sInstance == NULL ) {
+		sInstance = new Game();
+	}
+	return sInstance;
+}
+
+Game::Game()
+{
+	mRenderingEngine = RenderingEngine::get();
 }
 
 Game::~Game()
@@ -23,6 +33,7 @@ void Game::setup( int width, int height )
 	mResourceManager = ResourceManager::get();
 	mResourceManager->setup( mRenderingEngine );
 	
+	mResourceManager->loadShader( "depth_map",		"shaders/depth_map.vert",			"shaders/depth_map.frag" );
 	mResourceManager->loadShader( "screen",			"shaders/screen_space.vert",		"shaders/screen_space.frag" );
 	mResourceManager->loadShader( "debug",			"shaders/debug.vert",				"shaders/debug.frag" );
 	mResourceManager->loadShader( "planet",			"shaders/planet.vert",				"shaders/planet.frag" );
@@ -38,122 +49,155 @@ void Game::setup( int width, int height )
 	mResourceManager->loadMesh( "models/quad_plane.obj" );
 	
 	mCamera = Camera::get();
-	mCamera->setZoom( 600.0f );
+	mCamera->setZoom( 1800.0f );
 	mCamera->setFov( 60.0f );
 	mCamera->setAngle( -30.0f );
 	mCamera->rotation.y = 90;
-	mCamera->setRange( 10.0f, 5000.0f );
+	mCamera->setRange( 50.0f, 10000.0f );
 	
-#if TARGET_IPHONE_SIMULATOR
-#else
 	mCameraController = EditorCamera( mCamera );
-#endif
 	
 	Node* skyBox = new Node();
-	skyBox->mMesh = mResourceManager->getMesh( "models/skysphere.obj" );
-	skyBox->scale = Vec3f::one() * 600.0f;
+	skyBox->setMesh( mResourceManager->getMesh( "models/skysphere.obj" ) );
+	skyBox->scale = Vec3f::one() * 7000.0f;
 	skyBox->mMaterial.setTexture( "DiffuseTexture", mResourceManager->getTexture( "textures/stars2.jpg" ) );
 	skyBox->mMaterial.setColor( "DiffuseMaterial", ColorA::white() );
 	skyBox->mMaterial.mShader = mResourceManager->getShader( "unlit" );
-	skyBox->mMaterial.setProperty( "Scale",	Vec2f( 2.0f, 2.0f ) );
+	skyBox->mMaterial.setProperty( "Scale",	Vec2f( 4.0f, 2.0f ) );
 	mRenderingEngine->setSkyboxNode( skyBox );
 	
 	//mRenderingEngine->setBackgroundTexture( mResourceManager->getTexture( "textures/stars2.jpg" ) );
 	
-	mPlanet = new Node();
-	mPlanet->mLayer = Node::LayerObjects;
-	mPlanet->mMesh = mResourceManager->getMesh( "models/sphere_high.obj" );
-	//mPlanet->scale = Vec3f::one() * 20.0f;
-	mPlanet->scale = Vec3f::one() * 200.0f;
-	mPlanet->position = Vec3f( 600, 0, 0 );
-	mPlanet->mMaterial.mShader = mResourceManager->getShader( "planet" );
-	mPlanet->mMaterial.setTexture( "DiffuseTexture",		mResourceManager->getTexture( "textures/mars_diffuse.png" ) );
-	mPlanet->mMaterial.setColor( "DiffuseMaterial",			ColorA( 1, 1, 1, 1 ) );
-	mPlanet->mMaterial.setColor( "SpecularMaterial",		ColorA( 1, 1, 1, 0.5f ));
-	mPlanet->mMaterial.setColor( "RimMaterial",				ColorA( 0.35, 0.1, 0, 0.5 ) );
-	mPlanet->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.2, 0.0, 1.0f ));
-	mPlanet->mMaterial.setProperty( "RimPower", 0.35f );
-	mPlanet->mMaterial.setProperty( "Shininess", 10.0f );
-	mRenderingEngine->addNode( mPlanet );
+	Node* pNode = new Node();
+	pNode->mLayer = Node::LayerObjects;
+	pNode->setMesh( mResourceManager->getMesh( "models/sphere_high.obj" ) );
+	pNode->scale = Vec3f::one() * 1200.0f;
+	pNode->position = Vec3f( 0, 0, -2800 );
+	pNode->rotation.y = 180.0f;
+	pNode->mMaterial.mShader = mResourceManager->getShader( "planet" );
+	pNode->mMaterial.setTexture( "DiffuseTexture",		mResourceManager->getTexture( "textures/mars_diffuse.png" ) );
+	pNode->mMaterial.setColor( "DiffuseMaterial",			ColorA( 1, 1, 1, 1 ) );
+	pNode->mMaterial.setColor( "SpecularMaterial",		ColorA( 1, 1, 1, 0.5f ));
+	pNode->mMaterial.setColor( "RimMaterial",				ColorA( 0.35, 0.1, 0, 0.5 ) );
+	pNode->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.2, 0.0, 1.0f ));
+	pNode->mMaterial.setProperty( "RimPower", 0.15f );
+	pNode->mMaterial.setProperty( "Shininess", 10.0f );
+	mRenderingEngine->addNode( pNode );
+	Planet* planet = new Planet( pNode );
 	
-	Node* glowSprite = new Node();
+	/*Node* glowSprite = new Node();
 	glowSprite->mLayer = Node::LayerLighting;
 	glowSprite->mFaceCamera = true;
-	glowSprite->mMesh = mResourceManager->getMesh( "models/quad_plane.obj" );
-	glowSprite->scale = mPlanet->scale * 2.6;
-	glowSprite->position = mPlanet->position;
+	glowSprite->setMesh( mResourceManager->getMesh( "models/quad_plane.obj" );
+	glowSprite->scale = pNode->scale * 2.6;
+	glowSprite->position = pNode->position;
 	glowSprite->mMaterial.mShader = mResourceManager->getShader( "unlit" );
 	glowSprite->mMaterial.setProperty( "Scale",	Vec2f::one() );
 	glowSprite->mMaterial.setTexture( "DiffuseTexture", mResourceManager->getTexture( "textures/sphere_glow.png" ) );
 	glowSprite->mMaterial.setColor( "DiffuseMaterial", ColorA( 1, .5, 0, 0.4 ) );
-	mRenderingEngine->addSpriteNode( glowSprite );
-		
-	Projectile* proj = new Projectile();
-	proj->mNode.mLayer = Node::LayerLighting;
-	proj->mNode.mFaceCamera = true;
-	proj->mNode.mMesh = mResourceManager->getMesh( "models/quad_plane.obj" );
-	proj->mNode.scale = Vec3f( 10.0f, 1.0f, 1.0f ) * 20.0f;
-	proj->mNode.mMaterial.mShader = mResourceManager->getShader( "unlit" );
-	proj->mNode.mMaterial.setProperty( "Scale", Vec2f::one() );
-	proj->mNode.mMaterial.setTexture( "DiffuseTexture", mResourceManager->getTexture( "textures/projectile.png" ) );
-	proj->mNode.mMaterial.setColor( "DiffuseMaterial", ColorA::white() );
+	mRenderingEngine->addSpriteNode( glowSprite );*/
 	
-	Node* asteroid = new Node();
-	asteroid->mLayer = Node::LayerObjects;
-	asteroid->mMesh = mResourceManager->getMesh( "models/sphere_high.obj" );
-	asteroid->mMaterial.mShader = mResourceManager->getShader( "body" );
-	asteroid->mMaterial.setTexture( "DiffuseTexture",		mResourceManager->getTexture( "textures/asteroid.png" ) );
-	asteroid->mMaterial.setTexture( "SpecularMapTexture",	mResourceManager->getTexture( "textures/asteroid_spec.png" ) );
-	asteroid->mMaterial.setColor( "DiffuseMaterial",		ColorA( 1, 1, 1, 1 ) );
-	asteroid->mMaterial.setColor( "SpecularMaterial",		ColorA( 1, 1, 1, 0.5f ));
-	asteroid->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.5, 0.5, 1.0f ));
-	asteroid->mMaterial.setProperty( "Shininess", 10.0f );
-	asteroid->scale = Vec3f::one() * 50.0f;
-	asteroid->position = Vec3f( 300, 50, 0 );
-	mRenderingEngine->addNode( asteroid );
+	/*{
+		Vec3f rotations[3] = { Vec3f::zero(), Vec3f( 0, 90.0, 0 ), Vec3f( 90, 90, 0 ) };
+		for( int i = 0; i < 3; i++ ) {
+			Node* s = new Node();
+			s->mLayer = Node::LayerLighting;
+			s->setMesh( mResourceManager->getMesh( "models/quad_plane.obj" );
+			s->scale = Vec3f::one() * 100.0;
+			s->rotation = rotations[i];
+			s->mMaterial.mShader = mResourceManager->getShader( "unlit" );
+			s->mMaterial.setProperty( "Scale",	Vec2f::one() );
+			s->mMaterial.setTexture( "DiffuseTexture", mResourceManager->getTexture( "textures/sphere_glow.png" ) );
+			s->mMaterial.setColor( "DiffuseMaterial", ColorA::white() );
+			mRenderingEngine->addSpriteNode( s );
+		}
+	}*/
 	
-	for( int i = 0; i < 5; i++ ) {
+	for( int i = 0; i < 30; i++ ) {
+		Node* asteroid = new Node();
+		asteroid->mLayer = Node::LayerObjects;
+		asteroid->setMesh( mResourceManager->getMesh( "models/sphere_low.obj" ) );
+		asteroid->mMaterial.mShader = mResourceManager->getShader( "body" );
+		asteroid->mMaterial.setTexture( "DiffuseTexture",		mResourceManager->getTexture( "textures/asteroid.png" ) );
+		asteroid->mMaterial.setTexture( "SpecularMapTexture",	mResourceManager->getTexture( "textures/asteroid_spec.png" ) );
+		asteroid->mMaterial.setColor( "DiffuseMaterial",		ColorA( 1, 1, 1, 1 ) );
+		asteroid->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.5, 0.5, 1.0f ));
+		asteroid->mMaterial.setProperty( "Shininess", 10.0f );
+		asteroid->scale = Vec3f::one() * ( 40.0f + randFloat() * 100.0f );
+		asteroid->position = randVec3fSphere(-1.0,1.0) * 1500.0f;
+		asteroid->setParent( pNode );
+		mRenderingEngine->addNode( asteroid );
+	}
+	
+	/*lineTest = new Node();
+	lineTest->mLayer = Node::LayerLighting;
+	lineTest->setMesh( mResourceManager->getMesh( "models/quad_plane.obj" );
+	lineTest->scale = Vec3f( 100, 100, 100 );
+	lineTest->rotation.y = 90.0f;
+	//lineTest->rotation = rotations[i];
+	lineTest->mFaceCameraAsLine = true;
+	//lineTest->mFaceCameraAsLine = true;
+	lineTest->mMaterial.mShader = mResourceManager->getShader( "unlit" );
+	lineTest->mMaterial.setProperty( "Scale",	Vec2f::one() );
+	lineTest->mMaterial.setTexture( "DiffuseTexture", mResourceManager->getTexture( "textures/line_test.png" ) );
+	lineTest->mMaterial.setColor( "DiffuseMaterial", ColorA::white() );
+	mRenderingEngine->addSpriteNode( lineTest );*/
+	
+	ColorA colors[] = {
+		ColorA( .5, 1, .5, 1 ),
+		ColorA( 1, .5, .5, 1 ),
+		ColorA( 1, .5, 1, 1 ),
+		ColorA( 1, 1, .5, 1 )
+	};
+	
+	for( int i = 0; i < 50; i++ ) {
 		Node* ship = new Node();
 		ship->mLayer = Node::LayerObjects;
-		ship->mMesh = mResourceManager->getMesh( "models/teapot_low.obj" );
+		ship->setMesh( mResourceManager->getMesh( "models/teapot_low.obj" ) );
 		ship->mMaterial.mShader = mResourceManager->getShader( "ship" );
 		ship->mMaterial.setTexture( "DiffuseTexture",	mResourceManager->getTexture( "textures/metal.png" ) );
 		ship->mMaterial.setTexture( "SelfIlluminationTexture",	mResourceManager->getTexture( "textures/ship_selfillum.png" ) );
-		ship->mMaterial.setColor( "DiffuseMaterial",		ColorA( 1, 1, 1, 1 ) );
 		ship->mMaterial.setColor( "SpecularMaterial",		ColorA( 1, 1, 1, 0.5f ));
 		ship->mMaterial.setColor( "SelfIlluminationColor",	ColorA( 1, 0, 0, 1.0 ) );
 		ship->mMaterial.setColor( "RimMaterial",			ColorA( 0.35, 0.1, 0, 0.5 ) );
 		ship->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.5, 0.5, 1.0f ));
 		ship->mMaterial.setProperty( "Shininess", 10.0f );
 		ship->scale = Vec3f::one() * 50.0f;
-		ship->position = Vec3f( randFloat(-1.0f,1.0f) * 500.0f, 0.0f, randFloat(-1.0f,1.0f) * 500.0f );
+		ship->position = Vec3f( randFloat(-1.0f,1.0f), randFloat(-1.0f,1.0f), randFloat(-1.0f,1.0f) ) * 700.0f;
+		//if ( i == 0 ) ship->position = Vec3f::zero();
 		mRenderingEngine->addNode( ship );
+		
+		Unit* unit = new Unit( ship );
+		unit->factionId = arc4random() % 3;
+		mUnits.push_back( unit );
+		
+		ship->mMaterial.setColor( "DiffuseMaterial", colors[ unit->factionId ] );
 	}
-	
-	ParticleSystem* ps = new ParticleSystem();
-	ps->createParticles( 10, mResourceManager->getTexture( "textures/explosion.png" ) );
-	ps->setVelocity( Vec3f::yAxis() * 100.0f, Vec3f::one() );
-	ps->setRotationalVelocity( 0.0f, 100.0f );
-	ps->setStartPositionRange( Vec3f::one() * 100.0f );
 	
 	Light* light = new Light();
 	light->mColor = ColorA::white();
-	light->mAmbientColor = ColorA( 0.1f, 0.1f, 0.1f, 1.0f );
-	light->mNode.position = Vec3f( 10000, 10000, 0 );
+	light->mAmbientColor = ColorA( 0.15f, 0.05f, 0.05f, 1.0f );
+	light->mNode.position = Vec3f( 2500, 500, 4000 );
 	mRenderingEngine->addLight( light );
 	
-	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(0.48,.35,.22,0.5),	Vec2i( 200, 200 ) );
-	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_0.png" ), ColorA(1,1,1,1),			Vec2i( 600, 600 ) );
-	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(1,.2,.2,.5),		Vec2i( 50, 50 ) );
-	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_2.png" ), ColorA(1,1,1,.5),			Vec2i( 20, 20 ) );
-	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(1,.2,.2,.5),		Vec2i( 100, 100 ) );
-	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(.2,.2,1,.5),		Vec2i( 80, 80 ) );
-	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(.2,.2,1,.5),		Vec2i( 30, 30 ) );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(0.48,.35,.22,0.5),	Vec2i( 200, 200 ) * 2.0f );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_0.png" ), ColorA(1,1,1,1),			Vec2i( 600, 600 ) * 2.0f );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(1,.2,.2,.5),			Vec2i( 50, 50 ) * 2.0f );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_2.png" ), ColorA(1,1,1,.5),			Vec2i( 20, 20 ) * 2.0f );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(1,.2,.2,.5),			Vec2i( 100, 100 ) * 2.0f );
+	/*light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(.2,.2,1,.5),		Vec2i( 80, 80 ) );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(.2,.2,1,.5),			Vec2i( 30, 30 ) );
 	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_3.png" ), ColorA(1,1,1,.25),			Vec2i( 200, 200 ) );
-	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_4.png" ), ColorA(1,1,1,.1),			Vec2i( 300, 300 ) );
+	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_4.png" ), ColorA(1,1,1,.1),			Vec2i( 300, 300 ) );*/
 	
 	mRootGui = new Node2d();
 	mRenderingEngine->addNode( mRootGui );
+	
+	const float t = 2000.0f;
+	mUniformGrid.build( Rectf( -t, -t, t, t ), Vec2i( 10, 10 ) );
+	mUniformGrid.sort( mUnits );
+	
+	return;
 	
 	Node2d* test = new Node2d();
 	test->name = "test_node";
@@ -162,8 +206,6 @@ void Game::setup( int width, int height )
 	test->position = Vec2f( 100, 100 );
 	test->size = Vec2f( 100, 100 );
 	mRootGui->addChild( test );
-	
-	return;
 	
 	Font* font = ResourceManager::get()->getFont( "fonts/menlo.fnt" );
 	Node2d* child = new Node2d();
@@ -185,58 +227,63 @@ void Game::setup( int width, int height )
 	mRootGui->addChild( child );
 }
 
-#if TARGET_IPHONE_SIMULATOR
-float ___angle = 0.0f;
-float ___angleZ = 0.0f;
-#endif
-
 void Game::update( const float deltaTime )
 {
-#if TARGET_IPHONE_SIMULATOR
-	float target = math<float>::sin( ___angle += 0.025f ) * 80.0f;
-	float targetZ = math<float>::sin( ___angleZ += 0.05f ) * 250.0f;
-	mCamera->setAngle( target );
-	mCamera->setZoom( 350.0f + targetZ );
-	mCamera->rotation.y += 20.0f * deltaTime;
-#else
 	mCameraController.update( deltaTime );
-#endif
 	mCamera->update( deltaTime );
 	
-	if ( mPlanet ) {
-		mPlanet->rotation.y += 4.0f * deltaTime;
+	ProjectileManager::get()->update( deltaTime );
+	
+	for( auto u : mUnits ) {
+		u->update( deltaTime );
+		if ( u->getIsDead() ) {
+			mDeletionQueue.push_back( u );
+		}
 	}
+	for( auto u : mDeletionQueue ) {
+		auto match = std::find( mUnits.begin(), mUnits.end(), u );
+		if ( match != mUnits.end() ) {
+			mRenderingEngine->removeNode( (*match)->getNode() );
+			delete *match;
+			mUnits.erase( match );
+		}
+	}
+	mDeletionQueue.clear();
+	
+	mUniformGrid.sort( mUnits );
+	
+	//lineTest->position += lineTest->getRight() * deltaTime * 10.0f;
 }
 
 void Game::debugDraw()
 {
-	return;
-	
-	// Draw grid
-	Vec4f c = Vec4f( 1, 1, 1, 0.15f );
-	float l = 5.0f;
-	float n = 10;
-	for( float i = -n; i <= n; i++ ) {
-		mRenderingEngine->debugDrawLine( Vec3f(i,0,-n) * l, Vec3f(i,0,n) * l, c );
-		mRenderingEngine->debugDrawLine( Vec3f(-n,0,i) * l, Vec3f(n,0,i) * l, c );
-	}
-}
-
-ObjectController* Game::pickObject( const Ray& ray )
-{
-	/*for( auto iter = mControllers.begin(); iter != mControllers.end(); iter++ ) {
-		ObjectController* controller = *iter;
-		Node* node = controller->getNode();
-		
-		if ( node->mLayer != Node::LayerObjects ) continue;
-		if ( node->mMesh == NULL ) continue;
-		if ( node == mFocusTarget ) continue;
-		
-		if( controller->getBoundingBox().intersects( ray ) ) {
-			return controller;
+	if ( false ) {
+		const std::list<Node*>& nodes = RenderingEngine::get()->getObjectNodes();
+		for( auto node : nodes ) {
+			mRenderingEngine->debugDrawCube( node->getBoundingBox().getCenter(), node->getBoundingBox().getSize(), ci::ColorA( 0, 1, 0, 1 ) );
 		}
 	}
-	return NULL;*/
+	if ( false ) {
+		Matrix44f m = Matrix44f::identity();
+		m.rotate( Vec3f( 90.0f * kToRad, 0.0f, 0.0f ) );
+		for( auto cell : mUniformGrid.getCells() ) {
+			mRenderingEngine->debugDrawStrokedRect( Rectf( cell->getArea() ), cell->mDebugColor, m );
+			
+			for( auto unit : cell->getChildren() ) {
+				std::list<Unit*> all;
+				Unit* nearest = mUniformGrid.findNearest( Unit::FindVisibleEnemy( unit ) );
+				if ( nearest != NULL ) {
+					mRenderingEngine->debugDrawLine( unit->getNode()->position, nearest->getNode()->position, cell->mDebugColor );
+				}
+				continue;
+				mUniformGrid.findAll( Unit::FindEnemy( unit ), all );
+				for( auto other : all ) {
+					if ( other != nearest )
+						mRenderingEngine->debugDrawLine( unit->getNode()->position, other->getNode()->position, ColorA(1,1,0,1 ) );
+				}
+			}
+		}
+	}
 }
 
 

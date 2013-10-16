@@ -19,6 +19,10 @@
 		5A27CAC6171210B40028DF13 /* boost.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A27CAC5171210B40028DF13 /* boost.framework */; };
 		5A27CAC9171219100028DF13 /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A27CAC7171219100028DF13 /* Text.cpp */; };
 		5A27CACC171237D10028DF13 /* Resources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A27CACA171237D10028DF13 /* Resources.cpp */; };
+		5A289EB7180C5FC600573998 /* Unit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A289EB5180C5FC600573998 /* Unit.cpp */; };
+		5A289EBA180C603D00573998 /* ProjectileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A289EB8180C603D00573998 /* ProjectileManager.cpp */; };
+		5A289EBE180CAFA600573998 /* Planet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A289EBC180CAFA600573998 /* Planet.cpp */; };
+		5A289EC1180DBDC800573998 /* UniformGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A289EBF180DBDC800573998 /* UniformGrid.cpp */; };
 		5A3E621B180B243900214718 /* ParticleSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A3E6219180B243900214718 /* ParticleSystem.cpp */; };
 		5A3E621E180B4DB900214718 /* Projectile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A3E621C180B4DB900214718 /* Projectile.cpp */; };
 		5A58E78F16F6463200AA4635 /* Rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A58E78E16F6463200AA4635 /* Rect.cpp */; };
@@ -26,8 +30,6 @@
 		5A5DBEFF17A5CBCB00DB031C /* TouchInput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B1716F69D0400F47648 /* TouchInput.cpp */; };
 		5A5DBF0017A5CC0F00DB031C /* CameraController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A5DBEFC17A5CAB300DB031C /* CameraController.cpp */; };
 		5A62F35217A5F9620050B91A /* Material.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A62F34F17A5F9620050B91A /* Material.cpp */; };
-		5A9B879816F89E4F000B53BF /* ObjectController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A9B879616F89E4F000B53BF /* ObjectController.cpp */; };
-		5A9D974616F96BB60099763E /* LifeMeter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A9D974416F96BB60099763E /* LifeMeter.cpp */; };
 		5A9D976D16FA57710099763E /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 5A9D976C16FA57710099763E /* fonts */; };
 		5A9DC4ED1700DF6F00199E4E /* Default-568h.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A9DC4E01700DF6F00199E4E /* Default-568h.png */; };
 		5A9DC4EE1700DF6F00199E4E /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A9DC4E11700DF6F00199E4E /* Default-568h@2x.png */; };
@@ -81,6 +83,15 @@
 		5A27CAC8171219100028DF13 /* Text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Text.h; sourceTree = "<group>"; };
 		5A27CACA171237D10028DF13 /* Resources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Resources.cpp; sourceTree = "<group>"; };
 		5A27CACB171237D10028DF13 /* Resources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Resources.h; sourceTree = "<group>"; };
+		5A289EB5180C5FC600573998 /* Unit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Unit.cpp; sourceTree = "<group>"; };
+		5A289EB6180C5FC600573998 /* Unit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Unit.h; sourceTree = "<group>"; };
+		5A289EB8180C603D00573998 /* ProjectileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProjectileManager.cpp; sourceTree = "<group>"; };
+		5A289EB9180C603D00573998 /* ProjectileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectileManager.h; sourceTree = "<group>"; };
+		5A289EBB180C658B00573998 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
+		5A289EBC180CAFA600573998 /* Planet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Planet.cpp; sourceTree = "<group>"; };
+		5A289EBD180CAFA600573998 /* Planet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Planet.h; sourceTree = "<group>"; };
+		5A289EBF180DBDC800573998 /* UniformGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UniformGrid.cpp; sourceTree = "<group>"; };
+		5A289EC0180DBDC800573998 /* UniformGrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UniformGrid.h; sourceTree = "<group>"; };
 		5A3E6219180B243900214718 /* ParticleSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParticleSystem.cpp; sourceTree = "<group>"; };
 		5A3E621A180B243900214718 /* ParticleSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleSystem.h; sourceTree = "<group>"; };
 		5A3E621C180B4DB900214718 /* Projectile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Projectile.cpp; sourceTree = "<group>"; };
@@ -91,10 +102,6 @@
 		5A5DBEFD17A5CAB300DB031C /* CameraController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraController.h; sourceTree = "<group>"; };
 		5A62F34F17A5F9620050B91A /* Material.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Material.cpp; sourceTree = "<group>"; };
 		5A62F35017A5F9620050B91A /* Material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Material.h; sourceTree = "<group>"; };
-		5A9B879616F89E4F000B53BF /* ObjectController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ObjectController.cpp; sourceTree = "<group>"; };
-		5A9B879716F89E4F000B53BF /* ObjectController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectController.h; sourceTree = "<group>"; };
-		5A9D974416F96BB60099763E /* LifeMeter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LifeMeter.cpp; sourceTree = "<group>"; };
-		5A9D974516F96BB60099763E /* LifeMeter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LifeMeter.h; sourceTree = "<group>"; };
 		5A9D976C16FA57710099763E /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = Resources/fonts; sourceTree = "<group>"; };
 		5A9DC4E01700DF6F00199E4E /* Default-568h.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h.png"; sourceTree = "<group>"; };
 		5A9DC4E11700DF6F00199E4E /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -246,10 +253,6 @@
 				5AE85B1616F69D0400F47648 /* ShaderProgram.h */,
 				5AE85B1716F69D0400F47648 /* TouchInput.cpp */,
 				5AE85B1816F69D0400F47648 /* TouchInput.h */,
-				5A9B879616F89E4F000B53BF /* ObjectController.cpp */,
-				5A9B879716F89E4F000B53BF /* ObjectController.h */,
-				5A9D974416F96BB60099763E /* LifeMeter.cpp */,
-				5A9D974516F96BB60099763E /* LifeMeter.h */,
 				5A27CAC7171219100028DF13 /* Text.cpp */,
 				5A27CAC8171219100028DF13 /* Text.h */,
 				5A27CACA171237D10028DF13 /* Resources.cpp */,
@@ -258,6 +261,15 @@
 				5A3E621A180B243900214718 /* ParticleSystem.h */,
 				5A3E621C180B4DB900214718 /* Projectile.cpp */,
 				5A3E621D180B4DB900214718 /* Projectile.h */,
+				5A289EBF180DBDC800573998 /* UniformGrid.cpp */,
+				5A289EC0180DBDC800573998 /* UniformGrid.h */,
+				5A289EB5180C5FC600573998 /* Unit.cpp */,
+				5A289EB6180C5FC600573998 /* Unit.h */,
+				5A289EB8180C603D00573998 /* ProjectileManager.cpp */,
+				5A289EB9180C603D00573998 /* ProjectileManager.h */,
+				5A289EBB180C658B00573998 /* Timer.h */,
+				5A289EBC180CAFA600573998 /* Planet.cpp */,
+				5A289EBD180CAFA600573998 /* Planet.h */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -393,11 +405,15 @@
 				5A58E79116F6464300AA4635 /* Area.cpp in Sources */,
 				5AE85B1916F69D0400F47648 /* AppDelegate.mm in Sources */,
 				5AE85B1A16F69D0400F47648 /* Game.cpp in Sources */,
+				5A289EC1180DBDC800573998 /* UniformGrid.cpp in Sources */,
 				5AE85B1B16F69D0400F47648 /* GLView.mm in Sources */,
 				5AE85B1C16F69D0400F47648 /* LensFlare.cpp in Sources */,
+				5A289EB7180C5FC600573998 /* Unit.cpp in Sources */,
 				5AE85B1D16F69D0400F47648 /* main.m in Sources */,
 				5AE85B1E16F69D0400F47648 /* Node.cpp in Sources */,
 				5AE85B1F16F69D0400F47648 /* Node2d.cpp in Sources */,
+				5A289EBE180CAFA600573998 /* Planet.cpp in Sources */,
+				5A289EBA180C603D00573998 /* ProjectileManager.cpp in Sources */,
 				5AE85B2016F69D0400F47648 /* ObjParser.cpp in Sources */,
 				5AE85B2116F69D0400F47648 /* RenderingEngine.cpp in Sources */,
 				5A3E621B180B243900214718 /* ParticleSystem.cpp in Sources */,
@@ -408,8 +424,6 @@
 				5AE85B2816F69D4100F47648 /* Camera.cpp in Sources */,
 				5AE85B2B16F6A84300F47648 /* AxisAlignedBox.cpp in Sources */,
 				5AE85B2C16F6A84300F47648 /* TriMesh.cpp in Sources */,
-				5A9B879816F89E4F000B53BF /* ObjectController.cpp in Sources */,
-				5A9D974616F96BB60099763E /* LifeMeter.cpp in Sources */,
 				5A27CAC9171219100028DF13 /* Text.cpp in Sources */,
 				5A27CACC171237D10028DF13 /* Resources.cpp in Sources */,
 				5A5DBEFF17A5CBCB00DB031C /* TouchInput.cpp in Sources */,

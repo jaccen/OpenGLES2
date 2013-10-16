@@ -8,12 +8,13 @@ using namespace ci;
 
 Node::Node() :
 	mLayer( Node::LayerNone ),
-	mIsDirty( true ),
 	mMesh( NULL ),
 	mParent( NULL ),
 	mFaceCamera( false ),
-	mFaceCameraAsLine( false )
+	mFaceCameraAsLine( false ),
+	mFaceCameraRotation( 0.0f )
 {
+	mSpriteTransform	= Matrix44f::identity();
 	mTransform			= Matrix44f::identity();
 	mLocalTransform		= Matrix44f::identity();
 	position			= Vec3f::zero();
@@ -29,8 +30,21 @@ Node::~Node()
 	                              
 }
 
+void Node::setMesh( Mesh *mesh )
+{
+	mMesh = mesh;
+	mObjectBounds = mMesh->triMesh.calcBoundingBox( mTransform );
+}
+
 void Node::setForward( const ci::Vec3f forward )
 {
+	if ( forward == Vec3f::zero() ) return;
+	
+	Quatf q( Matrix44f::alignZAxisWithTarget( forward.normalized(), Vec3f::yAxis() ) );
+	Vec3f axis;
+	float angle;
+	q.getAxisAngle( &axis, &angle );
+	rotation = axis * angle * kToDeg;
 }
 
 ci::Vec3f Node::getGlobalPosition()
@@ -41,7 +55,6 @@ ci::Vec3f Node::getGlobalPosition()
 void Node::setParent( Node* parent )
 {
 	mParent = parent;
-	mIsDirty = true;
 }
 
 void Node::update( const float deltaTime )
@@ -49,7 +62,7 @@ void Node::update( const float deltaTime )
 	mLocalTransform = Matrix44f::identity();
 	mLocalTransform.translate( position );
 	if ( !mFaceCamera ) {
-		mLocalTransform.rotate( rotation * M_PI / 180.0f );
+		mLocalTransform.rotate( rotation * kToRad );
 	}
 	mLocalTransform.scale( scale );
 	
@@ -58,20 +71,24 @@ void Node::update( const float deltaTime )
 	}
 	else {
 		mTransform = mLocalTransform;
+		if ( !mFaceCamera && !mFaceCameraAsLine ) {
+		}
+	}
+	if ( mMesh != NULL ) {
+		mBoundingBox = mObjectBounds.transformed( mTransform );
 	}
 	
 	if ( mFaceCamera ) {
-		const Vec3f cameraDirection = ( Camera::get()->getGlobalPosition() - getGlobalPosition() ).normalized();
-		mTransform *= ci::Matrix44f::alignZAxisWithTarget( cameraDirection, ci::Vec3f::yAxis() );
-		//mTransform.rotate( cross( cameraDirection, Vec3f::zAxis() ), mFaceCameraRotation * kToRad );
-		
+		mSpriteTransform = ci::Matrix44f::alignZAxisWithTarget( -Camera::get()->getDirection(), ci::Vec3f::yAxis() );
+		mSpriteTransform.rotate( Vec3f::zAxis(), mFaceCameraRotation * kToRad );
 		updateCameraDistance();
 	}
-	
-	if ( mFaceCameraAsLine ) {
-		const Vec3f cameraDirection = ( Camera::get()->getGlobalPosition() - getGlobalPosition() ).normalized();
-		mTransform *= ci::Matrix44f::alignZAxisWithTarget( cameraDirection, ci::Vec3f::yAxis() );
-		
+	else if ( mFaceCameraAsLine ) {
+		const Vec3f cam = Camera::get()->getGlobalPosition();
+		const Vec3f axis = Vec3f::xAxis();
+		const Vec3f adjustedPos = Vec3f( getGlobalPosition().x, cam.y, cam.z );
+		const Vec3f dir = ( getGlobalPosition() - adjustedPos ).normalized();
+		mSpriteTransform = ci::Matrix44f::alignZAxisWithTarget( dir, ci::Vec3f::yAxis() );
 		updateCameraDistance();
 	}
 	
