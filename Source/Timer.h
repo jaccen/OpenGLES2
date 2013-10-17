@@ -58,6 +58,7 @@ public:
 	bool operator==( Timer* timer ) { return timer->timerId() == mTimerId; }
 	bool expired() const { return mExpired; }
 	int timerId() const { return mTimerId; }
+	bool getIsActive() const { return mActive; }
 	
 private:
 
