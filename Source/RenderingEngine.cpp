@@ -205,7 +205,7 @@ void RenderingEngine::setup( int width, int height, float contentScaleFactor )
 	mScreenSize.y = height * contentScaleFactor;
 	mContentScaleFactor = contentScaleFactor;
 	
-	mCamera = Camera::get();
+	mCamera = GameCamera::get();
 	mCamera->setScreenSize( width, height, contentScaleFactor );
 	
 	mScreenTransform = Matrix44f::identity();
@@ -635,6 +635,31 @@ void RenderingEngine::debugDrawStrokedRect( const ci::Rectf &rect, const ci::Col
 	shader->uniform( "Color",				color );
 	shader->uniform( "Modelview",			mCamera->getModelViewMatrix() * transform );
 	shader->uniform( "Projection",			mCamera->getProjectionMatrix() );
+	
+	GLuint positionSlot = glGetAttribLocation( shader->getHandle(), "Position" );
+	glEnableVertexAttribArray( positionSlot );
+	glVertexAttribPointer( positionSlot, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, &verts[0] );
+	glDrawArrays( GL_LINE_LOOP, 0, 4 );
+	glDisableVertexAttribArray( positionSlot );
+}
+
+void RenderingEngine::debugScreenDrawStrokedRect( const ci::Rectf &rect, const ci::ColorA color )
+{
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE );
+	
+	GLfloat verts[8];
+	verts[0] = rect.getX1();	verts[1] = rect.getY1();
+	verts[2] = rect.getX2();	verts[3] = rect.getY1();
+	verts[4] = rect.getX2();	verts[5] = rect.getY2();
+	verts[6] = rect.getX1();	verts[7] = rect.getY2();
+	
+	ShaderProgram* shader = ResourceManager::get()->getShader( "debug_screen" );
+	glUseProgram( shader->getHandle() );
+	
+	shader->uniform( "Color",				color );
+	shader->uniform( "Transform",			Matrix44f::identity() );
+	shader->uniform( "ScreenTransform",		mScreenTransform );
 	
 	GLuint positionSlot = glGetAttribLocation( shader->getHandle(), "Position" );
 	glEnableVertexAttribArray( positionSlot );

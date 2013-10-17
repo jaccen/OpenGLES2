@@ -95,7 +95,7 @@ void ProjectileManager::update( const float deltaTime )
 
 void ProjectileManager::checkCollisions( const float deltaTime )
 {
-	const std::list<Unit*>& units = Game::get()->getUnits();
+	const std::vector<Unit*>& units = Game::get()->getUnits();
 	
 	for( auto p : mProjectiles ) {
 		for( auto unit : units ) {
@@ -103,27 +103,22 @@ void ProjectileManager::checkCollisions( const float deltaTime )
 			if ( node->mLayer == Node::LayerObjects && unit != p->getOwner() ) {
 				if ( node->getBoundingBox().getCenter().distance( p->getNode()->position ) < node->getBoundingBox().getSize().x * 0.5f ) {
 					unit->onProjectileHit( p );
-					if ( unit->getIsDead() ) {
-						
-					}
-					else {
-						if ( arc4random() % 10 == 5 ) {
-							/*ci::Ray ray( p->getNode()->position, p->mForward );
-							 float distance = 0.0f;
-							 int len = node->mMesh->triMesh.getNumTriangles();
-							 for( size_t i = 0; i < len; i++ ) {
-							 Vec3f v0, v1, v2;
-							 node->mMesh->triMesh.getTriangleVertices(i, &v0, &v1, &v2);
-							 v0 = node->getTransform().transformPointAffine(v0);
-							 v1 = node->getTransform().transformPointAffine(v1);
-							 v2 = node->getTransform().transformPointAffine(v2);
-							 if( ray.calcTriangleIntersection( v0, v1, v2, &distance ) ) {
-							 const ci::Vec3f point = ray.getOrigin() + ray.getDirection() * distance;
-							 createProjectileImpage( node, point );
-							 }
-							 }*/
-							createProjectileImpage( node, p->getNode()->position );
-						}
+					if ( arc4random() % 10 == 5 ) {
+						/*ci::Ray ray( p->getNode()->position, p->mForward );
+						 float distance = 0.0f;
+						 int len = node->mMesh->triMesh.getNumTriangles();
+						 for( size_t i = 0; i < len; i++ ) {
+						 Vec3f v0, v1, v2;
+						 node->mMesh->triMesh.getTriangleVertices(i, &v0, &v1, &v2);
+						 v0 = node->getTransform().transformPointAffine(v0);
+						 v1 = node->getTransform().transformPointAffine(v1);
+						 v2 = node->getTransform().transformPointAffine(v2);
+						 if( ray.calcTriangleIntersection( v0, v1, v2, &distance ) ) {
+						 const ci::Vec3f point = ray.getOrigin() + ray.getDirection() * distance;
+						 createProjectileImpage( node, point );
+						 }
+						 }*/
+						createProjectileImpage( node, p->getNode()->position );
 					}
 					mDeleteionQueue.push_back( p );
 				}

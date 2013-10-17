@@ -1,33 +1,33 @@
-#include "Camera.h"
+#include "GameCamera.h"
 #include "GameConstants.h"
 
 #include "cinder/Camera.h"
 #include "cinder/Quaternion.h"
 
-Camera* Camera::sInstance = NULL;
+GameCamera* GameCamera::sInstance = NULL;
 
-Camera* Camera::get()
+GameCamera* GameCamera::get()
 {
-	if ( !sInstance ) sInstance = new Camera();
+	if ( !sInstance ) sInstance = new GameCamera();
 	return sInstance;
 }
 
-ci::Matrix44f Camera::getModelViewMatrix() const
+ci::Matrix44f GameCamera::getModelViewMatrix() const
 {
 	return mCinderCamera->getModelViewMatrix();
 }
 
-ci::Matrix44f Camera::getProjectionMatrix() const
+ci::Matrix44f GameCamera::getProjectionMatrix() const
 {
 	return mCinderCamera->getProjectionMatrix();
 }
 
-const ci::Vec3f& Camera::getDirection() const
+const ci::Vec3f& GameCamera::getDirection() const
 {
 	return mLookDirection;
 }
 
-void Camera::setScreenSize( int width, int height, float contentScaleFactor )
+void GameCamera::setScreenSize( int width, int height, float contentScaleFactor )
 {
 	mScreenSize = ci::Vec2i( width, height );
 	mScreenRect = ci::Rectf( 0, 0, width, height );
@@ -35,23 +35,23 @@ void Camera::setScreenSize( int width, int height, float contentScaleFactor )
 	mContentScaleFactor = contentScaleFactor;
 }
 
-void Camera::setRange( float near, float far )
+void GameCamera::setRange( float near, float far )
 {
 	mNear = near;
 	mFar = far;
 }
 
-void Camera::setZoom( float zoom )
+void GameCamera::setZoom( float zoom )
 {
 	mBody.position.z = zoom;
 }
 
-void Camera::setFov( float fov )
+void GameCamera::setFov( float fov )
 {
 	mFov = fov;
 }
 
-ci::Vec2f Camera::getWorldToScreen( const ci::Vec3f &worldCoord ) const
+ci::Vec2f GameCamera::getWorldToScreen( const ci::Vec3f &worldCoord ) const
 {
 	ci::Quatf q = ci::Quatf( Node::getTransform() );
 	ci::Quatf f = ci::Quatf( ci::Vec3f::zAxis(), worldCoord - mBody.getTransform().getTranslate().xyz() );
@@ -64,7 +64,7 @@ ci::Vec2f Camera::getWorldToScreen( const ci::Vec3f &worldCoord ) const
 	}
 }
 
-ci::Ray Camera::rayIntoScene( ci::Vec2i screenPoint )
+ci::Ray GameCamera::rayIntoScene( ci::Vec2i screenPoint )
 {
 	float u = (float) screenPoint.x / (float) mScreenSize.x;
 	float v = (float) screenPoint.y / (float) mScreenSize.y;
@@ -72,7 +72,7 @@ ci::Ray Camera::rayIntoScene( ci::Vec2i screenPoint )
 	return ray;
 }
 
-Camera::Camera()
+GameCamera::GameCamera()
 {
 	mCinderCamera = new ci::CameraPersp();
 	
@@ -89,17 +89,17 @@ Camera::Camera()
 	update( 0.0f );
 }
 
-Camera::~Camera()
+GameCamera::~GameCamera()
 {
 	delete mCinderCamera;
 }
 
-ci::Vec3f Camera::getGlobalPosition()
+ci::Vec3f GameCamera::getGlobalPosition()
 {
 	return mBody.getGlobalPosition();
 }
 
-void Camera::update( const float deltaTime )
+void GameCamera::update( const float deltaTime )
 {	
 	Node::update( deltaTime );
 	mPivot.update( deltaTime );

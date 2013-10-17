@@ -1,9 +1,9 @@
 #pragma once
 
-#pragma once
-
 #include "cinder/Vector.h"
 #include "cinder/Matrix.h"
+
+#include "Timer.h"
 
 #include <vector>
 #include <list>
@@ -14,6 +14,7 @@ public:
 	public:
 		// Add (pure) virtual methods here
 		virtual void gestureStarted( int fingerCount ) = 0;
+		virtual void gestureMoved( int fingerCount ) = 0;
 		virtual void gestureEnded( int fingerCount ) = 0;
 		virtual void tapDown( ci::Vec2i position ) = 0;
 		virtual void tapUp( ci::Vec2i position ) = 0;
@@ -21,9 +22,9 @@ public:
 	
 	static TouchInput*	get();
 	
-	void addDelegate( IDelegate* delegate );
-	void removeDelegate( IDelegate* delegate );
-	void removeAllDelegates();
+	void				addDelegate( IDelegate* delegate );
+	void				removeDelegate( IDelegate* delegate );
+	void				removeAllDelegates();
 	
 	static ci::Vec2f	getTouchesCenter( const std::vector<ci::Vec2i>& touches);
 	static float		getDistance( const std::vector<ci::Vec2i>& touches);
@@ -32,6 +33,7 @@ public:
     void				touchesEnded( const std::vector<ci::Vec2i>& positions );
     void				touchesBegan( const std::vector<ci::Vec2i>& positions );
     void				touchesMoved( const std::vector<ci::Vec2i>& positions );
+	
 	void				update( const float deltaTime );
 	
 	ci::Vec2i			getTouchesCenter() const { return mTouchCenter; }
@@ -55,4 +57,6 @@ private:
 	float				mTouchDistanceCurrent;
 	
 	std::list<IDelegate*> mDelegates;
+	
+	bool				mGestureActive;
 };

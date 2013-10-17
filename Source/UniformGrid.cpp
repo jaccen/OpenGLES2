@@ -69,7 +69,7 @@ void UniformGrid::build( const ci::Rectf& size, const ci::Vec2i& resolution )
 	}
 }
 
-void UniformGrid::sort( const std::list<Unit*>& units )
+void UniformGrid::sort( const std::vector<Unit*>& units )
 {
 	for( auto cell : mCells ) {
 		cell->clear();

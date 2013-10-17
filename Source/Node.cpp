@@ -79,12 +79,12 @@ void Node::update( const float deltaTime )
 	}
 	
 	if ( mFaceCamera ) {
-		mSpriteTransform = ci::Matrix44f::alignZAxisWithTarget( -Camera::get()->getDirection(), ci::Vec3f::yAxis() );
+		mSpriteTransform = ci::Matrix44f::alignZAxisWithTarget( -GameCamera::get()->getDirection(), ci::Vec3f::yAxis() );
 		mSpriteTransform.rotate( Vec3f::zAxis(), mFaceCameraRotation * kToRad );
 		updateCameraDistance();
 	}
 	else if ( mFaceCameraAsLine ) {
-		const Vec3f cam = Camera::get()->getGlobalPosition();
+		const Vec3f cam = GameCamera::get()->getGlobalPosition();
 		const Vec3f axis = Vec3f::xAxis();
 		const Vec3f adjustedPos = Vec3f( getGlobalPosition().x, cam.y, cam.z );
 		const Vec3f dir = ( getGlobalPosition() - adjustedPos ).normalized();
@@ -100,5 +100,5 @@ void Node::update( const float deltaTime )
 void Node::updateCameraDistance()
 {
 	// Try to optimize this, don't do it every frame if possible:
-	mDistanceFromCamera = Camera::get()->getGlobalPosition().distance( getGlobalPosition() );
+	mDistanceFromCamera = GameCamera::get()->getGlobalPosition().distance( getGlobalPosition() );
 }

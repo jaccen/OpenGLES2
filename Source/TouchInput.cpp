@@ -80,16 +80,7 @@ ci::Vec2f TouchInput::getScale( ci::Matrix44f& matrix )
 
 void TouchInput::update( const float deltaTime )
 {
-	//std::cout << "mTouchCount = " << mTouchCount;
-	//std::cout << ", mPrevTouchCount = " << mPrevTouchCount << std::endl;
 	bool didChange = mPrevTouchCount != mTouchCount;
-	
-	if ( didChange ) {
-		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
-			(*iter)->gestureEnded( mPrevTouchCount );
-			(*iter)->gestureStarted( mTouchCount );
-		}
-	}
 	
 	if ( didChange ) {
 		mTouchCenter = mTouchCenterStart = getTouchesCenter( mTouches );
@@ -100,17 +91,46 @@ void TouchInput::update( const float deltaTime )
 		mTouchDistanceCurrent = TouchInput::getDistance( mTouches );
 	}
 	
+	if ( didChange && mTouchCount > 0 ) {
+		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
+			(*iter)->gestureEnded( mPrevTouchCount );
+			(*iter)->gestureStarted( mTouchCount );
+			mGestureActive = true;
+		}
+	}
+	else if ( mTouchCount == 0 ) {
+		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
+			(*iter)->gestureEnded( mPrevTouchCount );
+			mGestureActive = false;
+		}
+	}
+	
+	if ( mGestureActive ) {
+		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
+			(*iter)->gestureMoved( mTouchCount );
+		}
+	}
+	
 	mPrevTouchCount = mTouchCount;
 }
 
 void TouchInput::touchesEnded( const std::vector<ci::Vec2i>& positions )
 {
-	mTouchCount = positions.size()-1;
+	if ( mTouchCount == 1 ) {
+		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
+			(*iter)->tapUp( positions[0] );
+		}
+	}
+	
+	mTouchCount = math<int>::max( mTouchCount - positions.size(), 0 );
 }
 
 void TouchInput::touchesBegan( const std::vector<ci::Vec2i>& positions )
 {
-	if ( positions.size() == 1 ) {
+	mTouches = positions;
+	mTouchCount = positions.size();
+	
+	if ( mTouchCount == 1 ) {
 		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
 			(*iter)->tapDown( positions[0] );
 		}
@@ -122,3 +142,4 @@ void TouchInput::touchesMoved( const std::vector<ci::Vec2i>& positions )
 	mTouches = positions;
 	mTouchCount = positions.size();
 }
+

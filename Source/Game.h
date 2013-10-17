@@ -6,11 +6,11 @@
 #include "Node.h"
 #include "Node2d.h"
 #include "GameConstants.h"
-#include "Camera.h"
+#include "GameCamera.h"
 #include "LensFlare.h"
 #include "TouchInput.h"
 #include "Text.h"
-#include "CameraController.h"
+#include "Controls.h"
 #include "Unit.h"
 #include "UniformGrid.h"
 
@@ -27,13 +27,14 @@ public:
 	void				debugDraw();
 	
 	Node2d*				getRootGui() const { return mRootGui; }
-	Camera*				getCamera() const { return mCamera; }
+	GameCamera*				getCamera() const { return mCamera; }
 	ResourceManager*	getResourceManager() const { return mResourceManager; }
 	
 	void				remove( Node* node );
 	void				remove( Node2d* Node2d );
 	
-	const std::list<Unit*>& getUnits() const { return mUnits; }
+	const std::vector<Unit*>& getUnits() const { return mUnits; }
+	std::vector<Unit*>& getUnits() { return mUnits; }
 	
 	const UniformGrid&	getUniformGrid() const { return mUniformGrid; }
 	
@@ -43,8 +44,8 @@ private:
 	
 	static Game* sInstance;
 	
-	Camera* mCamera;
-	EditorCamera mCameraController;
+	GameCamera* mCamera;
+	Controls mControls;
 	
 	Node2d* mRootGui;
 	
@@ -53,7 +54,7 @@ private:
 		
 	void deselectAllControllers();
 	
-	std::list<Unit*> mUnits;
+	std::vector<Unit*> mUnits;
 	std::list<Unit*> mDeletionQueue;
 	
 	Node* lineTest;

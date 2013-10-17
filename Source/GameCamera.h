@@ -7,10 +7,10 @@
 
 namespace cinder { class CameraPersp; }
 
-class Camera : public Node {
+class GameCamera : public Node {
 public:
-	static Camera* get();
-	virtual ~Camera();
+	static GameCamera* get();
+	virtual ~GameCamera();
 	virtual void update( const float deltaTime = 0.0f );
 	
 	ci::CameraPersp& cinderCamera() { return *mCinderCamera; }
@@ -47,8 +47,8 @@ public:
 	const float getNearPlaneDistance() const { return mNear; }
 	
 private:
-	static Camera* sInstance;
-	Camera();
+	static GameCamera* sInstance;
+	GameCamera();
 	
 	float mContentScaleFactor;
 	float mFov;

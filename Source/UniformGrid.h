@@ -38,7 +38,7 @@ public:
 	
 	void build( const ci::Rectf& size, const ci::Vec2i& resolution );
 	void clear();
-	void sort( const std::list<Unit*>& units );
+	void sort( const std::vector<Unit*>& units );
 	
 	void findAll( const Unit::Predicate& predicate, std::list<Unit*>& output ) const;
 	Unit* findNearest( const Unit::Predicate& predicate ) const;

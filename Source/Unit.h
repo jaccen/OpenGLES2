@@ -6,6 +6,15 @@
 
 class Unit {
 public:
+	typedef enum {
+		UNDEFINED = -1,
+		HOLD,
+		MOVE,
+		ATTACK
+	} ControlMode;
+	
+	static bool sortByDistanceFromCamera( Unit* a, Unit* b ) { return a->getNode()->getDistanceFromCamera() < b->getNode()->getDistanceFromCamera(); }
+
 	class Predicate {
 	public:
 		Predicate() : mUnit( NULL ) {}
@@ -59,11 +68,19 @@ public:
 	void doTimedInterval( const float elapsedTime );
 	void update( const float deltaTime );
 	
+	void updateDistanceCalculations();
+	
+	void commandAttackTarget( Unit* target );
+	void commandMove( ci::Vec3f position );
 	
 	void onProjectileHit( Projectile* projectile );
 	const bool getIsDead() const { return health <= 0.0f; }
 	
 	Node* getNode() const { return mNode; }
+	const ci::Vec2i& getScreenPosition() const { return mScreenPosition; }
+	const ControlMode getControlMode() const { return mControlMode; }
+	Unit* getAttackTarget() const { return mAttackTarget; }
+	const ci::Vec3f& getMoveTarget() const { return mMoveTarget; }
 	
 	float	attackSpeed;
 	float	attackDamage;
@@ -75,8 +92,17 @@ public:
 	int		alertRange;
 	int		factionId;
 	
+	bool	mIsSelected;
+	
 private:
+	float mDistanceFromAttackTarget;
+	float mDistanceFromMoveTarget;
+	
+	float mCurrentSpeed;
+	ControlMode mControlMode;
 	Node* mNode;
+	ci::Vec3f mMoveTarget;
+	ci::Vec2i mScreenPosition;
 	
 	Unit* mAttackTarget;
 	

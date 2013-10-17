@@ -6,7 +6,7 @@
 #include "Node.h"
 #include "Node2d.h"
 #include "Text.h"
-#include "Camera.h"
+#include "GameCamera.h"
 #include "LensFlare.h"
 #include "ParticleSystem.h"
 #include "Timer.h"
@@ -60,6 +60,7 @@ public:
 	void					debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::ColorA color );
 	void					debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::ColorA color );
 	void					debugDrawStrokedRect( const ci::Rectf& rect, const ci::ColorA color, ci::Matrix44f = ci::Matrix44f::identity() );
+	void					debugScreenDrawStrokedRect( const ci::Rectf& rect, const ci::ColorA color );
 	
 	
 	float					getContentScaleFactor() const { return mContentScaleFactor; }
@@ -97,7 +98,7 @@ private:
 	GLuint					mContextFramebuffer;
     GLuint					mContextColorRenderbuffer;
     GLuint					mContextDepthRenderbuffer;
-	Camera*					mCamera;
+	GameCamera*					mCamera;
 	Node*					mSkyboxNode;
 	
 	Texture*				mBackgroundTexture;

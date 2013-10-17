@@ -1,6 +1,6 @@
 #include "LensFlare.h"
 #include "Game.h"
-#include "Camera.h"
+#include "GameCamera.h"
 
 using namespace ci;
 
@@ -65,7 +65,7 @@ float angle = 0.0f;
 
 void LensFlare::update( const float deltaTime )
 {
-	Camera* camera = Camera::get();
+	GameCamera* camera = GameCamera::get();
 	
 	const Vec2i start = camera->getWorldToScreen( mLightPosition );
 	

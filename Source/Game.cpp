@@ -36,6 +36,7 @@ void Game::setup( int width, int height )
 	mResourceManager->loadShader( "depth_map",		"shaders/depth_map.vert",			"shaders/depth_map.frag" );
 	mResourceManager->loadShader( "screen",			"shaders/screen_space.vert",		"shaders/screen_space.frag" );
 	mResourceManager->loadShader( "debug",			"shaders/debug.vert",				"shaders/debug.frag" );
+	mResourceManager->loadShader( "debug_screen",	"shaders/screen_space.vert",		"shaders/debug_screen.frag" );
 	mResourceManager->loadShader( "planet",			"shaders/planet.vert",				"shaders/planet.frag" );
 	mResourceManager->loadShader( "body",			"shaders/body.vert",				"shaders/body.frag" );
 	mResourceManager->loadShader( "unlit",			"shaders/unlit.vert",				"shaders/unlit.frag" );
@@ -48,14 +49,14 @@ void Game::setup( int width, int height )
 	mResourceManager->loadMesh( "models/skybox_unwrapped.obj" );
 	mResourceManager->loadMesh( "models/quad_plane.obj" );
 	
-	mCamera = Camera::get();
+	mCamera = GameCamera::get();
 	mCamera->setZoom( 1800.0f );
 	mCamera->setFov( 60.0f );
 	mCamera->setAngle( -30.0f );
 	mCamera->rotation.y = 90;
 	mCamera->setRange( 50.0f, 10000.0f );
 	
-	mCameraController = EditorCamera( mCamera );
+	mControls.setup( mCamera );
 	
 	Node* skyBox = new Node();
 	skyBox->setMesh( mResourceManager->getMesh( "models/skysphere.obj" ) );
@@ -113,7 +114,7 @@ void Game::setup( int width, int height )
 		}
 	}*/
 	
-	for( int i = 0; i < 30; i++ ) {
+	/*for( int i = 0; i < 10; i++ ) {
 		Node* asteroid = new Node();
 		asteroid->mLayer = Node::LayerObjects;
 		asteroid->setMesh( mResourceManager->getMesh( "models/sphere_low.obj" ) );
@@ -127,7 +128,7 @@ void Game::setup( int width, int height )
 		asteroid->position = randVec3fSphere(-1.0,1.0) * 1500.0f;
 		asteroid->setParent( pNode );
 		mRenderingEngine->addNode( asteroid );
-	}
+	}*/
 	
 	/*lineTest = new Node();
 	lineTest->mLayer = Node::LayerLighting;
@@ -150,34 +151,36 @@ void Game::setup( int width, int height )
 		ColorA( 1, 1, .5, 1 )
 	};
 	
-	for( int i = 0; i < 50; i++ ) {
-		Node* ship = new Node();
-		ship->mLayer = Node::LayerObjects;
-		ship->setMesh( mResourceManager->getMesh( "models/teapot_low.obj" ) );
-		ship->mMaterial.mShader = mResourceManager->getShader( "ship" );
-		ship->mMaterial.setTexture( "DiffuseTexture",	mResourceManager->getTexture( "textures/metal.png" ) );
-		ship->mMaterial.setTexture( "SelfIlluminationTexture",	mResourceManager->getTexture( "textures/ship_selfillum.png" ) );
-		ship->mMaterial.setColor( "SpecularMaterial",		ColorA( 1, 1, 1, 0.5f ));
-		ship->mMaterial.setColor( "SelfIlluminationColor",	ColorA( 1, 0, 0, 1.0 ) );
-		ship->mMaterial.setColor( "RimMaterial",			ColorA( 0.35, 0.1, 0, 0.5 ) );
-		ship->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.5, 0.5, 1.0f ));
-		ship->mMaterial.setProperty( "Shininess", 10.0f );
-		ship->scale = Vec3f::one() * 50.0f;
-		ship->position = Vec3f( randFloat(-1.0f,1.0f), randFloat(-1.0f,1.0f), randFloat(-1.0f,1.0f) ) * 700.0f;
-		//if ( i == 0 ) ship->position = Vec3f::zero();
-		mRenderingEngine->addNode( ship );
-		
-		Unit* unit = new Unit( ship );
-		unit->factionId = arc4random() % 3;
-		mUnits.push_back( unit );
-		
-		ship->mMaterial.setColor( "DiffuseMaterial", colors[ unit->factionId ] );
+	Vec3f startPositions[2] = { Vec3f( -1000, 0, 0 ), Vec3f( 1000, 0, 0 ) };
+	for( int f = 0; f < 2; f++ ) {
+		for( int i = 0; i < 15; i++ ) {
+			Node* ship = new Node();
+			ship->mLayer = Node::LayerObjects;
+			ship->setMesh( mResourceManager->getMesh( "models/teapot_low.obj" ) );
+			ship->mMaterial.mShader = mResourceManager->getShader( "ship" );
+			ship->mMaterial.setTexture( "DiffuseTexture",	mResourceManager->getTexture( "textures/metal.png" ) );
+			ship->mMaterial.setTexture( "SelfIlluminationTexture",	mResourceManager->getTexture( "textures/ship_selfillum.png" ) );
+			ship->mMaterial.setColor( "SpecularMaterial",		ColorA( 1, 1, 1, 0.5f ));
+			ship->mMaterial.setColor( "SelfIlluminationColor",	ColorA( 1, 0, 0, 1.0 ) );
+			ship->mMaterial.setColor( "RimMaterial",			ColorA( 0.35, 0.1, 0, 0.5 ) );
+			ship->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.5, 0.5, 1.0f ));
+			ship->mMaterial.setProperty( "Shininess", 10.0f );
+			ship->scale = Vec3f::one() * 50.0f;
+			ship->position = startPositions[f] + Vec3f( randFloat(-1.0f,1.0f), 0.0f, randFloat(-1.0f,1.0f) ) * 500;
+			mRenderingEngine->addNode( ship );
+			
+			Unit* unit = new Unit( ship );
+			unit->factionId = f;
+			mUnits.push_back( unit );
+			
+			ship->mMaterial.setColor( "DiffuseMaterial", colors[ unit->factionId ] );
+		}
 	}
 	
 	Light* light = new Light();
 	light->mColor = ColorA::white();
 	light->mAmbientColor = ColorA( 0.15f, 0.05f, 0.05f, 1.0f );
-	light->mNode.position = Vec3f( 2500, 500, 4000 );
+	light->mNode.position = Vec3f( 10000, 500, 20000 );
 	mRenderingEngine->addLight( light );
 	
 	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(0.48,.35,.22,0.5),	Vec2i( 200, 200 ) * 2.0f );
@@ -229,7 +232,7 @@ void Game::setup( int width, int height )
 
 void Game::update( const float deltaTime )
 {
-	mCameraController.update( deltaTime );
+	mControls.update( deltaTime );
 	mCamera->update( deltaTime );
 	
 	ProjectileManager::get()->update( deltaTime );
@@ -263,6 +266,7 @@ void Game::debugDraw()
 			mRenderingEngine->debugDrawCube( node->getBoundingBox().getCenter(), node->getBoundingBox().getSize(), ci::ColorA( 0, 1, 0, 1 ) );
 		}
 	}
+	
 	if ( false ) {
 		Matrix44f m = Matrix44f::identity();
 		m.rotate( Vec3f( 90.0f * kToRad, 0.0f, 0.0f ) );
@@ -282,6 +286,33 @@ void Game::debugDraw()
 						mRenderingEngine->debugDrawLine( unit->getNode()->position, other->getNode()->position, ColorA(1,1,0,1 ) );
 				}
 			}
+		}
+	}
+	
+	if ( true ) {
+		for( auto u : getUnits() ) {
+			if ( u->getControlMode() == Unit::ATTACK && u->getAttackTarget() != NULL ) {
+				mRenderingEngine->debugDrawLine( u->getNode()->position, u->getAttackTarget()->getNode()->position, ColorA( 1, 0, 0, 1 ) );
+			}
+			else if ( u->getControlMode() == Unit::MOVE ) {
+				mRenderingEngine->debugDrawLine( u->getNode()->position, u->getMoveTarget(), ColorA( 0, 1, 0, 1 ) );
+			}
+		}
+	}
+	
+	if ( true ) {
+		const int s = 5 * RenderingEngine::get()->getContentScaleFactor();
+		for( auto u : getUnits() ) {
+			if ( u->mIsSelected ) {
+				const ColorA color = u->factionId == 0 ? ci::ColorA( 0, 1, 0, 1 ) : ci::ColorA( 1, 0, 0, 1 );
+				mRenderingEngine->debugDrawCube( u->getNode()->getBoundingBox().getCenter(), u->getNode()->getBoundingBox().getSize(), color );
+				const Vec2i p = u->getScreenPosition();
+				//mRenderingEngine->debugScreenDrawStrokedRect( Rectf( p.x - s, p.y - s, p.x + s, p.y + s ), color );
+			}
+		}
+		
+		if ( mControls.getSelectionArea().getSize() != Vec2i::zero() ) {
+			mRenderingEngine->debugScreenDrawStrokedRect( mControls.getSelectionArea(), ColorA(0,1,0,1) );
 		}
 	}
 }
