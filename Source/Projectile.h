@@ -6,7 +6,7 @@ class Unit;
 
 class Projectile : public Node::IDelegate {
 public:
-	Projectile( Unit* owner );
+	Projectile( Unit* owner, Unit* target );
 	virtual ~Projectile();
 	ci::Vec3f mForward;
 	float mSpeed;
@@ -16,6 +16,7 @@ public:
 	
 	Node* getNode() const { return mBody; }
 	Unit* getOwner() const { return mOwner; }
+	Unit* getTarget() const { return mTarget; }
 	
 	bool getIsExpired() const { return mElapsedTime >= mLifetime; }
 	
@@ -25,4 +26,5 @@ private:
 	Node* mContainer;
 	Node* mBody;
 	Unit* mOwner;
+	Unit* mTarget;
 };

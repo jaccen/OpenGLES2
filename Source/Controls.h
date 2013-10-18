@@ -3,6 +3,7 @@
 #include "GameCamera.h"
 #include "TouchInput.h"
 #include "Unit.h"
+#include "Timer.h"
 
 #include "cinder/Vector.h"
 
@@ -24,10 +25,14 @@ public:
 	void updateSelectedUnits();
 	
 private:
+	void unhighlightUnit( const float deltaTime );
+	ly::Timer mUnhighlightTimer;
+	
 	std::list<Unit*> mSelectedUnits;
 	bool mCanSelectMultipleUnits;
 	GameCamera* mCamera;
 	ci::Area mSelectionArea;
+	Unit* mHighlightedUnit;
 	
 	ci::Vec2f mRotationStart;
 	float mZoomStart;

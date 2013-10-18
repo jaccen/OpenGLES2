@@ -33,7 +33,6 @@ public:
 	virtual~ Node();
 	
 	void					update( const float deltaTime = 0.0f );
-	const ci::Matrix44f&	getLocalTransform() const { return mLocalTransform; }
 	const ci::Matrix44f&	getTransform() const { return mTransform; }
 	
 	ci::Vec3f				position;

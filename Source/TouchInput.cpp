@@ -97,14 +97,14 @@ void TouchInput::update( const float deltaTime )
 		mCurrentGesture.isActive = true;
 		mCurrentGesture.touchCount = mTouchCount;
 		mCurrentGesture.isTap = false;
-		std::cout << "GESTURE START: " << mCurrentGesture.touchCount << std::endl;
+		//std::cout << "GESTURE START: " << mCurrentGesture.touchCount << std::endl;
 		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
 			(*iter)->gestureStarted( mCurrentGesture.touchCount );
 		}
 	}
 	
 	if ( !mCurrentGesture.isTap && mCurrentGesture.isActive ) {
-		std::cout << "GESTURE MOVED: " << mCurrentGesture.touchCount << std::endl;
+		//std::cout << "GESTURE MOVED: " << mCurrentGesture.touchCount << std::endl;
 		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
 			(*iter)->gestureMoved( mCurrentGesture.touchCount );
 		}
@@ -167,7 +167,7 @@ void TouchInput::onSingleTapTimerExpired( const float deltaTime )
 		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
 			(*iter)->tapDown( mSingleTapPosition );
 		}
-		std::cout << "TAP DOWN" << std::endl;
+		//std::cout << "TAP DOWN" << std::endl;
 	}
 	else {
 		resetCurrentGesture();
@@ -177,7 +177,7 @@ void TouchInput::onSingleTapTimerExpired( const float deltaTime )
 void TouchInput::resetCurrentGesture()
 {
 	if ( !mCurrentGesture.isTap && mCurrentGesture.isActive ) {
-		std::cout << "GESTURE END: " << mCurrentGesture.touchCount << std::endl;
+		//std::cout << "GESTURE END: " << mCurrentGesture.touchCount << std::endl;
 		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
 			(*iter)->gestureEnded( mCurrentGesture.touchCount );
 		}

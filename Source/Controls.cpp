@@ -23,6 +23,8 @@ void Controls::setup( GameCamera* camera )
 	mMoveSpeed = 0.003f;
 	
 	TouchInput::get()->addDelegate( this );
+	
+	mUnhighlightTimer = ly::Timer( boost::bind( &Controls::unhighlightUnit, this, boost::arg<1>() ), 0.5f, 1 );
 }
 
 void Controls::update( const float deltaTime )
@@ -67,6 +69,8 @@ void Controls::update( const float deltaTime )
 			}
 		}
 	}
+	
+	mUnhighlightTimer.update( deltaTime );
 }
 
 void Controls::updateSelectedUnits()
@@ -83,6 +87,7 @@ void Controls::tapDown( ci::Vec2i position )
 {
 	Unit* singleSelectedUnit = NULL;
 	
+	// Test ray intersection against all units to find a single unit
 	ci::Ray ray = mCamera->rayIntoScene( position );
 	std::vector<Unit*>& units = Game::get()->getUnits();
 	std::sort( units.begin(), units.end(), Unit::sortByDistanceFromCamera );
@@ -93,12 +98,24 @@ void Controls::tapDown( ci::Vec2i position )
 		}
 	}
 	
+	// If a single unit was selected
 	if ( singleSelectedUnit != NULL ) {
+		
+		std::cout << "Unit selected: " << (singleSelectedUnit->factionId == 0 ? "ALLY" : "ENEMY" );
+		
+		// Use previously selected units to attack if it's an enemy
 		if ( singleSelectedUnit->factionId != 0 ) {
-			for( auto unit : mSelectedUnits ) {
-				unit->commandAttackTarget( singleSelectedUnit );
+			if ( !mSelectedUnits.empty() ) {
+				for( auto unit : mSelectedUnits ) {
+					if ( unit->factionId == 0 ) {
+						unit->commandAttackTarget( singleSelectedUnit );
+					}
+				}
+				mHighlightedUnit = singleSelectedUnit;
+				mUnhighlightTimer.start();
 			}
 		}
+		
 		unselectAllUnits();
 		singleSelectedUnit->mIsSelected = true;
 		updateSelectedUnits();
@@ -113,6 +130,9 @@ void Controls::tapDown( ci::Vec2i position )
 				}
 			}
 		}
+		else {
+			unselectAllUnits();
+		}
 	}
 	mCanSelectMultipleUnits = true;
 }
@@ -124,6 +144,13 @@ void Controls::unselectAllUnits()
 		unit->mIsSelected = false;
 	}
 	updateSelectedUnits();
+}
+
+void Controls::unhighlightUnit( const float deltaTime )
+{
+	if ( mHighlightedUnit != NULL ) {
+		mHighlightedUnit->mIsSelected = false;
+	}
 }
 
 void Controls::tapUp( ci::Vec2i position )

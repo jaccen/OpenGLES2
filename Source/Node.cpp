@@ -59,21 +59,20 @@ void Node::setParent( Node* parent )
 
 void Node::update( const float deltaTime )
 {
-	mLocalTransform = Matrix44f::identity();
-	mLocalTransform.translate( position );
-	if ( !mFaceCamera ) {
-		mLocalTransform.rotate( rotation * kToRad );
-	}
-	mLocalTransform.scale( scale );
-	
-	if ( mParent != NULL ) {
-		mTransform = mParent->getTransform() * mLocalTransform;
+	if ( mParent == NULL ) {
+		mTransform = Matrix44f::identity();
 	}
 	else {
-		mTransform = mLocalTransform;
-		if ( !mFaceCamera && !mFaceCameraAsLine ) {
-		}
+		mTransform = mParent->getTransform();
+		mTransform.scale( Vec3f::one() / mParent->scale );
 	}
+		
+	mTransform.translate( position );
+	if ( !mFaceCamera ) {
+		mTransform.rotate( rotation * kToRad );
+	}
+	mTransform.scale( scale );
+	
 	if ( mMesh != NULL ) {
 		mBoundingBox = mObjectBounds.transformed( mTransform );
 	}

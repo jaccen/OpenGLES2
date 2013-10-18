@@ -114,7 +114,7 @@ void Game::setup( int width, int height )
 		}
 	}*/
 	
-	/*for( int i = 0; i < 10; i++ ) {
+	for( int i = 0; i < 10; i++ ) {
 		Node* asteroid = new Node();
 		asteroid->mLayer = Node::LayerObjects;
 		asteroid->setMesh( mResourceManager->getMesh( "models/sphere_low.obj" ) );
@@ -125,10 +125,10 @@ void Game::setup( int width, int height )
 		asteroid->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.5, 0.5, 1.0f ));
 		asteroid->mMaterial.setProperty( "Shininess", 10.0f );
 		asteroid->scale = Vec3f::one() * ( 40.0f + randFloat() * 100.0f );
-		asteroid->position = randVec3fSphere(-1.0,1.0) * 1500.0f;
+		asteroid->position = Vec3f ( 1000, 0, 1000 );
 		asteroid->setParent( pNode );
 		mRenderingEngine->addNode( asteroid );
-	}*/
+	}
 	
 	/*lineTest = new Node();
 	lineTest->mLayer = Node::LayerLighting;
@@ -156,7 +156,7 @@ void Game::setup( int width, int height )
 		for( int i = 0; i < 15; i++ ) {
 			Node* ship = new Node();
 			ship->mLayer = Node::LayerObjects;
-			ship->setMesh( mResourceManager->getMesh( "models/teapot_low.obj" ) );
+			ship->setMesh( mResourceManager->getMesh( "models/geosphere_low.obj" ) );
 			ship->mMaterial.mShader = mResourceManager->getShader( "ship" );
 			ship->mMaterial.setTexture( "DiffuseTexture",	mResourceManager->getTexture( "textures/metal.png" ) );
 			ship->mMaterial.setTexture( "SelfIlluminationTexture",	mResourceManager->getTexture( "textures/ship_selfillum.png" ) );
@@ -301,12 +301,12 @@ void Game::debugDraw()
 	}
 	
 	if ( true ) {
-		const int s = 5 * RenderingEngine::get()->getContentScaleFactor();
+		//const int s = 5 * RenderingEngine::get()->getContentScaleFactor();
 		for( auto u : getUnits() ) {
 			if ( u->mIsSelected ) {
-				const ColorA color = u->factionId == 0 ? ci::ColorA( 0, 1, 0, 1 ) : ci::ColorA( 1, 0, 0, 1 );
+				const ColorA color = ColorA( 1, 1, 0, 1 );//u->factionId == 0 ? ci::ColorA( 0, 1, 0, 1 ) : ci::ColorA( 1, 0, 0, 1 );
 				mRenderingEngine->debugDrawCube( u->getNode()->getBoundingBox().getCenter(), u->getNode()->getBoundingBox().getSize(), color );
-				const Vec2i p = u->getScreenPosition();
+				//const Vec2i p = u->getScreenPosition();
 				//mRenderingEngine->debugScreenDrawStrokedRect( Rectf( p.x - s, p.y - s, p.x + s, p.y + s ), color );
 			}
 		}
@@ -315,6 +315,11 @@ void Game::debugDraw()
 			mRenderingEngine->debugScreenDrawStrokedRect( mControls.getSelectionArea(), ColorA(0,1,0,1) );
 		}
 	}
+	
+	const float length = 100.0f;
+	mRenderingEngine->debugDrawLine( Vec3f::zero(), Vec3f::xAxis() * length, ColorA( 1, 0, 0, 1 ) );
+	mRenderingEngine->debugDrawLine( Vec3f::zero(), Vec3f::yAxis() * length, ColorA( 0, 1, 0, 1 ) );
+	mRenderingEngine->debugDrawLine( Vec3f::zero(), Vec3f::zAxis() * length, ColorA( 0, 0, 1, 1 ) );
 }
 
 

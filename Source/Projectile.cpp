@@ -8,7 +8,7 @@
 
 using namespace ci;
 
-Projectile::Projectile( Unit* owner ) : mSpeed( 1.0f ), mLifetime( 4.0f ), mElapsedTime(0.0f ), mOwner( owner )
+Projectile::Projectile( Unit* owner, Unit* target ) : mSpeed( 1.0f ), mLifetime( 4.0f ), mElapsedTime(0.0f ), mOwner( owner ), mTarget( target )
 {
 	//mContainer = new Node();
 	//mContainer->mLayer = Node::LayerLighting;

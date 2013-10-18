@@ -28,7 +28,7 @@ RenderingEngine::RenderingEngine() : mContentScaleFactor(1.0f), mSkyboxNode(NULL
     glGenRenderbuffers( 1, &mContextColorRenderbuffer );
     glBindRenderbuffer( GL_RENDERBUFFER, mContextColorRenderbuffer );
 	
-	mSortTimer = ly::Timer( boost::bind( &RenderingEngine::sortSprites, this, boost::arg<1>() ), 1.0f / 15.0f, 0 );
+	mSortTimer = ly::Timer( boost::bind( &RenderingEngine::sortSprites, this, boost::arg<1>() ), 1.0f / 30.0f, 0 );
 	mSortTimer.start();
 }
 

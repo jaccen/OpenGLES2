@@ -13,10 +13,10 @@ Unit::Unit( Node* node ) :
 	attackSpeed(.1f),
 	attackInterval(2.0f),
 	attackDamage(2.0f),
-	speed(50.0f),
-	health(10.0f),
+	speed(100.0f),
+	health(50.0f),
 	maxHealth(10.0f),
-	attackRange(200.0f),
+	attackRange(750.0f),
 	alertRange(1000.0f),
 	factionId(-1),
 	mAttackTarget( NULL ),
@@ -55,33 +55,33 @@ void Unit::update( const float deltaTime )
 		if ( mAttackTarget != NULL && mAttackTarget->getIsDead() ) {
 			getNode()->setForward( mAttackTarget->getNode()->position - getNode()->position );
 		}
+		mCurrentSpeed = 0.0;
 	}
 	else if ( mControlMode == MOVE ) {
+		mAttackTarget= NULL;
 		getNode()->setForward( mMoveTarget - getNode()->position );
 		mTimer2.stop();
 		if ( mDistanceFromMoveTarget <= 5.0f ) {
-			mCurrentSpeed += ( 0.0f - mCurrentSpeed ) / 10.0f;
+			mCurrentSpeed = 0.0;
 		}
 		else {
-			mCurrentSpeed += ( speed - mCurrentSpeed ) / 20.0f;
+			mCurrentSpeed = speed;
 		}
 	}
 	else if ( mControlMode == ATTACK ) {
-		mAttackTarget = Game::get()->getUniformGrid().findNearest( Unit::FindAttackTarget( this ) );
-		if ( mAttackTarget != NULL ) {
+		if ( mAttackTarget != NULL && !mAttackTarget->getIsDead() ) {
 			getNode()->setForward( mAttackTarget->getNode()->position - getNode()->position );
-			if ( mAttackTarget != NULL && mAttackTarget->getIsDead() ) {
-				if ( mDistanceFromAttackTarget < attackRange ) {
-					mTimer2.start( false, true );
-					if ( mDistanceFromAttackTarget <= 10.0f ) {
-						mCurrentSpeed += ( 0.0f - mCurrentSpeed ) / 10.0f;
-					}
-				}
-				else {
-					mTimer2.stop();
-					mCurrentSpeed += ( speed - mCurrentSpeed ) / 20.0f;
-				}
+			if ( mDistanceFromAttackTarget < attackRange ) {
+				mTimer2.start( false, true );
+				mCurrentSpeed = 0.0;
 			}
+			else {
+				mTimer2.stop();
+				mCurrentSpeed = speed;
+			}
+		}
+		else {
+			mControlMode = HOLD;
 		}
 	}
 	
@@ -117,7 +117,7 @@ void Unit::doTimedAttack( const float elapsedTime )
 	}
 	
 	const Vec3f origin = getNode()->getBoundingBox().getCenter();
-	ProjectileManager::get()->createProjectile( this, origin, mAttackTarget->getNode()->getBoundingBox().getCenter() - origin, 600.0f );
+	ProjectileManager::get()->createProjectile( this, mAttackTarget, 600.0f );
 }
 
 void Unit::doTimedInterval( const float elapsedTime )

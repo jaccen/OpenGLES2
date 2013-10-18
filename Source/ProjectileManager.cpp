@@ -22,20 +22,23 @@ ProjectileManager* ProjectileManager::get()
 	return sInstance;
 }
 
-ProjectileManager::ProjectileManager() {}
+ProjectileManager::ProjectileManager() : mHitCounter(0)
+{
+	mCollisionCheckTimer = ly::Timer( boost::bind( &ProjectileManager::checkCollisions, this, boost::arg<1>() ), 1.0f / 15.0f, 0 );
+	mCollisionCheckTimer.start();
+}
 
 ProjectileManager::~ProjectileManager() {}
 
-void ProjectileManager::createProjectile( Unit* owner, const ci::Vec3f origin, const ci::Vec3f direction, const float speed )
+void ProjectileManager::createProjectile( Unit* owner, Unit* target, const float speed )
 {
-	Projectile* proj = new Projectile( owner );
+	Projectile* proj = new Projectile( owner, target );
+	const ci::Vec3f origin = owner->getNode()->position;
+	const ci::Vec3f direction = target->getNode()->position - origin;
 	proj->getNode()->position = origin + direction.normalized();
 	proj->setDirection( direction.normalized() );
 	proj->mSpeed = speed;
 	mProjectiles.push_back( proj );
-	
-	mCollisionCheckTimer = ly::Timer( boost::bind( &ProjectileManager::checkCollisions, this, boost::arg<1>() ), 1.0f / 10.0f, 0 );
-	mCollisionCheckTimer.start();
 }
 
 void ProjectileManager::createProjectileImpage( Node* parent, const ci::Vec3f localPosition )
@@ -44,10 +47,10 @@ void ProjectileManager::createProjectileImpage( Node* parent, const ci::Vec3f lo
 	ps->createParticles( 1, ResourceManager::get()->getTexture( "textures/explosion2.png" ) );
 	ps->setVelocity( Vec3f::zero(), Vec3f::zero() );
 	ps->setRotationalVelocity( 0.0f, 50.0f );
-	ps->setStartPositionRange( Vec3f::zero() );
+	ps->setStartPositionRange( Vec3f::one() * 0.1f );
 	ps->setScaleVelocity( 10.0f, 10 );
-	//ps->mNode->setParent( parent );
-	ps->mNode->position = localPosition / 2.0f;
+	ps->mNode->setParent( parent );
+	ps->mNode->position = localPosition;
 	ps->update( 0.0f );
 	ps->emitOneShot();
 	mImpacts.push_back( ps );
@@ -95,6 +98,36 @@ void ProjectileManager::update( const float deltaTime )
 
 void ProjectileManager::checkCollisions( const float deltaTime )
 {
+	for( auto p : mProjectiles ) {
+		float testDistance = p->mSpeed * 0.3f;
+		Node* node = p->getTarget()->getNode();
+		ci::Ray ray( p->getNode()->getGlobalPosition(), p->mForward.normalized() );
+		if ( node->getBoundingBox().intersects( ray ) ) {
+			float distance = 0.0f;
+			int len = node->getMesh()->triMesh.getNumTriangles();
+			for( size_t i = 0; i < len; i++ ) {
+				Vec3f v0, v1, v2;
+				node->getMesh()->triMesh.getTriangleVertices( i, &v0, &v1, &v2 );
+				v0 = node->getTransform().transformPointAffine( v0 );
+				v1 = node->getTransform().transformPointAffine( v1 );
+				v2 = node->getTransform().transformPointAffine( v2 );
+				if( ray.calcTriangleIntersection( v0, v1, v2, &distance ) && distance < testDistance ) {
+					if ( mHitCounter++ >= 2 ) {
+						mHitCounter = 0;
+						const ci::Vec3f point = ray.getOrigin() + ray.getDirection() * testDistance - node->getGlobalPosition();
+						createProjectileImpage( node, point );
+						//createProjectileImpage( node, p->getNode()->position );
+					}
+					mDeleteionQueue.push_back( p );
+					//p->getTarget()->onProjectileHit( p );
+				}
+			}
+		}
+	}
+}
+
+void ProjectileManager::checkCollisions2( const float deltaTime )
+{
 	const std::vector<Unit*>& units = Game::get()->getUnits();
 	
 	for( auto p : mProjectiles ) {
@@ -102,24 +135,25 @@ void ProjectileManager::checkCollisions( const float deltaTime )
 			Node* node = unit->getNode();
 			if ( node->mLayer == Node::LayerObjects && unit != p->getOwner() ) {
 				if ( node->getBoundingBox().getCenter().distance( p->getNode()->position ) < node->getBoundingBox().getSize().x * 0.5f ) {
+					/*ci::Ray ray( p->getNode()->position, p->mForward );
+					float distance = 0.0f;
+					int len = node->getMesh()->triMesh.getNumTriangles();
+					for( size_t i = 0; i < len; i++ ) {
+						Vec3f v0, v1, v2;
+						node->getMesh()->triMesh.getTriangleVertices(i, &v0, &v1, &v2);
+						v0 = node->getTransform().transformPointAffine(v0);
+						v1 = node->getTransform().transformPointAffine(v1);
+						v2 = node->getTransform().transformPointAffine(v2);
+						if( ray.calcTriangleIntersection( v0, v1, v2, &distance ) && distance < node->getBoundingBox().getSize().x * 0.5f ) {
+							const ci::Vec3f point = ray.getOrigin() + ray.getDirection() * distance / 2.0f;
+							createProjectileImpage( node, point );
+							mDeleteionQueue.push_back( p );
+							//unit->onProjectileHit( p );
+						}
+					}*/
 					unit->onProjectileHit( p );
-					if ( arc4random() % 10 == 5 ) {
-						/*ci::Ray ray( p->getNode()->position, p->mForward );
-						 float distance = 0.0f;
-						 int len = node->mMesh->triMesh.getNumTriangles();
-						 for( size_t i = 0; i < len; i++ ) {
-						 Vec3f v0, v1, v2;
-						 node->mMesh->triMesh.getTriangleVertices(i, &v0, &v1, &v2);
-						 v0 = node->getTransform().transformPointAffine(v0);
-						 v1 = node->getTransform().transformPointAffine(v1);
-						 v2 = node->getTransform().transformPointAffine(v2);
-						 if( ray.calcTriangleIntersection( v0, v1, v2, &distance ) ) {
-						 const ci::Vec3f point = ray.getOrigin() + ray.getDirection() * distance;
-						 createProjectileImpage( node, point );
-						 }
-						 }*/
-						createProjectileImpage( node, p->getNode()->position );
-					}
+					//createProjectileImpage( node, node->position + (p->getNode()->position - node->position).normalized() * node->getBoundingBox().getSize().x * 0.5f );
+					createProjectileImpage( node, p->getNode()->position );
 					mDeleteionQueue.push_back( p );
 				}
 			}
