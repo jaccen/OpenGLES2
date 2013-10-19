@@ -13,6 +13,17 @@ public:
 		ATTACK
 	} ControlMode;
 	
+	class Drawing : public CustomDrawing {
+	public:
+		Drawing( Unit* unit ) : mUnit( unit ), CustomDrawing( unit->getNode() ) {}
+		virtual void update( const float detlaTime );
+		virtual void draw();
+	private:
+		ci::Vec3f mFrom;
+		ci::Vec3f mTo;
+		Unit* mUnit;
+	};
+	
 	static bool sortByDistanceFromCamera( Unit* a, Unit* b ) { return a->getNode()->getDistanceFromCamera() < b->getNode()->getDistanceFromCamera(); }
 
 	class Predicate {

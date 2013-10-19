@@ -28,7 +28,7 @@ RenderingEngine::RenderingEngine() : mContentScaleFactor(1.0f), mSkyboxNode(NULL
     glGenRenderbuffers( 1, &mContextColorRenderbuffer );
     glBindRenderbuffer( GL_RENDERBUFFER, mContextColorRenderbuffer );
 	
-	mSortTimer = ly::Timer( boost::bind( &RenderingEngine::sortSprites, this, boost::arg<1>() ), 1.0f / 30.0f, 0 );
+	mSortTimer = ly::Timer( boost::bind( &RenderingEngine::sortSprites, this, boost::arg<1>() ), 1.0f / 60.0, 0 );
 	mSortTimer.start();
 }
 
@@ -269,20 +269,30 @@ void RenderingEngine::update( const float deltaTime )
 		mSkyboxNode->update();
 	}
 	
-	for( auto iter = mObjectNodes.begin(); iter != mObjectNodes.end(); iter++ ) {
-		(*iter)->update( deltaTime );
+	for( auto node : mObjectNodes ) {
+		node->update( deltaTime );
+		if ( node->mCustomDrawing != NULL ) {
+			node->mCustomDrawing->update( deltaTime );
+		}
 	}
 	
-	for( auto iter = mSpriteNodes.begin(); iter != mSpriteNodes.end(); iter++ ) {
-		(*iter)->update( deltaTime );
+	for( auto node : mSpriteNodes ) {
+		node->update( deltaTime );
+		if ( node->mCustomDrawing != NULL ) {
+			node->mCustomDrawing->update( deltaTime );
+		}
 	}
 	
-	for( auto iter = mScreenNodes.begin(); iter != mScreenNodes.end(); iter++ ) {
-		(*iter)->update( deltaTime );
+	for( auto node : mScreenNodes ) {
+		node->update( deltaTime );
 	}
 	
-	for( auto iter = mLights.begin(); iter != mLights.end(); iter++ ) {
-		(*iter)->update( deltaTime );
+	for( auto light : mLights ) {
+		light->update( deltaTime );
+	}
+	
+	for( auto cd : mCustomDrawings ) {
+		cd->update( deltaTime );
 	}
 	
 	mSortTimer.update( deltaTime );
@@ -420,6 +430,10 @@ void RenderingEngine::draw()
 	
 	//glDisable( GL_DEPTH_TEST );
 	glDisable( GL_CULL_FACE );
+	
+	for( auto cd : mCustomDrawings ) {
+		cd->draw();
+	}
     
 	for( auto sprNode : mSpriteNodes ) {
 		drawNode( sprNode );
@@ -469,6 +483,10 @@ void RenderingEngine::drawNode( const Node* node )
 	
 	glBindTexture( GL_TEXTURE_2D, 0 );
 	glUseProgram( 0 );
+	
+	if ( node->mCustomDrawing != NULL ) {
+		node->mCustomDrawing->draw();
+	}
 }
 
 void RenderingEngine::drawMesh( const Mesh* mesh, const ShaderProgram* shader, const bool wireframe )
@@ -621,7 +639,7 @@ void RenderingEngine::debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::Color
 void RenderingEngine::debugDrawStrokedRect( const ci::Rectf &rect, const ci::ColorA color, ci::Matrix44f transform )
 {
 	glEnable( GL_BLEND );
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	
 	GLfloat verts[8];
 	verts[0] = rect.getX1();	verts[1] = rect.getY1();
@@ -646,7 +664,7 @@ void RenderingEngine::debugDrawStrokedRect( const ci::Rectf &rect, const ci::Col
 void RenderingEngine::debugScreenDrawStrokedRect( const ci::Rectf &rect, const ci::ColorA color )
 {
 	glEnable( GL_BLEND );
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	
 	GLfloat verts[8];
 	verts[0] = rect.getX1();	verts[1] = rect.getY1();
@@ -670,6 +688,9 @@ void RenderingEngine::debugScreenDrawStrokedRect( const ci::Rectf &rect, const c
 
 void RenderingEngine::debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::ColorA color )
 {
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	
 	const float vertices[] = {
 		from.x, from.y, from.z, to.x, to.y, to.z
 	};

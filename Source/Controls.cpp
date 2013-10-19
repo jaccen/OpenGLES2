@@ -34,10 +34,9 @@ void Controls::update( const float deltaTime )
 	// Two-finger controls for rotate, zoom
 	if ( touch->getTouchCount() == 2  ) {
 		Vec2f diff = touch->getTouchesDifference();
-		Vec2f target = Vec2f(mRotationStart.x - diff.y * mOrbitSpeed.y,
-							 mRotationStart.y - diff.x * mOrbitSpeed.x );
-		mCamera->rotation.y += (target.y - mCamera->rotation.y ) / 10.0f;
-		mCamera->rotation.x += (target.x - mCamera->rotation.x ) / 10.0f;
+		Vec2f target = Vec2f( mRotationStart.x - diff.y * mOrbitSpeed.y, mRotationStart.y - diff.x * mOrbitSpeed.x );
+		mCamera->rotation.y = target.y;
+		mCamera->rotation.x = math<float>::clamp( target.x, -80, 80 );
 		
 		float zoomTarget = mZoomStart - touch->getTouchesDistance() * mZoomSpeed;
 		if ( zoomTarget <= 5000.0f && zoomTarget >= 80.0f ) {
@@ -101,7 +100,7 @@ void Controls::tapDown( ci::Vec2i position )
 	// If a single unit was selected
 	if ( singleSelectedUnit != NULL ) {
 		
-		std::cout << "Unit selected: " << (singleSelectedUnit->factionId == 0 ? "ALLY" : "ENEMY" );
+		std::cout << "Unit selected: " << (singleSelectedUnit->factionId == 0 ? "ALLY" : "ENEMY" ) << std::endl;
 		
 		// Use previously selected units to attack if it's an enemy
 		if ( singleSelectedUnit->factionId != 0 ) {
@@ -119,6 +118,7 @@ void Controls::tapDown( ci::Vec2i position )
 		unselectAllUnits();
 		singleSelectedUnit->mIsSelected = true;
 		updateSelectedUnits();
+		mCanSelectMultipleUnits = false;
 	}
 	else {
 		if ( !mSelectedUnits.empty() ) {
@@ -133,8 +133,8 @@ void Controls::tapDown( ci::Vec2i position )
 		else {
 			unselectAllUnits();
 		}
+		mCanSelectMultipleUnits = true;
 	}
-	mCanSelectMultipleUnits = true;
 }
 
 void Controls::unselectAllUnits()
@@ -163,6 +163,7 @@ void Controls::gestureStarted( int fingerCount )
 	Vec2i p = TouchInput::get()->getTouchesCenter();
 	if ( mCanSelectMultipleUnits && fingerCount == 1 ) {
 		mSelectionArea.set( p.x, p.y, p.x, p.y );
+		mCanSelectMultipleUnits = true;
 	}
 }
 

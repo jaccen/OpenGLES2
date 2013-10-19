@@ -8,6 +8,43 @@
 
 using namespace ci;
 
+void Unit::Drawing::update(const float detlaTime)
+{
+	if ( mUnit->mIsSelected ) {
+		mFrom = mUnit->getNode()->position;
+		mTo = mFrom;
+		switch( mUnit->getControlMode() ) {
+			case ATTACK:
+				if ( mUnit->getAttackTarget() != NULL ) {
+					mTo = mUnit->getAttackTarget()->getNode()->position;
+				}
+				break;
+			case MOVE:
+				mTo = mUnit->getMoveTarget();
+				break;
+			default:break;
+		}
+	}
+}
+
+void Unit::Drawing::draw()
+{
+	if ( mUnit->mIsSelected ) {
+		ColorA color;
+		switch( mUnit->getControlMode() ) {
+			case ATTACK:
+				color = ColorA( 1, 0, 0, .4 );
+				break;
+			case MOVE:
+				color = ColorA( 0, 1, 0, .4 );
+				break;
+			default:break;
+		}
+		RenderingEngine* renderingEngine = RenderingEngine::get();
+		renderingEngine->debugDrawLine( mFrom, mTo, color );
+	}
+}
+
 Unit::Unit( Node* node ) :
 	mNode( node ),
 	attackSpeed(.1f),
@@ -24,6 +61,8 @@ Unit::Unit( Node* node ) :
 	mControlMode( HOLD ),
 	mCurrentSpeed( 0.0f )
 {
+	mNode->mCustomDrawing = new Unit::Drawing( this );
+	
 	mTimer = ly::Timer( boost::bind( &Unit::doTimedAttack, this, boost::arg<1>() ), attackSpeed, 0 );
 	mTimer2 = ly::Timer( boost::bind( &Unit::doTimedInterval, this, boost::arg<1>() ), attackInterval, 0 );
 	//mTimer2.start();

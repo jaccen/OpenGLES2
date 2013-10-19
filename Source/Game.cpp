@@ -289,7 +289,7 @@ void Game::debugDraw()
 		}
 	}
 	
-	if ( true ) {
+	if ( false ) {
 		for( auto u : getUnits() ) {
 			if ( u->getControlMode() == Unit::ATTACK && u->getAttackTarget() != NULL ) {
 				mRenderingEngine->debugDrawLine( u->getNode()->position, u->getAttackTarget()->getNode()->position, ColorA( 1, 0, 0, 1 ) );
@@ -300,11 +300,11 @@ void Game::debugDraw()
 		}
 	}
 	
-	if ( true ) {
+	if ( false ) {
 		//const int s = 5 * RenderingEngine::get()->getContentScaleFactor();
 		for( auto u : getUnits() ) {
 			if ( u->mIsSelected ) {
-				const ColorA color = ColorA( 1, 1, 0, 1 );//u->factionId == 0 ? ci::ColorA( 0, 1, 0, 1 ) : ci::ColorA( 1, 0, 0, 1 );
+				const ColorA color = u->factionId == 0 ? ci::ColorA( 0, 1, 0, 1 ) : ci::ColorA( 1, 0, 0, 1 );
 				mRenderingEngine->debugDrawCube( u->getNode()->getBoundingBox().getCenter(), u->getNode()->getBoundingBox().getSize(), color );
 				//const Vec2i p = u->getScreenPosition();
 				//mRenderingEngine->debugScreenDrawStrokedRect( Rectf( p.x - s, p.y - s, p.x + s, p.y + s ), color );

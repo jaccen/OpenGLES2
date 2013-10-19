@@ -220,6 +220,16 @@
 		5A21222816EFB469001BF08B /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				5AE85B0116F69D0400F47648 /* Game.h */,
+				5AE85B0016F69D0400F47648 /* Game.cpp */,
+				5A3E621C180B4DB900214718 /* Projectile.cpp */,
+				5A3E621D180B4DB900214718 /* Projectile.h */,
+				5A289EB5180C5FC600573998 /* Unit.cpp */,
+				5A289EB6180C5FC600573998 /* Unit.h */,
+				5A289EB8180C603D00573998 /* ProjectileManager.cpp */,
+				5A289EB9180C603D00573998 /* ProjectileManager.h */,
+				5A289EBC180CAFA600573998 /* Planet.cpp */,
+				5A289EBD180CAFA600573998 /* Planet.h */,
 				5AE85B0816F69D0400F47648 /* main.m */,
 				5AE85AFE16F69D0400F47648 /* AppDelegate.h */,
 				5AE85AFF16F69D0400F47648 /* AppDelegate.mm */,
@@ -227,8 +237,6 @@
 				5A5DBEFD17A5CAB300DB031C /* Controls.h */,
 				5AE85B2616F69D4100F47648 /* GameCamera.cpp */,
 				5AE85B2716F69D4100F47648 /* GameCamera.h */,
-				5AE85B0116F69D0400F47648 /* Game.h */,
-				5AE85B0016F69D0400F47648 /* Game.cpp */,
 				5AE85B0216F69D0400F47648 /* GameConstants.h */,
 				5AE85B0316F69D0400F47648 /* GLView.h */,
 				5AE85B0416F69D0400F47648 /* GLView.mm */,
@@ -259,17 +267,9 @@
 				5A27CACB171237D10028DF13 /* Resources.h */,
 				5A3E6219180B243900214718 /* ParticleSystem.cpp */,
 				5A3E621A180B243900214718 /* ParticleSystem.h */,
-				5A3E621C180B4DB900214718 /* Projectile.cpp */,
-				5A3E621D180B4DB900214718 /* Projectile.h */,
 				5A289EBF180DBDC800573998 /* UniformGrid.cpp */,
 				5A289EC0180DBDC800573998 /* UniformGrid.h */,
-				5A289EB5180C5FC600573998 /* Unit.cpp */,
-				5A289EB6180C5FC600573998 /* Unit.h */,
-				5A289EB8180C603D00573998 /* ProjectileManager.cpp */,
-				5A289EB9180C603D00573998 /* ProjectileManager.h */,
 				5A289EBB180C658B00573998 /* Timer.h */,
-				5A289EBC180CAFA600573998 /* Planet.cpp */,
-				5A289EBD180CAFA600573998 /* Planet.h */,
 			);
 			path = Source;
 			sourceTree = "<group>";

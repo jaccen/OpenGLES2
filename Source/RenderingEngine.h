@@ -74,6 +74,8 @@ public:
 	
 	const std::list<Node*>& getObjectNodes() const { return mObjectNodes; }
 	
+	std::list<CustomDrawing*> mCustomDrawings;
+	
 private:
     RenderingEngine();
 	static RenderingEngine*			sInstance;

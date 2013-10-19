@@ -12,6 +12,17 @@
 #include <vector>
 #include <list>
 
+class Node;
+
+class CustomDrawing {
+public:
+	CustomDrawing( Node* node ) : mNode( node ) {}
+	virtual void draw() = 0;
+	virtual void update( const float deltaTime ) = 0;
+private:
+	Node* mNode;
+};
+
 class Node {
 public:
 	typedef enum {
@@ -71,6 +82,8 @@ public:
 	
 	void					setMesh( Mesh* mesh );
 	Mesh*					getMesh() const { return mMesh; }
+	
+	CustomDrawing*			mCustomDrawing;
 	
 private:
 	

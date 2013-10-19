@@ -12,7 +12,8 @@ Node::Node() :
 	mParent( NULL ),
 	mFaceCamera( false ),
 	mFaceCameraAsLine( false ),
-	mFaceCameraRotation( 0.0f )
+	mFaceCameraRotation( 0.0f ),
+	mCustomDrawing( NULL )
 {
 	mSpriteTransform	= Matrix44f::identity();
 	mTransform			= Matrix44f::identity();
