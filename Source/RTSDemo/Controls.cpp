@@ -1,6 +1,5 @@
 #include "Controls.h"
 #include "Game.h"
-#include "RTSDemo.h"
 
 using namespace ci;
 

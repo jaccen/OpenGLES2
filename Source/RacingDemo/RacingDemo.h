@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Game.h"
+#include "Controls.h"
 
 class RacingDemo : public Game::Controller {
 public:
@@ -25,4 +26,6 @@ private:
 	RenderingEngine*		mRenderingEngine;
 	ResourceManager*		mResourceManager;
 	Scene*					mScene;
+	
+	Controls				mControls;
 };

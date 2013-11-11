@@ -8,11 +8,11 @@
 
 using namespace ci;
 
-/*extern void onGameLaunch( Game* game )
+extern void onGameLaunch( Game* game )
 {
 	Game::get()->addController( RacingDemo::get() );
 	RacingDemo::get()->setup();
-}*/
+}
 
 RacingDemo* RacingDemo::sInstance = NULL;
 
@@ -129,6 +129,8 @@ void RacingDemo::setup()
 	light->mNode.position = Vec3f( 500, 500, 0 );
 	mScene->addLight( light );
 	
+	mControls.setup( camera );
+	
 	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(0.48,.35,.22,0.5),	Vec2i( 200, 200 ) * 2.0f );
 	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_0.png" ), ColorA(1,1,1,1),			Vec2i( 600, 600 ) * 2.0f );
 	light->mLensFlare.addSprite( mResourceManager->getTexture( "textures/flare_sprite_1.png" ), ColorA(1,.2,.2,.5),			Vec2i( 50, 50 ) * 2.0f );
@@ -150,13 +152,10 @@ float __angle = 0.0f;
 
 void RacingDemo::update( const float deltaTime )
 {
-	//mVehicle->position.z -= 100.0f * deltaTime;
+	mVehicle->position.z -= 50.0f * deltaTime;
+	GameCamera::get()->position = mVehicle->position;
 	
-	GameCamera* cam = GameCamera::get();
-	cam->rotation.y += 10.0f * deltaTime;
-	__angle += deltaTime * 0.75f;
-	cam->setAngle( math<float>::sin( __angle ) * 60.0f );
-	cam->position = mVehicle->position;
+	mControls.update( deltaTime );
 }
 
 void RacingDemo::debugDraw()
