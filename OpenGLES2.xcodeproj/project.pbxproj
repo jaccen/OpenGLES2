@@ -44,6 +44,10 @@
 		5A9DC4F71700DF6F00199E4E /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A9DC4EA1700DF6F00199E4E /* Icon.png */; };
 		5A9DC4F81700DF6F00199E4E /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A9DC4EB1700DF6F00199E4E /* Icon@2x.png */; };
 		5A9DC4F91700DF6F00199E4E /* iTunesArtwork.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5A9DC4EC1700DF6F00199E4E /* iTunesArtwork.jpg */; };
+		5AB4FC451812EE230023125F /* Scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AB4FC431812EE230023125F /* Scene.cpp */; };
+		5AB4FC4B1812FC590023125F /* Light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AB4FC491812FC590023125F /* Light.cpp */; };
+		5AB4FC541815C9750023125F /* RacingDemo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AB4FC521815C9750023125F /* RacingDemo.cpp */; };
+		5AB4FC551815CA330023125F /* RTSDemo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AB4FC4F181304130023125F /* RTSDemo.cpp */; };
 		5AC0067F16EFBF2C0055177B /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC0067E16EFBF2C0055177B /* Camera.cpp */; };
 		5AE85B1916F69D0400F47648 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85AFF16F69D0400F47648 /* AppDelegate.mm */; };
 		5AE85B1A16F69D0400F47648 /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B0016F69D0400F47648 /* Game.cpp */; };
@@ -116,6 +120,14 @@
 		5A9DC4EA1700DF6F00199E4E /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		5A9DC4EB1700DF6F00199E4E /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 		5A9DC4EC1700DF6F00199E4E /* iTunesArtwork.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = iTunesArtwork.jpg; sourceTree = "<group>"; };
+		5AB4FC431812EE230023125F /* Scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Scene.cpp; sourceTree = "<group>"; };
+		5AB4FC441812EE230023125F /* Scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Scene.h; sourceTree = "<group>"; };
+		5AB4FC491812FC590023125F /* Light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Light.cpp; sourceTree = "<group>"; };
+		5AB4FC4A1812FC590023125F /* Light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Light.h; sourceTree = "<group>"; };
+		5AB4FC4F181304130023125F /* RTSDemo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RTSDemo.cpp; sourceTree = "<group>"; };
+		5AB4FC50181304130023125F /* RTSDemo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTSDemo.h; sourceTree = "<group>"; };
+		5AB4FC521815C9750023125F /* RacingDemo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RacingDemo.cpp; sourceTree = "<group>"; };
+		5AB4FC531815C9750023125F /* RacingDemo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RacingDemo.h; sourceTree = "<group>"; };
 		5AC0067E16EFBF2C0055177B /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = Cinder/src/cinder/Camera.cpp; sourceTree = "<group>"; };
 		5AE85AFE16F69D0400F47648 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		5AE85AFF16F69D0400F47648 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
@@ -220,6 +232,12 @@
 		5A21222816EFB469001BF08B /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				5AB4FC521815C9750023125F /* RacingDemo.cpp */,
+				5AB4FC531815C9750023125F /* RacingDemo.h */,
+				5AB4FC4F181304130023125F /* RTSDemo.cpp */,
+				5AB4FC50181304130023125F /* RTSDemo.h */,
+				5AB4FC431812EE230023125F /* Scene.cpp */,
+				5AB4FC441812EE230023125F /* Scene.h */,
 				5AE85B0116F69D0400F47648 /* Game.h */,
 				5AE85B0016F69D0400F47648 /* Game.cpp */,
 				5A3E621C180B4DB900214718 /* Projectile.cpp */,
@@ -270,6 +288,8 @@
 				5A289EBF180DBDC800573998 /* UniformGrid.cpp */,
 				5A289EC0180DBDC800573998 /* UniformGrid.h */,
 				5A289EBB180C658B00573998 /* Timer.h */,
+				5AB4FC491812FC590023125F /* Light.cpp */,
+				5AB4FC4A1812FC590023125F /* Light.h */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -408,16 +428,20 @@
 				5A289EC1180DBDC800573998 /* UniformGrid.cpp in Sources */,
 				5AE85B1B16F69D0400F47648 /* GLView.mm in Sources */,
 				5AE85B1C16F69D0400F47648 /* LensFlare.cpp in Sources */,
+				5AB4FC551815CA330023125F /* RTSDemo.cpp in Sources */,
 				5A289EB7180C5FC600573998 /* Unit.cpp in Sources */,
+				5AB4FC4B1812FC590023125F /* Light.cpp in Sources */,
 				5AE85B1D16F69D0400F47648 /* main.m in Sources */,
 				5AE85B1E16F69D0400F47648 /* Node.cpp in Sources */,
 				5AE85B1F16F69D0400F47648 /* Node2d.cpp in Sources */,
 				5A289EBE180CAFA600573998 /* Planet.cpp in Sources */,
 				5A289EBA180C603D00573998 /* ProjectileManager.cpp in Sources */,
+				5AB4FC541815C9750023125F /* RacingDemo.cpp in Sources */,
 				5AE85B2016F69D0400F47648 /* ObjParser.cpp in Sources */,
 				5AE85B2116F69D0400F47648 /* RenderingEngine.cpp in Sources */,
 				5A3E621B180B243900214718 /* ParticleSystem.cpp in Sources */,
 				5AE85B2216F69D0400F47648 /* ResourceLoader.mm in Sources */,
+				5AB4FC451812EE230023125F /* Scene.cpp in Sources */,
 				5A3E621E180B4DB900214718 /* Projectile.cpp in Sources */,
 				5AE85B2316F69D0400F47648 /* ResourceManager.cpp in Sources */,
 				5AE85B2416F69D0400F47648 /* ShaderProgram.cpp in Sources */,

@@ -3,12 +3,13 @@
 #include "ResourceManager.h"
 #include "GameConstants.h"
 #include "Unit.h"
+#include "Scene.h"
 
 #include "cinder/Quaternion.h"
 
 using namespace ci;
 
-Projectile::Projectile( Unit* owner, Unit* target ) : mSpeed( 1.0f ), mLifetime( 4.0f ), mElapsedTime(0.0f ), mOwner( owner ), mTarget( target )
+Projectile::Projectile( Unit* owner, Unit* target, Scene* scene ) : mScene( scene ), mSpeed( 1.0f ), mLifetime( 4.0f ), mElapsedTime(0.0f ), mOwner( owner ), mTarget( target )
 {
 	//mContainer = new Node();
 	//mContainer->mLayer = Node::LayerLighting;
@@ -16,7 +17,7 @@ Projectile::Projectile( Unit* owner, Unit* target ) : mSpeed( 1.0f ), mLifetime(
 	//mBody->setParent( mContainer );
 	
 	//RenderingEngine::get()->addSpriteNode( mContainer );
-	RenderingEngine::get()->addSpriteNode( mBody );
+	mScene->addSpriteNode( mBody );
 	
 	mBody->mLayer = Node::LayerLighting;
 	mBody->mFaceCamera = true;
@@ -37,7 +38,7 @@ Projectile::Projectile( Unit* owner, Unit* target ) : mSpeed( 1.0f ), mLifetime(
 Projectile::~Projectile()
 {
 	//RenderingEngine::get()->removeNode( mContainer );
-	RenderingEngine::get()->removeNode( mBody );
+	mScene->removeNode( mBody );
 }
 
 void Projectile::setDirection( const ci::Vec3f direction )

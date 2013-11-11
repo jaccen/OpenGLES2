@@ -41,6 +41,12 @@ void GameCamera::setRange( float near, float far )
 	mFar = far;
 }
 
+void GameCamera::setBodyOffset( const float x, const float y )
+{
+	mBody.position.x = x;
+	mBody.position.y = y;
+}
+
 void GameCamera::setZoom( float zoom )
 {
 	mBody.position.z = zoom;

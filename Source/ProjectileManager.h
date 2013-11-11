@@ -4,9 +4,12 @@
 #include "ParticleSystem.h"
 #include "Timer.h"
 
+class Scene;
+
 class ProjectileManager {
 public:
-	static ProjectileManager* get();
+	ProjectileManager();
+	virtual ~ProjectileManager();
 	
 	void createProjectile( Unit* owner, Unit* target, const float speed );
 	void update( const float deltaTime );
@@ -17,10 +20,6 @@ public:
 private:
 	int mHitCounter;
 	ly::Timer mCollisionCheckTimer;
-	
-	static ProjectileManager* sInstance;
-	ProjectileManager();
-	virtual ~ProjectileManager();
 	
 	std::list<Projectile*> mProjectiles;
 	std::list<Projectile*> mDeleteionQueue;

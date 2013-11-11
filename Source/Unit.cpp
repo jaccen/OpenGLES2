@@ -2,6 +2,7 @@
 #include "ProjectileManager.h"
 #include "Game.h"
 #include "UniformGrid.h"
+#include "RTSDemo.h"
 
 #include <iostream>
 #include <boost/bind.hpp>
@@ -41,7 +42,7 @@ void Unit::Drawing::draw()
 			default:break;
 		}
 		RenderingEngine* renderingEngine = RenderingEngine::get();
-		renderingEngine->debugDrawLine( mFrom, mTo, color );
+		renderingEngine->debugDrawLine( mFrom, mTo, color, Scene::get() );
 	}
 }
 
@@ -83,14 +84,14 @@ void Unit::update( const float deltaTime )
 	mScreenPosition = GameCamera::get()->getWorldToScreen( getNode()->position );
 	
 	if ( mControlMode == HOLD ) {
-		/*Unit* nearestVisibleEnemy = Game::get()->getUniformGrid().findNearest( Unit::FindVisibleEnemy( this ) );
+		/*Unit* nearestVisibleEnemy = Scene::get()->getUniformGrid().findNearest( Unit::FindVisibleEnemy( this ) );
 		if ( nearestVisibleEnemy != NULL ) {
 			// Move to the enemy
 			getNode()->setForward( nearestVisibleEnemy->getNode()->position - getNode()->position );
-			mAttackTarget = Game::get()->getUniformGrid().findNearest( Unit::FindAttackTarget( this ) );
+			mAttackTarget = Scene::get()->getUniformGrid().findNearest( Unit::FindAttackTarget( this ) );
 		}*/
 		
-		mAttackTarget = Game::get()->getUniformGrid().findNearest( Unit::FindAttackTarget( this ) );
+		mAttackTarget = RTSDemo::get()->getUniformGrid().findNearest( Unit::FindAttackTarget( this ) );
 		if ( mAttackTarget != NULL && mAttackTarget->getIsDead() ) {
 			getNode()->setForward( mAttackTarget->getNode()->position - getNode()->position );
 		}
@@ -156,7 +157,7 @@ void Unit::doTimedAttack( const float elapsedTime )
 	}
 	
 	const Vec3f origin = getNode()->getBoundingBox().getCenter();
-	ProjectileManager::get()->createProjectile( this, mAttackTarget, 600.0f );
+	RTSDemo::get()->getProjectileManager().createProjectile( this, mAttackTarget, 600.0f );
 }
 
 void Unit::doTimedInterval( const float elapsedTime )

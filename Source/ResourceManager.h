@@ -17,6 +17,7 @@ public:
 	
 	void					loadShader( std::string key, std::string vertexShaderPath, std::string fragmentShaderPath );
 	void					loadTexture( std::string filePath );
+	void					loadCubemapTexture( std::string key, const std::vector<std::string>& filePaths );
 	void					loadMesh( std::string filePath );
 	void					loadFont( std::string fontpath );
 	

@@ -31,16 +31,14 @@ const static int kFps = 60;
             [self release];
             return nil;
         }
-        
-		mRenderingEngine		= RenderingEngine::get();
-		mGame					= Game::get();
+		
+		mGame = Game::get();
 
         [mContext renderbufferStorage:GL_RENDERBUFFER fromDrawable: eaglLayer];
                 
         int width = CGRectGetWidth( self.bounds );
         int height = CGRectGetHeight( self.bounds );
-		mRenderingEngine->setup( width, height, self.contentScaleFactor );
-        mGame->setup( width, height );
+        mGame->setup( width, height, self.contentScaleFactor );
         
         [self drawView: nil];
         mTimestamp = CACurrentMediaTime();
@@ -52,6 +50,8 @@ const static int kFps = 60;
         [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 		
 		hasUpdatedOnce = false;
+		
+		onGameLaunch( mGame );
     }
     return self;
 }
@@ -70,15 +70,13 @@ const static int kFps = 60;
 		//if ( elapsedSeconds >= frameRate ) {
 			TouchInput::get()->update( elapsedSeconds );
 			mGame->update( elapsedSeconds );
-			mRenderingEngine->update( elapsedSeconds );
 			mTimestamp = displayLink.timestamp;
 			hasUpdatedOnce = true;
 		//}
     }
     
 	if ( hasUpdatedOnce ) {
-		mRenderingEngine->draw();
-		mGame->debugDraw();
+		mGame->draw();
 		[mContext presentRenderbuffer:GL_RENDERBUFFER];
 	}
 }

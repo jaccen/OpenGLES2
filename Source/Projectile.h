@@ -2,11 +2,12 @@
 
 #include "Node.h"
 
+class Scene;
 class Unit;
 
 class Projectile : public Node::IDelegate {
 public:
-	Projectile( Unit* owner, Unit* target );
+	Projectile( Unit* owner, Unit* target, Scene* scene );
 	virtual ~Projectile();
 	ci::Vec3f mForward;
 	float mSpeed;
@@ -27,4 +28,5 @@ private:
 	Node* mBody;
 	Unit* mOwner;
 	Unit* mTarget;
+	Scene* mScene;
 };

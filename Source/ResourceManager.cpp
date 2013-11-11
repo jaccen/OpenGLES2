@@ -33,6 +33,27 @@ void ResourceManager::loadTexture( std::string filePath )
 	}
 }
 
+void ResourceManager::loadCubemapTexture( std::string key, const std::vector<std::string>& filePaths )
+{
+	Texture* cubemap = new Texture();
+	for( const auto path : filePaths ) {
+		loadTexture( path );
+		Texture* face = getTexture( path );
+		cubemap->addCubemapTexture( face );
+		if ( cubemap->mWidth == 0 ) {
+			cubemap->mWidth = face->mWidth;
+			cubemap->mHeight = face->mHeight;
+		}
+		else if ( face->mWidth != cubemap->mWidth ||
+				 face->mHeight != cubemap->mHeight ) {
+			std::cout << "Error loading cubemap " << key << ".  A face texture was not the right size (expecting " << cubemap->mWidth << "x" << cubemap->mHeight << ")." << std::endl;
+		}
+	}
+	mRenderingEngine->createCubeTexture( cubemap );
+	std::cout << "Loading cubemap " << key << std::endl;
+	mTextures[ key ] = cubemap;
+}
+
 void ResourceManager::loadMesh( std::string filePath )
 {
 	auto match = mMeshes.find( filePath );

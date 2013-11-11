@@ -27,7 +27,7 @@ void main(void)
 	
     float df = max( 0.0, dot( N, L ) );
     float sf = max( 0.0, dot( N, H ) );
-	vec4 selfIllum = texture2D( SelfIlluminationTexture, vTexCoord );
+	vec4 selfIllum = texture2D( SelfIlluminationTexture, vec2( vTexCoord.x, -vTexCoord.y ) );
     sf = pow( max( 0.0, dot( N, H ) ), Shininess );
 	
 	vec4 texColor = texture2D( DiffuseTexture, vTexCoord ) * DiffuseMaterial;

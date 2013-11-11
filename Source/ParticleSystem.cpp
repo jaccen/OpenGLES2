@@ -1,6 +1,7 @@
 #include "ParticleSystem.h"
 #include "RenderingEngine.h"
 #include "ResourceManager.h"
+#include "Scene.h"
 #include "GameConstants.h"
 
 #include <iostream>
@@ -11,7 +12,7 @@ Particle::Particle( ParticleSystem* system ) : mSystem( system ), elapsedTime( 0
 {
 	mNode = new Node();
 	mNode->setParent( mSystem->mNode );
-	RenderingEngine::get()->addSpriteNode( mNode );
+	mSystem->getScene()->addSpriteNode( mNode );
 	velocity = Vec3f::zero();
 	startPosition = Vec3f::zero();
 	rotationalVelocity = 0.0f;
@@ -49,19 +50,19 @@ void Particle::update( const float deltaTime )
 
 Particle::~Particle()
 {
-	RenderingEngine::get()->removeNode( mNode );
+	mSystem->getScene()->removeNode( mNode );
 }
 
-ParticleSystem::ParticleSystem() : mOneShot( false ), mIsExpired( false )
+ParticleSystem::ParticleSystem( Scene* scene ) : mScene( scene ), mOneShot( false ), mIsExpired( false )
 {
 	mNode = new Node();
-	RenderingEngine::get()->addSpriteNode( mNode );
+	mScene->addSpriteNode( mNode );
 }
 
 ParticleSystem::~ParticleSystem()
 {
 	clearParticles();
-	RenderingEngine::get()->removeNode( mNode );
+	mScene->removeNode( mNode );
 }
 
 void ParticleSystem::emitOneShot()
@@ -117,7 +118,7 @@ void ParticleSystem::clearParticles()
 	for( auto p : mParticles ) {
 		delete p;
 	}
-	RenderingEngine::get()->removeNode( mNode );
+	mScene->removeNode( mNode );
 	mParticles.clear();
 }
 

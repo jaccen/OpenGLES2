@@ -10,54 +10,50 @@
 #include "LensFlare.h"
 #include "TouchInput.h"
 #include "Text.h"
-#include "Controls.h"
-#include "Unit.h"
-#include "UniformGrid.h"
-
-#include "cinder/Ray.h"
+#include "Scene.h"
 
 #include <list>
 
+extern void onGameLaunch( Game* game );
+
 class Game {
 public:
-	static Game*		get();
+	class Controller {
+	public:
+		Controller() {}
+		virtual void update( const float deltaTime ) = 0;
+	};
 	
-    void				setup( int width, int height );
-    void				update( const float deltaTime = 0.0f );
-	void				debugDraw();
+	static Game*				get();
 	
-	Node2d*				getRootGui() const { return mRootGui; }
-	GameCamera*				getCamera() const { return mCamera; }
-	ResourceManager*	getResourceManager() const { return mResourceManager; }
+    void						setup( const int width, const int height, const float contentScaleFactor );
+    void						update( const float deltaTime = 0.0f );
+	void						draw();
 	
-	void				remove( Node* node );
-	void				remove( Node2d* Node2d );
+	void						addScene( Scene* scene );
+	void						removeScene( Scene* scene );
 	
-	const std::vector<Unit*>& getUnits() const { return mUnits; }
-	std::vector<Unit*>& getUnits() { return mUnits; }
+	RenderingEngine*			getRenderer() const { return mRenderer; }
+	TouchInput*					getTouchInput() const { return mTouchInput; }
 	
-	const UniformGrid&	getUniformGrid() const { return mUniformGrid; }
+	const ci::Vec2i&			getScreenSize() const { return mScreenSize; }
+	const float&				getContentScaleFactor() const { return mContentScaleFactor; }
+	
+	void						addController( Controller* controller );
+	void						removeController( Controller* controller );
 	
 private:
     Game();
     ~Game();
 	
-	static Game* sInstance;
+	static Game*				sInstance;
 	
-	GameCamera* mCamera;
-	Controls mControls;
+	ci::Vec2i					mScreenSize;
+	float						mContentScaleFactor;
 	
-	Node2d* mRootGui;
+	std::list<Scene*>			mScenes;
 	
-    RenderingEngine* mRenderingEngine;
-    ResourceManager* mResourceManager;
-		
-	void deselectAllControllers();
-	
-	std::vector<Unit*> mUnits;
-	std::list<Unit*> mDeletionQueue;
-	
-	Node* lineTest;
-	
-	UniformGrid mUniformGrid;
+	RenderingEngine*			mRenderer;
+	TouchInput*					mTouchInput;
+	std::list<Controller*>		mControllers;
 };

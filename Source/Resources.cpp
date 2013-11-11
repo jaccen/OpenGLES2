@@ -20,6 +20,13 @@ ci::Vec2i Texture::getScaledTextureSize() const
 	return ci::Vec2i( mWidth, mHeight ) / RenderingEngine::get()->getContentScaleFactor();
 }
 
+void Texture::addCubemapTexture( Texture* texture )
+{
+	if ( mCubemapTextures.size() < 6 ) {
+		mCubemapTextures.push_back( texture );
+	}
+}
+
 void Texture::setSize( int width, int height )
 {
 	int sizes[9] = { 16, 32, 64, 128, 256, 512, 1024, 2048, 4096 };

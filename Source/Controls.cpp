@@ -1,5 +1,6 @@
 #include "Controls.h"
 #include "Game.h"
+#include "RTSDemo.h"
 
 using namespace ci;
 
@@ -37,21 +38,22 @@ void Controls::update( const float deltaTime )
 		Vec2f target = Vec2f( mRotationStart.x - diff.y * mOrbitSpeed.y, mRotationStart.y - diff.x * mOrbitSpeed.x );
 		mCamera->rotation.y = target.y;
 		mCamera->rotation.x = math<float>::clamp( target.x, -80, 80 );
+		mCamera->rotation.x = target.x;
 		
-		float zoomTarget = mZoomStart - touch->getTouchesDistance() * mZoomSpeed;
-		if ( zoomTarget <= 5000.0f && zoomTarget >= 80.0f ) {
-			mCamera->setZoom( zoomTarget );
-		}
+		//float zoomTarget = mZoomStart - touch->getTouchesDistance() * mZoomSpeed;
+		//if ( zoomTarget <= 5000.0f && zoomTarget >= 80.0f ) {
+			//mCamera->setZoom( zoomTarget );
+		//}
 	}
 	else {
 		mRotationStart.x = mCamera->rotation.x;
 		mRotationStart.y = mCamera->rotation.y;
 		
-		mZoomStart = mCamera->getZoom();
+		//mZoomStart = mCamera->getZoom();
 	}
 	
 	// Three-finger control for panning
-	if ( touch->getTouchCount() == 3  ) {
+	/*if ( touch->getTouchCount() == 3  ) {
 		const Vec3f direction = Vec3f( touch->getTouchesDifference().x, 0.0f, touch->getTouchesDifference().y );
 		const Vec3f target = mPositionStart - mCamera->getTransform().transformVec( direction ) * mMoveSpeed * mCamera->getZoom();
 		mCamera->position += ( target - mCamera->position ) / 2.0f;
@@ -61,13 +63,13 @@ void Controls::update( const float deltaTime )
 	}
 	
 	if ( mCanSelectMultipleUnits ) {
-		std::vector<Unit*>& units = Game::get()->getUnits();
+		std::vector<Unit*>& units = RTSDemo::get()->getUnits();
 		for( auto unit : units ) {
 			if ( unit->factionId == 0 ) {
 				unit->mIsSelected = mSelectionArea.contains( unit->getScreenPosition() );
 			}
 		}
-	}
+	}*/
 	
 	mUnhighlightTimer.update( deltaTime );
 }
@@ -75,7 +77,7 @@ void Controls::update( const float deltaTime )
 void Controls::updateSelectedUnits()
 {
 	mSelectedUnits.clear();
-	for( const auto unit : Game::get()->getUnits() ) {
+	for( const auto unit : RTSDemo::get()->getUnits() ) {
 		if ( unit->mIsSelected ) {
 			mSelectedUnits.push_back( unit );
 		}
@@ -88,7 +90,7 @@ void Controls::tapDown( ci::Vec2i position )
 	
 	// Test ray intersection against all units to find a single unit
 	ci::Ray ray = mCamera->rayIntoScene( position );
-	std::vector<Unit*>& units = Game::get()->getUnits();
+	std::vector<Unit*>& units = RTSDemo::get()->getUnits();
 	std::sort( units.begin(), units.end(), Unit::sortByDistanceFromCamera );
 	for( auto unit : units ) {
 		if ( unit->getNode()->getBoundingBox().intersects( ray ) ) {
@@ -139,7 +141,7 @@ void Controls::tapDown( ci::Vec2i position )
 
 void Controls::unselectAllUnits()
 {
-	std::vector<Unit*>& units = Game::get()->getUnits();
+	std::vector<Unit*>& units = RTSDemo::get()->getUnits();
 	for( auto unit : units ) {
 		unit->mIsSelected = false;
 	}

@@ -6,6 +6,7 @@
 #include <list>
 #include <boost/function.hpp>
 
+class Scene;
 class ParticleSystem;
 
 /*template<typename T>
@@ -65,7 +66,7 @@ private:
 
 class ParticleSystem {
 public:
-	ParticleSystem();
+	ParticleSystem( Scene* scene );
 	virtual ~ParticleSystem();
 	
 	virtual void update( const float deltaTime );
@@ -88,7 +89,10 @@ public:
 	const bool getIsOneShot() const { return mOneShot; }
 	const bool getIsExpired() const { return mIsExpired; }
 	
+	Scene* getScene() const { return mScene; }
+	
 private:
+	Scene* mScene;
 	bool mIsExpired;
 	std::list<Particle*> mParticles;
 	bool mOneShot;

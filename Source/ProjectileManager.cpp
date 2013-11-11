@@ -1,10 +1,11 @@
 #include "ProjectileManager.h"
-
+#include "Scene.h"
 #include "RenderingEngine.h"
 #include "ResourceManager.h"
 #include "Unit.h"
 #include "UniformGrid.h"
 #include "Game.h"
+#include "RTSDemo.h"
 
 #include "cinder/Color.h"
 
@@ -12,27 +13,17 @@
 
 using namespace ci;
 
-ProjectileManager* ProjectileManager::sInstance = NULL;
-
-ProjectileManager* ProjectileManager::get()
-{
-	if ( !sInstance ) {
-		sInstance = new ProjectileManager();
-	}
-	return sInstance;
-}
-
 ProjectileManager::ProjectileManager() : mHitCounter(0)
 {
 	mCollisionCheckTimer = ly::Timer( boost::bind( &ProjectileManager::checkCollisions, this, boost::arg<1>() ), 1.0f / 15.0f, 0 );
-	mCollisionCheckTimer.start();
+	//mCollisionCheckTimer.start();
 }
 
 ProjectileManager::~ProjectileManager() {}
 
 void ProjectileManager::createProjectile( Unit* owner, Unit* target, const float speed )
 {
-	Projectile* proj = new Projectile( owner, target );
+	Projectile* proj = new Projectile( owner, target, RTSDemo::get()->getMainScene() );
 	const ci::Vec3f origin = owner->getNode()->position;
 	const ci::Vec3f direction = target->getNode()->position - origin;
 	proj->getNode()->position = origin + direction.normalized();
@@ -43,7 +34,7 @@ void ProjectileManager::createProjectile( Unit* owner, Unit* target, const float
 
 void ProjectileManager::createProjectileImpage( Node* parent, const ci::Vec3f localPosition )
 {
-	ParticleSystem* ps = new ParticleSystem();
+	ParticleSystem* ps = new ParticleSystem( RTSDemo::get()->getMainScene() );
 	ps->createParticles( 1, ResourceManager::get()->getTexture( "textures/explosion2.png" ) );
 	ps->setVelocity( Vec3f::zero(), Vec3f::zero() );
 	ps->setRotationalVelocity( 0.0f, 50.0f );
@@ -128,7 +119,7 @@ void ProjectileManager::checkCollisions( const float deltaTime )
 
 void ProjectileManager::checkCollisions2( const float deltaTime )
 {
-	const std::vector<Unit*>& units = Game::get()->getUnits();
+	const std::vector<Unit*>& units = RTSDemo::get()->getUnits();
 	
 	for( auto p : mProjectiles ) {
 		for( auto unit : units ) {

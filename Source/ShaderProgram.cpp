@@ -51,7 +51,6 @@ GLuint ShaderProgram::buildProgram(const char* vertexShaderSource, const char* f
         GLchar messages[256];
         glGetProgramInfoLog(programHandle, sizeof(messages), 0, &messages[0]);
         std::cout << messages << std::endl;
-        exit(1);
     }
     
     return programHandle;

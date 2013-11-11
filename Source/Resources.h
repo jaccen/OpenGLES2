@@ -15,15 +15,24 @@
 class Texture {
 public:
 	Texture( int width, int height );
-	Texture() : mFormat( GL_RGBA ), mImageData( NULL ) {}
+	Texture() : mFormat( GL_RGBA ), mImageData( NULL ), mWidth(0), mHeight(0) {}
 	void setSize( int width, int height );
 	~Texture() { free( mImageData ); }
+	
+	ci::Vec2i getScaledTextureSize() const;
+	bool isCubemap() const { return mCubemapTextures.size() == 6; }
+	const std::vector<Texture*>& getCubemapTextures() const { return mCubemapTextures; }
+	const void* getImageData() const { return mImageData; }
+	void addCubemapTexture( Texture* texture );
+	
 	GLuint					mFormat;
 	GLuint					mHandle;
 	int						mWidth;
 	int						mHeight;
 	void*					mImageData;
-	ci::Vec2i				getScaledTextureSize() const;
+	
+private:
+	std::vector<Texture*>	mCubemapTextures;
 };
 
 class FramebufferObject {

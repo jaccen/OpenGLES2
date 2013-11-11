@@ -28,6 +28,8 @@ public:
 	
 	float getAngle() const { return mPivot.rotation.x; }
 	void setAngle( const float angleX ) { mPivot.rotation.x = angleX; }
+	void setBodyOffset( const ci::Vec2i& offset ) { setBodyOffset( offset.x, offset.y ); }
+	void setBodyOffset( const float x, const float y );
 	
 	ci::Ray rayIntoScene( ci::Vec2i screenPoint );
 	

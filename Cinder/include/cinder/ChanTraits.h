@@ -24,6 +24,8 @@
 
 #include "cinder/Cinder.h"
 
+#include <stdint.h>
+
 #include <boost/preprocessor/seq.hpp>
 
 namespace cinder {

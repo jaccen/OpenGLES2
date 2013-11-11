@@ -1,6 +1,7 @@
 #include "RenderingEngine.h"
 #include "ResourceManager.h"
 #include "GameConstants.h"
+#include "Scene.h"
 
 using namespace ci;
 
@@ -23,92 +24,10 @@ RenderingEngine* RenderingEngine::get()
 	return sInstance;
 }
 
-RenderingEngine::RenderingEngine() : mContentScaleFactor(1.0f), mSkyboxNode(NULL), mBackgroundTexture(NULL)
+RenderingEngine::RenderingEngine() : mContentScaleFactor(1.0f)
 {
     glGenRenderbuffers( 1, &mContextColorRenderbuffer );
     glBindRenderbuffer( GL_RENDERBUFFER, mContextColorRenderbuffer );
-	
-	mSortTimer = ly::Timer( boost::bind( &RenderingEngine::sortSprites, this, boost::arg<1>() ), 1.0f / 60.0, 0 );
-	mSortTimer.start();
-}
-
-void RenderingEngine::addSpriteNode( Node* node )
-{
-	//node->mMaterial.setTexture( "DepthMapTexture", mDepthMapFbo->mTexture );
-	mSpriteNodes.push_back( node );
-}
-
-void RenderingEngine::addNode( Node* node )
-{
-	mObjectNodes.push_back( node );
-}
-
-void RenderingEngine::addBackgroundNode( Node* node )
-{
-	mBackgroundNodes.push_back( node );
-}
-
-void RenderingEngine::removeNode( Node* node, bool andCleanUp )
-{
-	{
-		auto match = std::find( mObjectNodes.begin(), mObjectNodes.end(), node );
-		if ( match != mObjectNodes.end() ) {
-			if ( andCleanUp ) {
-				delete *match;
-			}
-			mObjectNodes.erase( match );
-			return;
-		}
-	}{
-		auto match = std::find( mSpriteNodes.begin(), mSpriteNodes.end(), node );
-		if ( match != mSpriteNodes.end() ) {
-			if ( andCleanUp ) {
-				delete *match;
-			}
-			mSpriteNodes.erase( match );
-			return;
-		}
-	}{
-		auto match = std::find( mBackgroundNodes.begin(), mBackgroundNodes.end(), node );
-		if ( match != mBackgroundNodes.end() ) {
-			if ( andCleanUp ) {
-				delete *match;
-			}
-			mBackgroundNodes.erase( match );
-			return;
-		}
-	}
-}
-
-void RenderingEngine::addNode( Node2d* node )
-{
-	auto match = std::find( mScreenNodes.begin(), mScreenNodes.end(), node );
-	if ( match == mScreenNodes.end() ) {
-		mScreenNodes.push_back( node );
-	}
-}
-
-void RenderingEngine::removeNode( Node2d* node )
-{
-	auto match = std::find( mScreenNodes.begin(), mScreenNodes.end(), node );
-	if ( match != mScreenNodes.end() ) {
-		mScreenNodes.erase( match );
-	}
-}
-
-void RenderingEngine::addLight( Light* light )
-{
-	mLights.push_back( light );
-}
-
-void RenderingEngine::setSkyboxNode( Node* node )
-{
-	mSkyboxNode = node;
-}
-
-void RenderingEngine::setBackgroundTexture( Texture* texture )
-{
-	mBackgroundTexture = texture;
 }
 
 void RenderingEngine::createVbo( Mesh* vboMesh, std::vector<float>& vertices, std::vector<float>& normals, std::vector<float>& texCoords )
@@ -140,7 +59,7 @@ bool RenderingEngine::createTexture( Texture* texture )
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-	glTexImage2D( GL_TEXTURE_2D, 0, texture->mFormat, texture->mWidth, texture->mHeight, 0, texture->mFormat, GL_UNSIGNED_BYTE, texture->mImageData );
+	glTexImage2D( GL_TEXTURE_2D, 0, texture->mFormat, texture->mWidth, texture->mHeight, 0, texture->mFormat, GL_UNSIGNED_BYTE, texture->getImageData() );
 	glGenerateMipmap( GL_TEXTURE_2D );
 	
 	// Unbind texture
@@ -154,6 +73,31 @@ void RenderingEngine::deleteTexture( Texture* texture )
 {
 	glDeleteTextures( 1, &texture->mHandle );
 }
+
+bool RenderingEngine::createCubeTexture( Texture* texture )
+{
+	if ( !texture || !texture->isCubemap() ) return false;
+	
+	const std::vector<Texture*>& faces = texture->getCubemapTextures();
+	
+	glGenTextures( 1, &texture->mHandle );
+	glBindTexture( GL_TEXTURE_CUBE_MAP, texture->mHandle );
+	glTexImage2D( GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, texture->mWidth, texture->mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, faces[0]->getImageData() );
+	glTexImage2D( GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, texture->mWidth, texture->mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, faces[1]->getImageData() );
+	glTexImage2D( GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, texture->mWidth, texture->mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, faces[2]->getImageData() );
+	glTexImage2D( GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, texture->mWidth, texture->mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, faces[3]->getImageData() );
+	glTexImage2D( GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, texture->mWidth, texture->mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, faces[4]->getImageData() );
+	glTexImage2D( GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, texture->mWidth, texture->mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, faces[5]->getImageData() );
+	glTexParameteri( GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	
+	// Unbind texture
+	glBindTexture( GL_TEXTURE_CUBE_MAP, 0 );
+	
+	// TODO: Check errors more ways than this:
+	return texture->mHandle != 0;
+}
+
 
 void RenderingEngine::createFbo( FramebufferObject* fbo )
 {	
@@ -205,9 +149,6 @@ void RenderingEngine::setup( int width, int height, float contentScaleFactor )
 	mScreenSize.y = height * contentScaleFactor;
 	mContentScaleFactor = contentScaleFactor;
 	
-	mCamera = GameCamera::get();
-	mCamera->setScreenSize( width, height, contentScaleFactor );
-	
 	mScreenTransform = Matrix44f::identity();
 	mScreenTransform.translate( Vec3f( -1.0f, 1.0f, 0.0f ) );
 	mScreenTransform.scale( Vec3f( 1 / (float) width * 2.0f,
@@ -256,48 +197,6 @@ void RenderingEngine::setup( int width, int height, float contentScaleFactor )
 	createFbo( mDepthMapFbo );
 }
 
-void RenderingEngine::sortSprites( const float deltaTime )
-{
-	std::sort( mSpriteNodes.begin(), mSpriteNodes.end(), Node::sortByDistanceFromCamera );
-}
-
-void RenderingEngine::update( const float deltaTime )
-{
-	if ( mSkyboxNode ) {
-		mSkyboxNode->position = mCamera->getGlobalPosition();
-		mSkyboxNode->rotation.x = 180.0f;
-		mSkyboxNode->update();
-	}
-	
-	for( auto node : mObjectNodes ) {
-		node->update( deltaTime );
-		if ( node->mCustomDrawing != NULL ) {
-			node->mCustomDrawing->update( deltaTime );
-		}
-	}
-	
-	for( auto node : mSpriteNodes ) {
-		node->update( deltaTime );
-		if ( node->mCustomDrawing != NULL ) {
-			node->mCustomDrawing->update( deltaTime );
-		}
-	}
-	
-	for( auto node : mScreenNodes ) {
-		node->update( deltaTime );
-	}
-	
-	for( auto light : mLights ) {
-		light->update( deltaTime );
-	}
-	
-	for( auto cd : mCustomDrawings ) {
-		cd->update( deltaTime );
-	}
-	
-	mSortTimer.update( deltaTime );
-}
-
 void RenderingEngine::bindFrameBufferObject( FramebufferObject* fbo )
 {
 	glBindFramebuffer( GL_FRAMEBUFFER, fbo->mHandle );
@@ -330,11 +229,16 @@ bool RenderingEngine::setUniforms( const Material& material, ShaderProgram* shad
 		Texture* texture = t_iter->second;
 		const std::string& locationName = t_iter->first;
 		glActiveTexture( GL_TEXTURE0 + locationIndex );
-		if ( texture ) {
-			glBindTexture( GL_TEXTURE_2D, texture->mHandle );
+		if ( texture->isCubemap() ) {
+			glBindTexture( GL_TEXTURE_CUBE_MAP, texture->mHandle );
 		}
 		else {
-			glBindTexture( GL_TEXTURE_2D, mDefaultWhite->mHandle );
+			if ( texture ) {
+				glBindTexture( GL_TEXTURE_2D, texture->mHandle );
+			}
+			else {
+				glBindTexture( GL_TEXTURE_2D, mDefaultWhite->mHandle );
+			}
 		}
 		shader->uniform( locationName, locationIndex );
 		texturesWereBound = true;
@@ -374,94 +278,98 @@ void RenderingEngine::unbindTextures( Material& material )
 	}
 }
 
-void RenderingEngine::draw()
+void RenderingEngine::draw( const std::list<Scene*>& scenes )
 {
-	/*bindFrameBufferObject( mDepthMapFbo );
-	glEnable( GL_DEPTH_TEST );
-	glDepthMask( GL_TRUE );
-	glDisable( GL_BLEND );
-	ShaderProgram* shader = ResourceManager::get()->getShader( "depth_map" );
-	glUseProgram( shader->getHandle() );
-	const float restoreNear = mCamera->getNearPlaneDistance();
-	const float restoreFar = mCamera->getFarPlaneDistance();
-	mCamera->setRange( 1.0f, 750.0f );
-	shader->uniform( "Modelview", mCamera->getModelViewMatrix() );
-	shader->uniform( "Projection", mCamera->getProjectionMatrix() );
-	shader->uniform( "FarPlane", mCamera->getFarPlaneDistance() );
-	for( auto node : mObjectNodes ) {
-		shader->uniform( "Transform", node->getTransform() );
-		drawMesh( node->mMesh, shader );
-	}
-	for( auto node : mSpriteNodes ) {
-		shader->uniform( "Transform", node->getTransform() );
-		drawMesh( node->mMesh, shader );
-	}
-	mCamera->setRange( restoreNear, restoreFar );*/
+	for( const auto scene : scenes ) {
 	
-	bindFrameBufferObject( mMainFbo );
-	
-	glEnable( GL_CULL_FACE );
-	glCullFace( GL_BACK );
-	glDisable( GL_DEPTH_TEST );
-	//const float restoreNear = mCamera->getNearPlaneDistance();
-	//const float restoreFar = mCamera->getFarPlaneDistance();
-	//mCamera->setRange( 500.0f, 20000.0f );
-	if ( mSkyboxNode ) {
-		drawNode( mSkyboxNode );
-	}
-	else if ( mBackgroundTexture ) {
+		/*bindFrameBufferObject( mDepthMapFbo );
+		glEnable( GL_DEPTH_TEST );
+		glDepthMask( GL_TRUE );
+		glDisable( GL_BLEND );
+		ShaderProgram* shader = ResourceManager::get()->getShader( "depth_map" );
+		glUseProgram( shader->getHandle() );
+		const float restoreNear = mCamera->getNearPlaneDistance();
+		const float restoreFar = mCamera->getFarPlaneDistance();
+		mCamera->setRange( 1.0f, 750.0f );
+		shader->uniform( "Modelview", mCamera->getModelViewMatrix() );
+		shader->uniform( "Projection", mCamera->getProjectionMatrix() );
+		shader->uniform( "FarPlane", mCamera->getFarPlaneDistance() );
+		for( auto node : mObjectNodes ) {
+			shader->uniform( "Transform", node->getTransform() );
+			drawMesh( node->mMesh, shader );
+		}
+		for( auto node : mSpriteNodes ) {
+			shader->uniform( "Transform", node->getTransform() );
+			drawMesh( node->mMesh, shader );
+		}
+		mCamera->setRange( restoreNear, restoreFar );*/
+		
+		bindFrameBufferObject( mMainFbo );
+		
+		glEnable( GL_CULL_FACE );
+		glCullFace( GL_BACK );
+		glDisable( GL_DEPTH_TEST );
+		//const float restoreNear = mCamera->getNearPlaneDistance();
+		//const float restoreFar = mCamera->getFarPlaneDistance();
+		//mCamera->setRange( 500.0f, 20000.0f );
+		if ( scene->mSkyboxNode ) {
+			drawNode( scene->mSkyboxNode, scene );
+		}
+		else if ( scene->mBackgroundTexture ) {
+			Matrix44f trans = Matrix44f::identity();
+			trans.scale( Vec3f( scene->mBackgroundTexture->mWidth, scene->mBackgroundTexture->mHeight, 1 ) );
+			drawTexture( scene->mBackgroundTexture, trans, true );
+		}
+		
+		glClear( GL_DEPTH_BUFFER_BIT );
+		glEnable( GL_DEPTH_TEST );
+		glDepthMask( GL_TRUE );
+		
+		for( auto bgNode : scene->mBackgroundNodes ) {
+			drawNode( bgNode, scene );
+		}
+		//mCamera->setRange( restoreNear, restoreFar );
+		
+		for( auto objNode : scene->mObjectNodes ) {
+			drawNode( objNode, scene );
+		}
+		
+		//glDisable( GL_DEPTH_TEST );
+		glDisable( GL_CULL_FACE );
+		
+		for( auto cd : scene->mCustomDrawings ) {
+			cd->draw();
+		}
+		
+		for( auto sprNode : scene->mSpriteNodes ) {
+			drawNode( sprNode, scene );
+		}
+		
+		bindWindowContext();
+		
+		// Draw the main FBO's texture
 		Matrix44f trans = Matrix44f::identity();
-		trans.scale( Vec3f( mBackgroundTexture->mWidth, mBackgroundTexture->mHeight, 1 ) );
-		drawTexture( mBackgroundTexture, trans, true );
-	}
-	
-	glClear( GL_DEPTH_BUFFER_BIT );
-	glEnable( GL_DEPTH_TEST );
-	glDepthMask( GL_TRUE );
-    
-	for( auto bgNode : mBackgroundNodes ) {
-		drawNode( bgNode );
-	}
-	//mCamera->setRange( restoreNear, restoreFar );
-    
-	for( auto objNode : mObjectNodes ) {
-		drawNode( objNode );
-	}
-	
-	//glDisable( GL_DEPTH_TEST );
-	glDisable( GL_CULL_FACE );
-	
-	for( auto cd : mCustomDrawings ) {
-		cd->draw();
-	}
-    
-	for( auto sprNode : mSpriteNodes ) {
-		drawNode( sprNode );
-	}
-	
-	bindWindowContext();
-	
-	// Draw the main FBO's texture
-	Matrix44f trans = Matrix44f::identity();
-	trans.translate( Vec3f( mMainFbo->mTexture->mWidth / (2 * getContentScaleFactor()), mMainFbo->mTexture->mHeight / (2 * getContentScaleFactor()), 0.0f ) );
-	trans.scale( Vec3f( mMainFbo->mTexture->mWidth / getContentScaleFactor(), mMainFbo->mTexture->mHeight / getContentScaleFactor(), 0.0f ) );
-	drawTexture( mMainFbo->mTexture, trans, true );
-	
-	glDisable( GL_DEPTH_TEST );
-	for( auto node2d : mScreenNodes ) {
-		drawGui( node2d );
+		trans.translate( Vec3f( mMainFbo->mTexture->mWidth / (2 * getContentScaleFactor()), mMainFbo->mTexture->mHeight / (2 * getContentScaleFactor()), 0.0f ) );
+		trans.scale( Vec3f( mMainFbo->mTexture->mWidth / getContentScaleFactor(), mMainFbo->mTexture->mHeight / getContentScaleFactor(), 0.0f ) );
+		drawTexture( mMainFbo->mTexture, trans, true );
+		
+		glDisable( GL_DEPTH_TEST );
+		for( auto node2d : scene->mScreenNodes ) {
+			drawGui( node2d );
+		}
+		
 	}
 }
 
-void RenderingEngine::drawNode( const Node* node )
+void RenderingEngine::drawNode( const Node* node, Scene* scene )
 {
 	ShaderProgram* shader = node->mMaterial.mShader;
 	if ( shader == NULL ) return;
 	
 	glUseProgram( shader->getHandle() );
-	shader->uniform( "Modelview",			mCamera->getModelViewMatrix() );
-	shader->uniform( "Projection",			mCamera->getProjectionMatrix() );
-	shader->uniform( "EyePosition",			Vec3f( mCamera->getGlobalPosition() ) );
+	shader->uniform( "Modelview",			scene->getCamera()->getModelViewMatrix() );
+	shader->uniform( "Projection",			scene->getCamera()->getProjectionMatrix() );
+	shader->uniform( "EyePosition",			Vec3f( scene->getCamera()->getGlobalPosition() ) );
 	
 	if ( node->mFaceCamera || node->mFaceCameraAsLine ) {
 		shader->uniform( "Transform", node->getTransform() * node->mSpriteTransform );
@@ -470,7 +378,7 @@ void RenderingEngine::drawNode( const Node* node )
 		shader->uniform( "Transform", node->getTransform() );
 	}
 	
-	for( auto light : mLights ) {
+	for( auto light : scene->mLights ) {
 		shader->uniform( "AmbientMaterial",		light->mAmbientColor );
 		shader->uniform( "LightPosition",		light->mNode.getGlobalPosition() );
 		shader->uniform( "LightColor",			light->mColor );
@@ -615,28 +523,28 @@ void RenderingEngine::setBlendMode( Node::Layer layer )
 	}
 }
 
-void RenderingEngine::debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::ColorA color )
+void RenderingEngine::debugDrawCube( ci::Vec3f center, ci::Vec3f size, ci::ColorA color, Scene* scene )
 {
 	Vec3f min = center - size * 0.5f;
 	Vec3f max = center + size * 0.5f;
 	
-	debugDrawLine( Vec3f(min.x, min.y, min.z), Vec3f(max.x, min.y, min.z), color );
-	debugDrawLine( Vec3f(max.x, min.y, min.z), Vec3f(max.x, max.y, min.z), color );
-	debugDrawLine( Vec3f(max.x, max.y, min.z), Vec3f(min.x, max.y, min.z), color );
-	debugDrawLine( Vec3f(min.x, max.y, min.z), Vec3f(min.x, min.y, min.z), color );
+	debugDrawLine( Vec3f(min.x, min.y, min.z), Vec3f(max.x, min.y, min.z), color, scene );
+	debugDrawLine( Vec3f(max.x, min.y, min.z), Vec3f(max.x, max.y, min.z), color, scene );
+	debugDrawLine( Vec3f(max.x, max.y, min.z), Vec3f(min.x, max.y, min.z), color, scene );
+	debugDrawLine( Vec3f(min.x, max.y, min.z), Vec3f(min.x, min.y, min.z), color, scene );
 	
-	debugDrawLine( Vec3f(min.x, min.y, max.z), Vec3f(max.x, min.y, max.z), color );
-	debugDrawLine( Vec3f(max.x, min.y, max.z), Vec3f(max.x, max.y, max.z), color );
-	debugDrawLine( Vec3f(max.x, max.y, max.z), Vec3f(min.x, max.y, max.z), color );
-	debugDrawLine( Vec3f(min.x, max.y, max.z), Vec3f(min.x, min.y, max.z), color );
+	debugDrawLine( Vec3f(min.x, min.y, max.z), Vec3f(max.x, min.y, max.z), color, scene );
+	debugDrawLine( Vec3f(max.x, min.y, max.z), Vec3f(max.x, max.y, max.z), color, scene );
+	debugDrawLine( Vec3f(max.x, max.y, max.z), Vec3f(min.x, max.y, max.z), color, scene );
+	debugDrawLine( Vec3f(min.x, max.y, max.z), Vec3f(min.x, min.y, max.z), color, scene );
 	
-	debugDrawLine( Vec3f(min.x, min.y, min.z), Vec3f(min.x, min.y, max.z), color );
-	debugDrawLine( Vec3f(min.x, max.y, min.z), Vec3f(min.x, max.y, max.z), color );
-	debugDrawLine( Vec3f(max.x, max.y, min.z), Vec3f(max.x, max.y, max.z), color );
-	debugDrawLine( Vec3f(max.x, min.y, min.z), Vec3f(max.x, min.y, max.z), color );
+	debugDrawLine( Vec3f(min.x, min.y, min.z), Vec3f(min.x, min.y, max.z), color, scene );
+	debugDrawLine( Vec3f(min.x, max.y, min.z), Vec3f(min.x, max.y, max.z), color, scene );
+	debugDrawLine( Vec3f(max.x, max.y, min.z), Vec3f(max.x, max.y, max.z), color, scene );
+	debugDrawLine( Vec3f(max.x, min.y, min.z), Vec3f(max.x, min.y, max.z), color, scene );
 }
 
-void RenderingEngine::debugDrawStrokedRect( const ci::Rectf &rect, const ci::ColorA color, ci::Matrix44f transform )
+void RenderingEngine::debugDrawStrokedRect( const ci::Rectf &rect, const ci::ColorA color, Scene* scene, ci::Matrix44f transform )
 {
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -651,8 +559,8 @@ void RenderingEngine::debugDrawStrokedRect( const ci::Rectf &rect, const ci::Col
 	
 	glUseProgram( shader->getHandle() );
 	shader->uniform( "Color",				color );
-	shader->uniform( "Modelview",			mCamera->getModelViewMatrix() * transform );
-	shader->uniform( "Projection",			mCamera->getProjectionMatrix() );
+	shader->uniform( "Modelview",			scene->getCamera()->getModelViewMatrix() * transform );
+	shader->uniform( "Projection",			scene->getCamera()->getProjectionMatrix() );
 	
 	GLuint positionSlot = glGetAttribLocation( shader->getHandle(), "Position" );
 	glEnableVertexAttribArray( positionSlot );
@@ -686,7 +594,7 @@ void RenderingEngine::debugScreenDrawStrokedRect( const ci::Rectf &rect, const c
 	glDisableVertexAttribArray( positionSlot );
 }
 
-void RenderingEngine::debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::ColorA color )
+void RenderingEngine::debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::ColorA color, Scene* scene )
 {
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -699,8 +607,8 @@ void RenderingEngine::debugDrawLine( ci::Vec3f from, ci::Vec3f to, ci::ColorA co
 	
 	glUseProgram( shader->getHandle() );
 	shader->uniform( "Color",				color );
-	shader->uniform( "Modelview",			mCamera->getModelViewMatrix() );
-	shader->uniform( "Projection",			mCamera->getProjectionMatrix() );
+	shader->uniform( "Modelview",			scene->getCamera()->getModelViewMatrix() );
+	shader->uniform( "Projection",			scene->getCamera()->getProjectionMatrix() );
 	
 	GLuint positionSlot = glGetAttribLocation( shader->getHandle(), "Position" );
 	glEnableVertexAttribArray( positionSlot );

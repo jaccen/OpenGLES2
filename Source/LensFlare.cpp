@@ -9,7 +9,7 @@ const static int kNumSprites = 9;
 LensFlare::LensFlare()
 {
 	mLightPosition = Vec3f::zero();
-	RenderingEngine::get()->addNode( &mRoot );
+	//RenderingEngine::get()->addNode( &mRoot );
 }
 
 LensFlare::~LensFlare()
@@ -38,7 +38,7 @@ void LensFlare::debugDraw()
 
 Node* LensFlare::rayCast( const ci::Ray& ray )
 {
-	for( auto iter = RenderingEngine::get()->getObjectNodes().begin(); iter != RenderingEngine::get()->getObjectNodes().end(); iter++ ) {
+	/*for( auto iter = RenderingEngine::get()->getObjectNodes().begin(); iter != RenderingEngine::get()->getObjectNodes().end(); iter++ ) {
 		Node* node = *iter;
 		if ( node->mLayer == Node::LayerLighting || node->mLayer == Node::LayerNone ) continue;
 		if ( node->getMesh() == NULL ) continue;
@@ -57,7 +57,7 @@ Node* LensFlare::rayCast( const ci::Ray& ray )
 				}
 			}
 		}
-	}
+	}*/
 	return NULL;
 }
 
