@@ -10,14 +10,6 @@
 
 class TouchInput {
 public:
-	struct Gesture {
-		Gesture() : isActive( false ), touchCount(0), isTap( false ), isComplete(false) {}
-		bool isActive;
-		bool isTap;
-		bool isComplete;
-		int touchCount;
-	};
-	
 	class IDelegate {
 	public:
 		// Add (pure) virtual methods here
@@ -26,14 +18,6 @@ public:
 		virtual void gestureEnded( int fingerCount ) = 0;
 		virtual void tapDown( ci::Vec2i position ) = 0;
 		virtual void tapUp( ci::Vec2i position ) = 0;
-	};
-	
-	class FindTouch {
-	public:
-		FindTouch( ci::Vec2i pos ) { mPos = pos; }
-		bool operator()( ci::Vec2i pos ) const { return mPos.distance( pos ) < 20.0f; }
-	private:
-		ci::Vec2i mPos;
 	};
 	
 	static TouchInput*	get();
@@ -51,7 +35,6 @@ public:
     void				touchesMoved( const std::vector<ci::Vec2i>& positions );
 	
 	void				update( const float deltaTime );
-	void				onSingleTapTimerExpired( const float deltaTime );
 	
 	ci::Vec2i			getTouchesCenter() const { return mTouchCenter; }
 	float				getTouchesDistance() const { return mTouchDistanceCurrent - mTouchDistanceStart; }
@@ -64,9 +47,6 @@ private:
 	~TouchInput();
 	static TouchInput* sInstance;
 	
-	Gesture				mCurrentGesture;
-	inline void			resetCurrentGesture();
-	
 	std::vector<ci::Vec2i> mTouches;
 	ci::Vec2i			mTouchCenter;
 	ci::Vec2i			mTouchCenterStart;
@@ -78,6 +58,5 @@ private:
 	
 	std::list<IDelegate*> mDelegates;
 	
-	ly::Timer			mSingleTapTimer;
-	ci::Vec2i			mSingleTapPosition;
+	bool				mGestureActive;
 };
