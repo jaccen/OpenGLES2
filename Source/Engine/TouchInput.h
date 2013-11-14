@@ -4,20 +4,33 @@
 #include "cinder/Matrix.h"
 
 #include "Timer.h"
+#include "Node2d.h"
 
 #include <vector>
 #include <list>
 
 class TouchInput {
 public:
+	struct Gesture {
+		Gesture() : isActive( false ), touchCount(0), isTap( false ), isComplete(false) {}
+		bool isActive;
+		bool isTap;
+		bool isComplete;
+		int touchCount;
+	};
+	
 	class IDelegate {
 	public:
-		// Add (pure) virtual methods here
-		virtual void gestureStarted( int fingerCount ) = 0;
-		virtual void gestureMoved( int fingerCount ) = 0;
-		virtual void gestureEnded( int fingerCount ) = 0;
-		virtual void tapDown( ci::Vec2i position ) = 0;
-		virtual void tapUp( ci::Vec2i position ) = 0;
+		virtual void nodeTouchDown( Node2d* node ) {};
+		virtual void nodeTouchMove( Node2d* node ) {};
+		virtual void nodeTouchUp( Node2d* node ) {};
+		
+		virtual void gestureStarted( int fingerCount ) {};
+		virtual void gestureMoved( int fingerCount ) {};
+		virtual void gestureEnded( int fingerCount ) {};
+		
+		virtual void tapDown( ci::Vec2i position ) {};
+		virtual void tapUp( ci::Vec2i position ) {};
 	};
 	
 	static TouchInput*	get();
@@ -34,6 +47,9 @@ public:
     void				touchesBegan( const std::vector<ci::Vec2i>& positions );
     void				touchesMoved( const std::vector<ci::Vec2i>& positions );
 	
+	void				setAcceleration( const float x, const float y, const float z );
+	const ci::Vec3f&	getAcceleration() const { return mAcceleration; }
+	
 	void				update( const float deltaTime );
 	
 	ci::Vec2i			getTouchesCenter() const { return mTouchCenter; }
@@ -47,6 +63,10 @@ private:
 	~TouchInput();
 	static TouchInput* sInstance;
 	
+	inline Node2d*		testScreenNodeTouches( const std::vector<ci::Vec2i>& positions );
+	
+	ci::Vec3f			mAcceleration;
+	
 	std::vector<ci::Vec2i> mTouches;
 	ci::Vec2i			mTouchCenter;
 	ci::Vec2i			mTouchCenterStart;
@@ -58,5 +78,9 @@ private:
 	
 	std::list<IDelegate*> mDelegates;
 	
-	bool				mGestureActive;
+	Gesture				mCurrentGesture;
+	inline void			resetCurrentGesture();
+	ly::Timer			mSingleTapTimer;
+	ci::Vec2i			mSingleTapPosition;
+	void				onSingleTapTimerExpired( const float deltaTime );
 };

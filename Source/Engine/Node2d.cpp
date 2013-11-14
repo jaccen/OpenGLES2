@@ -4,7 +4,7 @@
 
 using namespace ci;
 
-Node2d::Node2d() : mParent( NULL ), mText( NULL), mIsVisible( true ), mIsEnabled( true ), zIndex( 0 ), tag(-1), group(-1)
+Node2d::Node2d() : mParent( NULL ), mText( NULL), mIsVisible( true ), mIsEnabled( true ), zIndex( 0 ), tag(-1), group(-1), swallowsTouches( true ), mCurrentState( State::NORMAL )
 {
 	mNode = new Node();
 	position = Vec2i::zero();
@@ -15,10 +15,6 @@ Node2d::Node2d() : mParent( NULL ), mText( NULL), mIsVisible( true ), mIsEnabled
 	mNode->mMaterial.mShader = ResourceManager::get()->getShader( "screen" );
 	mNode->setMesh( ResourceManager::get()->getMesh( "models/quad_plane.obj" ) );
 	mNode->mLayer = Node::LayerGui;
-	
-	//mNode->mColor = Vec4f::zero();
-	//mNode->mShader = kShaderScreenSpace;
-	//mNode->mMesh = ResourceManager::get()->getMesh( "models/quad_plane.obj" );
 }
 
 Node2d::~Node2d()
@@ -26,15 +22,38 @@ Node2d::~Node2d()
 	delete mNode;
 }
 
-
-void Node2d::setTexture( Texture* texture )
+void Node2d::setCurrentState( State::Type type )
 {
-	mNode->mMaterial.setTexture( "DiffuseTexture", texture );
+	mCurrentState = type;
+	
+	mNode->mMaterial.setTexture( "DiffuseTexture", mStates[ type ].texture );
+	mNode->mMaterial.setColor( "DiffuseMaterial", mStates[ type ].color );
 }
 
-void Node2d::setColor( ci::ColorA color )
+void Node2d::setTexture( Texture* texture, State::Type state )
 {
-	mNode->mMaterial.setColor( "DiffuseMaterial", color );
+	if ( state == State::ALL ) {
+		for( int i = 0; i < State::COUNT; i++ ) {
+			mStates[ i ].texture = texture;
+		}
+	}
+	else {
+		mStates[ state ].texture = texture;
+	}
+	setCurrentState( getCurrentState() );
+}
+
+void Node2d::setColor( ci::ColorA color, State::Type state )
+{
+	if ( state == State::ALL ) {
+		for( int i = 0; i < State::COUNT; i++ ) {
+			mStates[ i ].color = color;
+		}
+	}
+	else {
+		mStates[ state ].color = color;
+	}
+	setCurrentState( getCurrentState() );
 }
 
 ci::Vec2i Node2d::getGlobalPosition()

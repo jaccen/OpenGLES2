@@ -38,7 +38,7 @@ void RacingDemo::setup()
 	mResourceManager->loadShader( "debug",			"shaders/debug.vert",				"shaders/debug.frag" );
 	mResourceManager->loadShader( "debug_screen",	"shaders/screen_space.vert",		"shaders/debug_screen.frag" );
 	mResourceManager->loadShader( "planet",			"shaders/planet.vert",				"shaders/planet.frag" );
-	mResourceManager->loadShader( "body",			"shaders/body.vert",				"shaders/body.frag" );
+	mResourceManager->loadShader( "level",			"shaders/level.vert",				"shaders/level.frag" );
 	mResourceManager->loadShader( "unlit",			"shaders/unlit.vert",				"shaders/unlit.frag" );
 	mResourceManager->loadShader( "ship",			"shaders/ship.vert",				"shaders/ship.frag" );
 	mResourceManager->loadShader( "text",			"shaders/text.vert",				"shaders/text.frag" );
@@ -72,12 +72,12 @@ void RacingDemo::setup()
 	Node* road = new Node();
 	road->mLayer = Node::LayerObjects;
 	road->setMesh( mResourceManager->getMesh( "models/plane_flat.obj" ) );
-	road->mMaterial.mShader = mResourceManager->getShader( "unlit" );
+	road->mMaterial.mShader = mResourceManager->getShader( "level" );
 	road->mMaterial.setTexture( "DiffuseTexture",		mResourceManager->getTexture( "textures/road_diffuse.png" ) );
-	road->mMaterial.setTexture( "SpecularMapTexture",	mResourceManager->getTexture( "textures/asteroid_spec.png" ) );
+	road->mMaterial.setTexture( "SpecularMapTexture",	mResourceManager->getTexture( "textures/road_spec.png" ) );
 	road->mMaterial.setColor( "DiffuseMaterial",		ColorA( 1, 1, 1, 1 ) );
 	road->mMaterial.setColor( "SpecularMaterial",		ColorA( 1, 1, 1, 0.5f ));
-	road->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.2, 0.0, 1.0f ));
+	road->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.5, 0.5, 1.0f ));
 	road->mMaterial.setProperty( "Shininess", 10.0f );
 	road->mMaterial.setProperty( "Scale",	Vec2f( 1.0f, 20.0f ) );
 	road->scale = Vec3f( 100, 100, 2000 ) * 2.0f;
@@ -112,11 +112,11 @@ void RacingDemo::setup()
 	Node* grass = new Node();
 	grass->mLayer = Node::LayerObjects;
 	grass->setMesh( mResourceManager->getMesh( "models/plane_flat.obj" ) );
-	grass->mMaterial.mShader = mResourceManager->getShader( "unlit" );
+	grass->mMaterial.mShader = mResourceManager->getShader( "level" );
 	grass->mMaterial.setTexture( "DiffuseTexture",		mResourceManager->getTexture( "textures/grass.png" ) );
 	grass->mMaterial.setColor( "DiffuseMaterial",		ColorA( 1, 1, 1, 1 ) );
 	grass->mMaterial.setColor( "SpecularMaterial",		ColorA( 1, 1, 1, 0.5f ));
-	grass->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.2, 0.0, 1.0f ));
+	grass->mMaterial.setColor( "SpecularMaterial",		ColorA( 0.5, 0.5, 0.5, 1.0f ));
 	grass->mMaterial.setProperty( "Shininess", 10.0f );
 	grass->mMaterial.setProperty( "Scale",	Vec2f( 100.0f, 100.0f ) );
 	grass->scale = Vec3f::one() * 4000.0f;
@@ -125,7 +125,7 @@ void RacingDemo::setup()
 	
 	Light* light = new Light();
 	light->mColor = ColorA::white();
-	light->mAmbientColor = ColorA::white() * 0.5f;
+	light->mAmbientColor = ColorA::white() * 0.3f;
 	light->mNode.position = Vec3f( 500, 500, 0 );
 	mScene->addLight( light );
 	
@@ -147,8 +147,6 @@ RacingDemo::~RacingDemo()
 {
 	
 }
-
-float __angle = 0.0f;
 
 void RacingDemo::update( const float deltaTime )
 {

@@ -116,6 +116,10 @@
 		5A9DC4F81700DF6F00199E4E /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A9DC4EB1700DF6F00199E4E /* Icon@2x.png */; };
 		5A9DC4F91700DF6F00199E4E /* iTunesArtwork.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5A9DC4EC1700DF6F00199E4E /* iTunesArtwork.jpg */; };
 		5ABC71DA18319EB7007E8239 /* Controls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5ABC71D818319EB7007E8239 /* Controls.cpp */; };
+		5ABC71DC1832C8EF007E8239 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5ABC71DB1832C8EF007E8239 /* MobileCoreServices.framework */; };
+		5ABC71DD1832C8F4007E8239 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5ABC71DB1832C8EF007E8239 /* MobileCoreServices.framework */; };
+		5ABC71DF1832C91D007E8239 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5ABC71DE1832C91D007E8239 /* CoreMotion.framework */; };
+		5ABC71E01832C91D007E8239 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5ABC71DE1832C91D007E8239 /* CoreMotion.framework */; };
 		5AC0067F16EFBF2C0055177B /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC0067E16EFBF2C0055177B /* Camera.cpp */; };
 		5AE85B2B16F6A84300F47648 /* AxisAlignedBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B2916F6A84300F47648 /* AxisAlignedBox.cpp */; };
 		5AE85B2C16F6A84300F47648 /* TriMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AE85B2A16F6A84300F47648 /* TriMesh.cpp */; };
@@ -217,6 +221,8 @@
 		5A9DC4EC1700DF6F00199E4E /* iTunesArtwork.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = iTunesArtwork.jpg; sourceTree = "<group>"; };
 		5ABC71D818319EB7007E8239 /* Controls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Controls.cpp; sourceTree = "<group>"; };
 		5ABC71D918319EB7007E8239 /* Controls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Controls.h; sourceTree = "<group>"; };
+		5ABC71DB1832C8EF007E8239 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		5ABC71DE1832C91D007E8239 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		5AC0067E16EFBF2C0055177B /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Camera.cpp; path = Cinder/src/cinder/Camera.cpp; sourceTree = "<group>"; };
 		5AE85B2916F6A84300F47648 /* AxisAlignedBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AxisAlignedBox.cpp; path = Cinder/src/cinder/AxisAlignedBox.cpp; sourceTree = "<group>"; };
 		5AE85B2A16F6A84300F47648 /* TriMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TriMesh.cpp; path = Cinder/src/cinder/TriMesh.cpp; sourceTree = "<group>"; };
@@ -227,12 +233,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5ABC71DC1832C8EF007E8239 /* MobileCoreServices.framework in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
 				4D27E4840F9AD71900447247 /* OpenGLES.framework in Frameworks */,
 				4D27E4B50F9AD7D600447247 /* QuartzCore.framework in Frameworks */,
 				5A27CAC6171210B40028DF13 /* boost.framework in Frameworks */,
+				5ABC71DF1832C91D007E8239 /* CoreMotion.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -240,12 +248,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5ABC71DD1832C8F4007E8239 /* MobileCoreServices.framework in Frameworks */,
 				5A760871183199D7001ACE6F /* Foundation.framework in Frameworks */,
 				5A760872183199D7001ACE6F /* UIKit.framework in Frameworks */,
 				5A760873183199D7001ACE6F /* CoreGraphics.framework in Frameworks */,
 				5A760874183199D7001ACE6F /* OpenGLES.framework in Frameworks */,
 				5A760875183199D7001ACE6F /* QuartzCore.framework in Frameworks */,
 				5A760876183199D7001ACE6F /* boost.framework in Frameworks */,
+				5ABC71E01832C91D007E8239 /* CoreMotion.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,6 +286,8 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5ABC71DE1832C91D007E8239 /* CoreMotion.framework */,
+				5ABC71DB1832C8EF007E8239 /* MobileCoreServices.framework */,
 				5A27CAC5171210B40028DF13 /* boost.framework */,
 				4D27E4B40F9AD7D600447247 /* QuartzCore.framework */,
 				4D27E4830F9AD71900447247 /* OpenGLES.framework */,

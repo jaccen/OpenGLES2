@@ -23,7 +23,7 @@ void Particle::reset()
 {
 	elapsedTime = 0.0f;
 	mNode->position = mSystem->mNode->position + startPosition;
-	mNode->scale = Vec3f::one() * 30.0f;
+	mNode->scale = Vec3f::one() * 100.0f;
 }
 
 void Particle::update( const float deltaTime )

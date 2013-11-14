@@ -36,6 +36,7 @@ private:
 	float mRotationEasing;
 	float mRotationXMax;
 	float mRotationXMin;
+	float mAngleEased;
 	
 	float mZoomTarget;
 	float mZoomEased;

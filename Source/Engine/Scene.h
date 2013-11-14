@@ -21,43 +21,44 @@
 #include <list>
 
 class Scene {
-public:
-	static Scene*			get();
+public:	
+	static Scene*				get();
 	
-    void					update( const float deltaTime);
+    void						update( const float deltaTime);
 	
-	void					setRootGui( Node2d* Node2d );
-	void					addNode( Node* node );
-	void					removeNode( Node* node, bool andCleanUp = true );
-	void					addNode( Node2d* node );
-	void					addBackgroundNode( Node* node );
-	void					removeNode( Node2d* node );
-	void					addSpriteNode( Node* node );
-	void					addLight( Light* light );
-	void					removeLight( Light* light );
-	void					setBackgroundTexture( Texture* texture );
-	void					setSkyboxNode( Node* node );
-	void					addCamera( GameCamera* camera );
+	void						setRootGui( Node2d* Node2d );
+	void						addNode( Node* node );
+	void						removeNode( Node* node, bool andCleanUp = true );
+	void						addNode( Node2d* node );
+	void						addBackgroundNode( Node* node );
+	void						removeNode( Node2d* node );
+	void						addSpriteNode( Node* node );
+	void						addLight( Light* light );
+	void						removeLight( Light* light );
+	void						setBackgroundTexture( Texture* texture );
+	void						setSkyboxNode( Node* node );
+	void						addCamera( GameCamera* camera );
 	
-	GameCamera*				getCamera( const std::string name ) { return mCameras[ 0 ]; }
-	GameCamera*				getCamera( const int index = 0 ) { return mCameras[ index ]; }
-	const std::list<Node*>& getObjectNodes() const { return mObjectNodes; }
+	GameCamera*					getCamera( const std::string name ) { return mCameras[ 0 ]; }
+	GameCamera*					getCamera( const int index = 0 ) { return mCameras[ index ]; }
+	const std::list<Node*>&		getObjectNodes() const { return mObjectNodes; }
+	const std::list<Node2d*>&	getScreenNodes() const { return mScreenNodes; }
 	
-	std::list<Node*>		mObjectNodes;
-	std::list<Node*>		mBackgroundNodes;
-	std::list<Node2d*>		mScreenNodes;
-	std::vector<Node*>		mSpriteNodes;
-	std::list<Light*>		mLights;
-	Node*					mSkyboxNode;
-	Texture*				mBackgroundTexture;
-	inline void				sortSprites( const float deltaTime );
-	std::list<CustomDrawing*> mCustomDrawings;
+	std::list<Node*>			mObjectNodes;
+	std::list<Node*>			mBackgroundNodes;
+	std::list<Node2d*>			mScreenNodes;
+	std::vector<Node*>			mSpriteNodes;
+	std::list<Light*>			mLights;
+	Node*						mSkyboxNode;
+	Texture*					mBackgroundTexture;
+	inline void					sortSprites( const float deltaTime );
+	std::list<CustomDrawing*>	mCustomDrawings;
 	
 private:
     Scene();
     ~Scene();
 	
-	static Scene*			sInstance;
-	ly::Timer				mSortTimer;
-	std::vector<GameCamera*> mCameras;
+	static Scene*				sInstance;
+	ly::Timer					mSortTimer;
+	std::vector<GameCamera*>	mCameras;
 };

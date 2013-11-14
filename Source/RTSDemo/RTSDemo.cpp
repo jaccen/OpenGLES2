@@ -200,20 +200,16 @@ void RTSDemo::setup()
 	mUniformGrid.build( Rectf( -t, -t, t, t ), Vec2i( 10, 10 ) );
 	mUniformGrid.sort( mUnits );
 	
-	/*mRootGui = new Node2d();
-	 mRenderingEngine->addNode( mRootGui );
-	 
-	 return;
-	 
-	 Node2d* test = new Node2d();
-	 test->name = "test_node";
-	 test->setColor( ColorA(1,1,1,1) );
-	 test->setTexture( mResourceManager->getTexture( "textures/gui_test.png" ) );
-	 test->position = Vec2f( 100, 100 );
-	 test->size = Vec2f( 100, 100 );
-	 mRootGui->addChild( test );
-	 
-	 Font* font = ResourceManager::get()->getFont( "fonts/menlo.fnt" );
+	Node2d* test = new Node2d();
+	test->name = "test_node";
+	test->setColor( ColorA(1,1,1,1) );
+	test->setTexture( mResourceManager->getTexture( "textures/gui_test.png" ) );
+	test->setTexture( mResourceManager->getTexture( "textures/gui_test_highlighted.png" ), Node2d::State::HIGHLIGHTED );
+	test->position = Vec2f( 100, 100 );
+	test->size = Vec2f( 100, 100 );
+	mScene->addNode( test );
+	
+	 /*Font* font = ResourceManager::get()->getFont( "fonts/menlo.fnt" );
 	 Node2d* child = new Node2d();
 	 Text::Options opts;
 	 opts.scale = 0.4f;
@@ -265,6 +261,7 @@ void RTSDemo::update( const float deltaTime )
 
 void RTSDemo::debugDraw()
 {
+	// Draw all bounding boxes
 	if ( false ) {
 		const std::list<Node*>& nodes = mScene->getObjectNodes();
 		for( auto node : nodes ) {
@@ -272,6 +269,7 @@ void RTSDemo::debugDraw()
 		}
 	}
 	
+	// Draw uniform grid
 	if ( false ) {
 		Matrix44f m = Matrix44f::identity();
 		m.rotate( Vec3f( 90.0f * kToRad, 0.0f, 0.0f ) );
@@ -294,7 +292,8 @@ void RTSDemo::debugDraw()
 		}
 	}
 	
-	if ( false ) {
+	// Draw line from unit to move target or attack target
+	if ( true ) {
 		for( auto u : getUnits() ) {
 			if ( u->getControlMode() == Unit::ATTACK && u->getAttackTarget() != NULL ) {
 				mRenderingEngine->debugDrawLine( u->getNode()->position, u->getAttackTarget()->getNode()->position, ColorA( 1, 0, 0, 1 ), mScene );
@@ -305,24 +304,40 @@ void RTSDemo::debugDraw()
 		}
 	}
 	
-	if ( false ) {
-		//const int s = 5 * RenderingEngine::get()->getContentScaleFactor();
+	// Draw bounding boxes for selected units
+	if ( true ) {
 		for( auto u : getUnits() ) {
 			if ( u->mIsSelected ) {
 				const ColorA color = u->factionId == 0 ? ci::ColorA( 0, 1, 0, 1 ) : ci::ColorA( 1, 0, 0, 1 );
 				mRenderingEngine->debugDrawCube( u->getNode()->getBoundingBox().getCenter(), u->getNode()->getBoundingBox().getSize(), color, mScene );
+				
+				// Draw a rectangle in screen space instead
+				//const int s = 5 * RenderingEngine::get()->getContentScaleFactor();
 				//const Vec2i p = u->getScreenPosition();
 				//mRenderingEngine->debugScreenDrawStrokedRect( Rectf( p.x - s, p.y - s, p.x + s, p.y + s ), color );
 			}
 		}
 		
+		// Draw selection box for multiple units
 		if ( mControls.getSelectionArea().getSize() != Vec2i::zero() ) {
 			mRenderingEngine->debugScreenDrawStrokedRect( mControls.getSelectionArea(), ColorA(0,1,0,1) );
 		}
 	}
 	
-	const float length = 100.0f;
-	mRenderingEngine->debugDrawLine( Vec3f::zero(), Vec3f::xAxis() * length, ColorA( 1, 0, 0, 1 ), mScene );
-	mRenderingEngine->debugDrawLine( Vec3f::zero(), Vec3f::yAxis() * length, ColorA( 0, 1, 0, 1 ), mScene );
-	mRenderingEngine->debugDrawLine( Vec3f::zero(), Vec3f::zAxis() * length, ColorA( 0, 0, 1, 1 ), mScene );
+	// Draw camera position on gameplay plane
+	if ( true ) {
+		const float length = 100.0f;
+		const float a = 0.3f;
+		const ci::Vec3f p = GameCamera::get()->position;
+		mRenderingEngine->debugDrawLine( p, p + Vec3f::xAxis() * length, ColorA( 1, 0, 0, a ), mScene );
+		mRenderingEngine->debugDrawLine( p, p + Vec3f::yAxis() * length, ColorA( 0, 1, 0, a ), mScene );
+		mRenderingEngine->debugDrawLine( p, p + Vec3f::zAxis() * length, ColorA( 0, 0, 1, a ), mScene );
+	}
+	
+	// Draw color-coded origin vectors
+	if ( true ) {const float length = 100.0f;
+		mRenderingEngine->debugDrawLine( Vec3f::zero(), Vec3f::xAxis() * length, ColorA( 1, 0, 0, 1 ), mScene );
+		mRenderingEngine->debugDrawLine( Vec3f::zero(), Vec3f::yAxis() * length, ColorA( 0, 1, 0, 1 ), mScene );
+		mRenderingEngine->debugDrawLine( Vec3f::zero(), Vec3f::zAxis() * length, ColorA( 0, 0, 1, 1 ), mScene );
+	}
 }

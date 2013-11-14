@@ -43,11 +43,13 @@ private:
 	float mLookSensitivity;
 	float mStrafeSpeed;
 	float mMoveSpeed;
+	float mPanEasing;
 	
 	ci::Vec2f mRotationTarget;
 	float mRotationEasing;
 	float mRotationXMax;
 	float mRotationXMin;
+	float mAngleEased;
 	
 	float mZoomTarget;
 	float mZoomEased;

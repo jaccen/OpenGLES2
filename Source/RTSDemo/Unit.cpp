@@ -80,6 +80,11 @@ void Unit::update( const float deltaTime )
 	mTimer.update( deltaTime );
 	mTimer2.update( deltaTime );
 	
+	if ( mAttackTarget != NULL && mAttackTarget->getIsDead() ) {
+		mAttackTarget = NULL;
+		mControlMode = HOLD;
+	}
+	
 	updateDistanceCalculations(); // TODO: Put this on a timer
 	mScreenPosition = GameCamera::get()->getWorldToScreen( getNode()->position );
 	

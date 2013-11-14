@@ -14,8 +14,9 @@ public:
 	void createProjectile( Unit* owner, Unit* target, const float speed );
 	void update( const float deltaTime );
 	void checkCollisions( const float deltaTime );
+	void checkCollisions1( const float deltaTime );
 	void checkCollisions2( const float deltaTime );
-	void createProjectileImpage( Node* parent, const ci::Vec3f localPosition );
+	void createProjectileImpact( Node* parent, const ci::Vec3f localPosition );
 	
 private:
 	int mHitCounter;

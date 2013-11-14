@@ -19,7 +19,7 @@ public:
 	Unit* getOwner() const { return mOwner; }
 	Unit* getTarget() const { return mTarget; }
 	
-	bool getIsExpired() const { return mElapsedTime >= mLifetime; }
+	bool getIsExpired() const;
 	
 private:
 	float mElapsedTime;

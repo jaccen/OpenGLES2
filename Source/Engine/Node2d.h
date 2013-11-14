@@ -22,12 +22,24 @@ public:
 		bool operator()( Node2d* Node2d ) { return Node2d->tag == mTag && Node2d->group == mGroup; }
 	};
 	
+	class State {
+	public:
+		typedef enum {
+			UNDEFINED = -1, NORMAL, HIGHLIGHTED, SELECTED, DISABLED, ACTIVE, ERROR, COUNT, ALL
+		} Type;
+		
+		State() : texture( NULL ), color( ci::ColorA::white() ) {}
+		
+		Texture* texture;
+		ci::ColorA color;
+	};
+	
 	Node2d();
 	virtual ~Node2d();
 	void update( const float deltaTime = 0.0f );
 	
-	void setTexture( Texture* texture );
-	void setColor( ci::ColorA color );
+	void setTexture( Texture* texture, State::Type state = State::ALL );
+	void setColor( ci::ColorA color, State::Type state = State::ALL );
 	
 	void hide( bool andChildren = true );
 	void show( bool andChildren = true );
@@ -50,6 +62,9 @@ public:
 	void enable();
 	void disable();
 	
+	const State::Type& getCurrentState() const { return mCurrentState; }
+	void setCurrentState( State::Type type );
+	
 	Node* getNode() const { return mNode; }
 	ci::Vec2i getGlobalPosition();
 	
@@ -59,6 +74,7 @@ public:
 	ci::Vec2i size;
 	ci::Vec2i position;
 	float rotation;
+	bool swallowsTouches;
 	
 	Text* mText;
 	
@@ -72,4 +88,7 @@ private:
 	int group;
 	bool mIsEnabled;
 	bool mIsVisible;
+	
+	State::Type mCurrentState;
+	State mStates[ State::COUNT ];
 };

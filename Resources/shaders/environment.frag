@@ -37,8 +37,13 @@ void main(void)
 	reflectDir = vec3( reflectDir.x, -reflectDir.y, reflectDir.z );
 	vec4 environmentColor = textureCube( EnvironmentMap, reflectDir );
 	
+	//  To make the reflected texture black and white
+	//environmentColor.r = environmentColor.r * 0.393 + environmentColor.g * 0.769 + environmentColor.b * 0.189;
+	//environmentColor.g = environmentColor.r * 0.349 + environmentColor.g * 0.686 + environmentColor.b * 0.168;
+	//environmentColor.b = environmentColor.r * 0.272 + environmentColor.g * 0.534 + environmentColor.b * 0.131;
+	
 	vec4 texColor = texture2D( DiffuseTexture, vTexCoord ) * DiffuseMaterial;
-	texColor = mix( texColor, environmentColor, Reflectiveness );
+	texColor = mix( texColor, texColor * environmentColor, Reflectiveness );
 	vec4 pixelLitColor = AmbientMaterial * texColor + df * texColor + SpecularMaterial * sf;
     gl_FragColor = pixelLitColor * LightColor;
 }

@@ -32,6 +32,9 @@ const static int kFps = 60;
             return nil;
         }
 		
+		mMotionManager = [[CMMotionManager alloc] init];
+		[mMotionManager startAccelerometerUpdates];
+		
 		mGame = Game::get();
 
         [mContext renderbufferStorage:GL_RENDERBUFFER fromDrawable: eaglLayer];
@@ -40,13 +43,13 @@ const static int kFps = 60;
         int height = CGRectGetHeight( self.bounds );
         mGame->setup( width, height, self.contentScaleFactor );
         
-        [self drawView: nil];
+        [self update: nil];
         mTimestamp = CACurrentMediaTime();
 		
 		self.multipleTouchEnabled = YES;
         
         CADisplayLink* displayLink;
-        displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
+        displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(update:)];
         [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 		
 		hasUpdatedOnce = false;
@@ -61,7 +64,7 @@ const static int kFps = 60;
 	[super dealloc];
 }
 
-- (void) drawView: (CADisplayLink*) displayLink
+- (void) update: (CADisplayLink*) displayLink
 {
 	const float frameRate = 1.0 / (float) kFps;
 	
@@ -74,6 +77,9 @@ const static int kFps = 60;
 			hasUpdatedOnce = true;
 		//}
     }
+	
+	CMAccelerometerData* accelData = [mMotionManager accelerometerData];
+	TouchInput::get()->setAcceleration( accelData.acceleration.x, accelData.acceleration.y, accelData.acceleration.z );
     
 	if ( hasUpdatedOnce ) {
 		mGame->draw();

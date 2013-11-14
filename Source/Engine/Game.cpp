@@ -48,6 +48,10 @@ void Game::update( const float deltaTime )
 void Game::draw()
 {
 	mRenderer->draw( mScenes );
+	
+	for( auto c : mControllers ) {
+		c->debugDraw();
+	}
 }
 
 void Game::addScene( Scene* node )

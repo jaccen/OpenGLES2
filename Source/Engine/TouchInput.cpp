@@ -1,4 +1,5 @@
 #include "TouchInput.h"
+#include "Game.h"
 
 using namespace ci;
 
@@ -14,8 +15,11 @@ TouchInput* TouchInput::get()
 
 TouchInput::TouchInput() : mPrevTouchCount(0), mTouchCount(0), mTouchDistanceStart(0.0f), mTouchDistanceCurrent(0.0f)
 {
+	mAcceleration = Vec3f::zero();
+	
 	mTouchCenter = Vec2i(0,0);
 	mTouchCenterStart = Vec2i(0,0);
+	mSingleTapTimer = ly::Timer( boost::bind( &TouchInput::onSingleTapTimerExpired, this, boost::arg<1>() ), 0.05f, 1 );
 }
 
 TouchInput::~TouchInput() {}
@@ -41,6 +45,11 @@ void TouchInput::removeDelegate( IDelegate* delegate )
 void TouchInput::removeAllDelegates()
 {
 	mDelegates.clear();
+}
+
+void TouchInput::setAcceleration( const float x, const float y, const float z )
+{
+	mAcceleration = Vec3f( x, y, z );
 }
 
 Vec2f TouchInput::getTouchesCenter( const std::vector<ci::Vec2i>& touches)
@@ -91,54 +100,139 @@ void TouchInput::update( const float deltaTime )
 		mTouchDistanceCurrent = TouchInput::getDistance( mTouches );
 	}
 	
-	if ( didChange && mTouchCount > 0 ) {
+	if ( !mCurrentGesture.isActive && mTouchCount > 0 ) {
+		resetCurrentGesture();
+		mCurrentGesture.isActive = true;
+		mCurrentGesture.touchCount = mTouchCount;
+		mCurrentGesture.isTap = false;
+		//std::cout << "GESTURE START: " << mCurrentGesture.touchCount << std::endl;
 		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
-			(*iter)->gestureEnded( mPrevTouchCount );
-			(*iter)->gestureStarted( mTouchCount );
-			mGestureActive = true;
-		}
-	}
-	else if ( mTouchCount == 0 ) {
-		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
-			(*iter)->gestureEnded( mPrevTouchCount );
-			mGestureActive = false;
+			(*iter)->gestureStarted( mCurrentGesture.touchCount );
 		}
 	}
 	
-	if ( mGestureActive ) {
+	if ( !mCurrentGesture.isTap && mCurrentGesture.isActive ) {
+		//std::cout << "GESTURE MOVED: " << mCurrentGesture.touchCount << std::endl;
 		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
-			(*iter)->gestureMoved( mTouchCount );
+			(*iter)->gestureMoved( mCurrentGesture.touchCount );
 		}
 	}
 	
 	mPrevTouchCount = mTouchCount;
+	
+	mSingleTapTimer.update( deltaTime );
 }
 
 void TouchInput::touchesEnded( const std::vector<ci::Vec2i>& positions )
 {
+	if ( Node2d* node = testScreenNodeTouches( positions ) ) {
+		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
+			node->setCurrentState( Node2d::State::NORMAL );
+			(*iter)->nodeTouchUp( node );
+		}
+		if ( node->swallowsTouches ) {
+			return;
+		}
+	}
+	
 	if ( mTouchCount == 1 ) {
 		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
 			(*iter)->tapUp( positions[0] );
 		}
 	}
 	
+	mPrevTouchCount = getTouchCount();
+	for( int i = 0; i < positions.size(); i++ ) {
+		if ( !mTouches.empty() ) {
+			mTouches.erase( mTouches.begin() );
+		}
+	}
 	mTouchCount = math<int>::max( mTouchCount - positions.size(), 0 );
+	
+	if ( mCurrentGesture.isActive && mCurrentGesture.isTap && mCurrentGesture.touchCount == 1 && mTouchCount == 0 ) {
+		onSingleTapTimerExpired( 0.0f );
+	}
+	
+	const bool gestureShouldAbort = mCurrentGesture.isActive && mTouchCount != mCurrentGesture.touchCount;
+	const bool gestureIsComplete = mCurrentGesture.isActive && mCurrentGesture.isComplete;
+	if ( gestureShouldAbort || gestureIsComplete ) {
+		resetCurrentGesture();
+	}
 }
 
 void TouchInput::touchesBegan( const std::vector<ci::Vec2i>& positions )
 {
+	if ( Node2d* node = testScreenNodeTouches( positions ) ) {
+		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
+			node->setCurrentState( Node2d::State::HIGHLIGHTED );
+			(*iter)->nodeTouchDown( node );
+		}
+		if ( node->swallowsTouches ) {
+			return;
+		}
+	}
+	
+	mPrevTouchCount = getTouchCount();
 	mTouches = positions;
 	mTouchCount = positions.size();
 	
 	if ( mTouchCount == 1 ) {
-		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
-			(*iter)->tapDown( positions[0] );
-		}
+		mCurrentGesture.isActive = true;
+		mCurrentGesture.touchCount = 1;
+		mCurrentGesture.isTap = true;
+		mSingleTapPosition = positions[0];
+		mSingleTapTimer.start( true );
+	}
+	else if ( mTouchCount > 1 && mSingleTapTimer.getIsActive() ) {
+		onSingleTapTimerExpired( 0.0f );
 	}
 }
 
 void TouchInput::touchesMoved( const std::vector<ci::Vec2i>& positions )
 {
+	mPrevTouchCount = getTouchCount();
 	mTouches = positions;
 	mTouchCount = positions.size();
+}
+
+Node2d* TouchInput::testScreenNodeTouches( const std::vector<ci::Vec2i>& positions )
+{
+	for( auto scene : Game::get()->getScenes() ) {
+		for( auto node : scene->getScreenNodes() ) {
+			for( auto touchPos : positions ) {
+				if ( Area( node->position.x, node->position.y, node->position.x + node->size.x, node->position.y + node->size.y ).contains( touchPos ) ) {
+					return node;
+				}
+			}
+		}
+	}
+	return NULL;
+}
+
+void TouchInput::resetCurrentGesture()
+{
+	if ( !mCurrentGesture.isTap && mCurrentGesture.isActive ) {
+		//std::cout << "GESTURE END: " << mCurrentGesture.touchCount << std::endl;
+		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
+			(*iter)->gestureEnded( mCurrentGesture.touchCount );
+		}
+	}
+	
+	mCurrentGesture.isTap = false;
+	mCurrentGesture.isActive = false;
+	mCurrentGesture.isComplete = false;
+	mCurrentGesture.touchCount = 0;
+}
+
+void TouchInput::onSingleTapTimerExpired( const float deltaTime )
+{
+	if ( mSingleTapTimer.getIsActive() && getTouchesCenter().distance( mSingleTapPosition ) < 7.0f ) {
+		for( std::list<IDelegate*>::const_iterator iter = mDelegates.begin(); iter != mDelegates.end(); iter++ ) {
+			(*iter)->tapDown( mSingleTapPosition );
+		}
+		//std::cout << "TAP DOWN" << std::endl;
+	}
+	else {
+		resetCurrentGesture();
+	}
 }

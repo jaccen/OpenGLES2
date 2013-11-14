@@ -22,6 +22,7 @@ public:
 	public:
 		Controller() {}
 		virtual void update( const float deltaTime ) = 0;
+		virtual void debugDraw() {}
 	};
 	
 	static Game*				get();
@@ -41,6 +42,9 @@ public:
 	
 	void						addController( Controller* controller );
 	void						removeController( Controller* controller );
+	
+	const std::list<Scene*>&		getScenes() const { return mScenes; }
+	const std::list<Controller*>&	getControllers() const { return mControllers; }
 	
 private:
     Game();

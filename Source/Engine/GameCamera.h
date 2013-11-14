@@ -24,7 +24,7 @@ public:
 	void setZoom( float zoom );
 	float getZoom() const { return mBody.position.z; }
 	
-	const Node& getBody() const { return mBody; }
+	Node& getBody() { return mBody; }
 	
 	float getAngle() const { return mPivot.rotation.x; }
 	void setAngle( const float angleX ) { mPivot.rotation.x = angleX; }

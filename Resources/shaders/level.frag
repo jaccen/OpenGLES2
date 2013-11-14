@@ -12,12 +12,16 @@ uniform mediump vec4		SelfIlliminationMaterial;
 uniform mediump vec4		SpecularMaterial;
 uniform mediump float		Shininess;
 
+uniform vec2				Scale;
+
 varying lowp vec2			vTexCoord;
 varying highp vec3			vNormal;
 varying highp vec4			vWorldPos;
 
 void main(void)
 {
+	vec2 texCoord = vTexCoord * Scale;
+	
 	vec3 ViewDir = normalize( EyePosition - vWorldPos.xyz );
 	vec3 LightDir = normalize( LightPosition - vWorldPos.xyz );
 	
@@ -29,9 +33,9 @@ void main(void)
     float df = max( 0.0, dot( N, L ) );
     float sf = max( 0.0, dot( N, H ) );
     sf = pow( max( 0.0, dot( N, H ) ), Shininess );
-	float specAmt = texture2D( SpecularMapTexture, vTexCoord ).r;
+	float specAmt = texture2D( SpecularMapTexture, texCoord ).r;
 	
-	vec4 texColor = texture2D( DiffuseTexture, vTexCoord );
+	vec4 texColor = texture2D( DiffuseTexture, texCoord );
 	
 	vec4 pixelLitColor = AmbientMaterial * texColor + df * texColor + SpecularMaterial * sf * specAmt;
     gl_FragColor = pixelLitColor * LightColor;

@@ -1,5 +1,6 @@
 #include "Controls.h"
 #include "Game.h"
+#include "RTSDemo.h"
 
 using namespace ci;
 
@@ -16,7 +17,7 @@ void Controls::setup( GameCamera* camera )
 	mRotationStart.x = mCamera->getAngle();
 	mRotationStart.y = mCamera->rotation.y;
 	mPositionStart = mCamera->position;
-	mRotationTarget.x = mCamera->rotation.x;
+	mRotationTarget.x = mAngleEased = mCamera->getAngle();
 	mRotationTarget.y = mCamera->rotation.y;
 	mZoomTarget = mZoomEased = mCamera->getZoom();
 	
@@ -24,6 +25,7 @@ void Controls::setup( GameCamera* camera )
 	mZoomSpeed = 10.5f;
 	mPanSpeed = 0.2f;
 	mMoveSpeed = 0.003f;
+	mPanEasing = 5.0f;
 	
 	mRotationEasing = 5.0f;
 	mRotationXMin = -80.0f;
@@ -51,7 +53,7 @@ void Controls::update( const float deltaTime )
 		mZoomTarget = ci::math<float>::clamp( mZoomStart - touch->getTouchesDistance() * mZoomSpeed, mZoomMin, mZoomMax );
 	}
 	else {
-		mRotationStart.x = mCamera->rotation.x;
+		mRotationStart.x = mCamera->getAngle();
 		mRotationStart.y = mCamera->rotation.y;
 		
 		mZoomStart = mCamera->getZoom();
@@ -61,7 +63,7 @@ void Controls::update( const float deltaTime )
 	if ( touch->getTouchCount() == 3  ) {
 		const Vec3f direction = Vec3f( touch->getTouchesDifference().x, 0.0f, touch->getTouchesDifference().y );
 		const Vec3f target = mPositionStart - mCamera->getTransform().transformVec( direction ) * mMoveSpeed * mCamera->getZoom();
-		mCamera->position += ( target - mCamera->position ) / 2.0f;
+		mCamera->position += ( target - mCamera->position ) / mPanEasing;
 	}
 	else {
 		mPositionStart = mCamera->position;
@@ -78,7 +80,8 @@ void Controls::update( const float deltaTime )
 	
 	// Apply target values with easing
 	mCamera->rotation.y += ( mRotationTarget.y - mCamera->rotation.y ) / mRotationEasing;
-	mCamera->rotation.x += ( mRotationTarget.x - mCamera->rotation.x ) / mRotationEasing;
+	mAngleEased += (mRotationTarget.x - mAngleEased ) / mRotationEasing;
+	mCamera->setAngle( mAngleEased );
 	mZoomEased += (mZoomTarget - mZoomEased ) / mZoomEasing;
 	mCamera->setZoom( mZoomEased );
 	
@@ -113,27 +116,33 @@ void Controls::tapDown( ci::Vec2i position )
 	// If a single unit was selected
 	if ( singleSelectedUnit != NULL ) {
 		
-		std::cout << "Unit selected: " << (singleSelectedUnit->factionId == 0 ? "ALLY" : "ENEMY" ) << std::endl;
-		
-		// Use previously selected units to attack if it's an enemy
+		// If the newly selected unit is an enemy
 		if ( singleSelectedUnit->factionId != 0 ) {
+			
+			// If one or more player units are already selected, attack that unit
 			if ( !mSelectedUnits.empty() ) {
 				for( auto unit : mSelectedUnits ) {
 					if ( unit->factionId == 0 ) {
 						unit->commandAttackTarget( singleSelectedUnit );
 					}
 				}
+				
+				// Show the enemy unit as 'highlighted', meaning it will appear selected and then unselect after an interval
+				singleSelectedUnit->mIsSelected = true;
 				mHighlightedUnit = singleSelectedUnit;
 				mUnhighlightTimer.start();
 			}
 		}
-		
-		unselectAllUnits();
-		singleSelectedUnit->mIsSelected = true;
-		updateSelectedUnits();
-		mCanSelectMultipleUnits = false;
+		else {
+			unselectAllUnits();
+			singleSelectedUnit->mIsSelected = true;
+			updateSelectedUnits();
+			mCanSelectMultipleUnits = false;
+		}
 	}
+	// If no unit was selected
 	else {
+		// If units were already selected, then move selected units to the position where the tap occurred
 		if ( !mSelectedUnits.empty() ) {
 			float distance;
 			ray.calcPlaneIntersection( Vec3f::zero(), Vec3f::yAxis(), &distance );
@@ -142,9 +151,6 @@ void Controls::tapDown( ci::Vec2i position )
 					unit->commandMove( ray.getOrigin() + ray.getDirection() * distance );
 				}
 			}
-		}
-		else {
-			unselectAllUnits();
 		}
 		mCanSelectMultipleUnits = true;
 	}

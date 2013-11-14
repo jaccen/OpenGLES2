@@ -4,6 +4,7 @@
 
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
+#import <CoreMotion/CoreMotion.h>
 
 @interface GLView : UIView {
 @private
@@ -12,8 +13,9 @@
     float mTimestamp;
 	std::vector<ci::Vec2i> mTouches;
 	bool hasUpdatedOnce;
+	CMMotionManager* mMotionManager;
 }
 
-- (void) drawView: (CADisplayLink*) displayLink;
+- (void) update: (CADisplayLink*) displayLink;
 
 @end

@@ -41,6 +41,12 @@ Projectile::~Projectile()
 	mScene->removeNode( mBody );
 }
 
+
+bool Projectile::getIsExpired() const
+{
+	return mElapsedTime >= mLifetime || mTarget->getIsDead() || mOwner->getIsDead();
+}
+
 void Projectile::setDirection( const ci::Vec3f direction )
 {
 	mForward = direction;
