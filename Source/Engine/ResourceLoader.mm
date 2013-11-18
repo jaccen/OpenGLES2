@@ -75,3 +75,41 @@ std::string ResourceLoader::loadTextFile( const std::string filepath )
 	std::string output( [content UTF8String] );
 	return output;
 }
+
+bool ResourceLoader::loadAudioFile( const std::string& path, unsigned long* sizeBytes, void** data )
+{
+	NSString* basePath = [NSString stringWithUTF8String:path.c_str()];
+	NSString* extesion = [basePath pathExtension];
+	basePath = [basePath stringByDeletingPathExtension];
+	NSString* fullPath = [[NSBundle mainBundle] pathForResource:basePath
+														 ofType:extesion];
+	AudioFileID audioFileId;
+	NSURL* fileUrl = [NSURL fileURLWithPath:fullPath];
+	OSStatus openResult = AudioFileOpenURL( (__bridge CFURLRef)fileUrl, kAudioFileReadPermission, 0, &audioFileId );
+	
+	if ( openResult != 0 ) {
+		std::cout << "Error loading audio file " << path << ": " << openResult << std::endl;
+		return false;
+	}
+	
+	UInt64 fileSizeBytes = 0;
+	UInt32 propSize = sizeof( fileSizeBytes );
+	
+	OSStatus getSizeResult = AudioFileGetProperty( audioFileId, kAudioFilePropertyAudioDataByteCount, &propSize, &fileSizeBytes );
+	if ( getSizeResult != 0 ) {
+		std::cout << "Error getting size of audio file: " << path << std::endl;
+		return false;
+	}
+	
+	*sizeBytes = (UInt32) fileSizeBytes;
+	*data = malloc( *sizeBytes );
+	OSStatus readBytesResult = AudioFileReadBytes( audioFileId, false, 0, sizeBytes, *data );
+	if ( readBytesResult != 0 ) {
+		std::cout << "Error reading audio data for file: " << path << std::endl;
+		return false;
+	}
+	
+	AudioFileClose( audioFileId );
+	
+	return true;
+}

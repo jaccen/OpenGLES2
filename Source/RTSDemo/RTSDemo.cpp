@@ -5,6 +5,7 @@
 #include "ProjectileManager.h"
 #include "Planet.h"
 #include "Game.h"
+#include "Audio.h"
 
 using namespace ci;
 
@@ -87,7 +88,7 @@ void RTSDemo::setup()
 	pNode->mMaterial.setProperty( "RimPower", 0.15f );
 	pNode->mMaterial.setProperty( "Shininess", 10.0f );
 	mScene->addNode( pNode );
-	Planet* planet = new Planet( pNode );
+	__unused Planet* planet = new Planet( pNode );
 	
 	/*Node* glowSprite = new Node();
 	 glowSprite->mLayer = Node::LayerLighting;
@@ -227,6 +228,9 @@ void RTSDemo::setup()
 	 child->position = Vec2i( 500, 300 );
 	 child->anchor = Vec2f( 0.0f, 0.0f );
 	 mRootGui->addChild( child );*/
+	
+	mResourceManager->loadSound( "audio/test.caf" );
+	Audio::get()->playSound( mResourceManager->getSound( "audio/test.caf" ) );
 }
 
 RTSDemo::~RTSDemo()
@@ -316,11 +320,6 @@ void RTSDemo::debugDraw()
 				//const Vec2i p = u->getScreenPosition();
 				//mRenderingEngine->debugScreenDrawStrokedRect( Rectf( p.x - s, p.y - s, p.x + s, p.y + s ), color );
 			}
-		}
-		
-		// Draw selection box for multiple units
-		if ( mControls.getSelectionArea().getSize() != Vec2i::zero() ) {
-			mRenderingEngine->debugScreenDrawStrokedRect( mControls.getSelectionArea(), ColorA(0,1,0,1) );
 		}
 	}
 	

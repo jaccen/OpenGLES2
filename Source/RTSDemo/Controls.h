@@ -20,7 +20,6 @@ public:
 	virtual void tapUp(ci::Vec2i position);
 	
 	void unselectAllUnits();
-	const ci::Area& getSelectionArea() const { return mSelectionArea; }
 	
 	void updateSelectedUnits();
 	
@@ -29,9 +28,7 @@ private:
 	ly::Timer mUnhighlightTimer;
 	
 	std::list<Unit*> mSelectedUnits;
-	bool mCanSelectMultipleUnits;
 	GameCamera* mCamera;
-	ci::Area mSelectionArea;
 	Unit* mHighlightedUnit;
 	
 	ci::Vec2f mRotationStart;

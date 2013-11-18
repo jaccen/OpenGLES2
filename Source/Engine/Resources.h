@@ -12,6 +12,15 @@
 
 #include <vector>
 
+class Sound {
+public:
+	unsigned long sizeBytes;
+	float length;
+	void* data;
+	unsigned int outputSource;
+	unsigned int outputBuffer;
+};
+
 class Texture {
 public:
 	Texture( int width, int height );

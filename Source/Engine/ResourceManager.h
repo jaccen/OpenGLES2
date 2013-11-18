@@ -6,7 +6,6 @@
 #include "Node.h"
 
 #include <map>
-#include <list>
 
 class ResourceManager {
 public:
@@ -20,11 +19,13 @@ public:
 	void					loadCubemapTexture( std::string key, const std::vector<std::string>& filePaths );
 	void					loadMesh( std::string filePath );
 	void					loadFont( std::string fontpath );
+	void					loadSound( std::string fontpath );
 	
 	ShaderProgram*			getShader( std::string key );
 	Texture*				getTexture( std::string key );
 	Mesh*					getMesh( std::string key );
 	Font*					getFont( std::string key );
+	Sound*					getSound( std::string key );
 	
 private:
 	static ResourceManager* sInstance;
@@ -35,4 +36,5 @@ private:
 	std::map<std::string, Mesh*> mMeshes;
 	std::map<std::string, ShaderProgram*> mShaders;
 	std::map<std::string, Font*> mFonts;
+	std::map<std::string, Sound*> mSounds;
 };

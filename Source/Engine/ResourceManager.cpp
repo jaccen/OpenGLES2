@@ -1,6 +1,7 @@
 #include "ResourceManager.h"
 #include "cinder/Vector.h"
 #include "cinder/TriMesh.h"
+#include "Audio.h"
 
 using namespace ci;
 
@@ -86,6 +87,27 @@ void ResourceManager::loadFont( std::string path )
 	}
 }
 
+void ResourceManager::loadSound( std::string path )
+{
+	std::string filepath = mResourceLoader.getResourcePath() + "/" + path;
+	Sound* sound = new Sound();
+	if ( mResourceLoader.loadAudioFile( path, &sound->sizeBytes, &sound->data ) ) {
+		if ( Audio::get()->createSound( sound ) ) {
+			mSounds[ path ] = sound;
+			std::cout << "Loaded sound: " << path << std::endl;
+			return;
+		}
+		else {
+			std::cout << "ERROR creating sound: " << path << std::endl;
+		}
+	}
+	else {
+		std::cout << "ERROR Loading sound: " << path << std::endl;
+	}
+	
+	delete sound;
+}
+
 void ResourceManager::loadShader( std::string key, std::string vertexShaderPath, std::string fragmentShaderPath )
 {
 	char* vShader = mResourceLoader.loadShader( vertexShaderPath );
@@ -125,6 +147,20 @@ Mesh* ResourceManager::getMesh( std::string filePath )
 	else {
 		loadMesh( filePath );
 		return mMeshes[ filePath ];
+	}
+	return NULL;
+}
+
+
+Sound* ResourceManager::getSound( std::string filePath )
+{
+	auto match = mSounds.find( filePath );
+	if ( match != mSounds.end() ) {
+		return mSounds[ filePath ];
+	}
+	else {
+		loadSound( filePath );
+		return mSounds[ filePath ];
 	}
 	return NULL;
 }

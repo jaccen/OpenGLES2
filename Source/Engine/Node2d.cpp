@@ -60,7 +60,7 @@ ci::Vec2i Node2d::getGlobalPosition()
 {
 	Vec2i p = Vec2i::zero();
 	if ( mParent != NULL ) {
-		const Vec2f& a = getParent()->childAnchor;
+		__unused const Vec2f& a = getParent()->childAnchor;
 		p = mParent->getGlobalPosition();
 	}
 	return p + position;

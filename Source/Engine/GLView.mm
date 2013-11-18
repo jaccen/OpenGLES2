@@ -66,7 +66,7 @@ const static int kFps = 60;
 
 - (void) update: (CADisplayLink*) displayLink
 {
-	const float frameRate = 1.0 / (float) kFps;
+	__unused const float frameRate = 1.0 / (float) kFps;
 	
     if (displayLink != nil) {
         float elapsedSeconds = displayLink.timestamp - mTimestamp;

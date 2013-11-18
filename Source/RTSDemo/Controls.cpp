@@ -4,9 +4,8 @@
 
 using namespace ci;
 
-Controls::Controls() : mCamera( NULL ), mCanSelectMultipleUnits( true )
+Controls::Controls() : mCamera( NULL )
 {
-	mSelectionArea.set( 0, 0, 0, 0 );
 }
 
 void Controls::setup( GameCamera* camera )
@@ -56,26 +55,17 @@ void Controls::update( const float deltaTime )
 		mRotationStart.x = mCamera->getAngle();
 		mRotationStart.y = mCamera->rotation.y;
 		
-		mZoomStart = mCamera->getZoom();
+		mZoomStart = mZoomEased;
 	}
 	
-	// Three-finger control for panning
-	if ( touch->getTouchCount() == 3  ) {
+	// One-finger control for panning
+	if ( touch->getTouchCount() == 1  ) {
 		const Vec3f direction = Vec3f( touch->getTouchesDifference().x, 0.0f, touch->getTouchesDifference().y );
 		const Vec3f target = mPositionStart - mCamera->getTransform().transformVec( direction ) * mMoveSpeed * mCamera->getZoom();
 		mCamera->position += ( target - mCamera->position ) / mPanEasing;
 	}
 	else {
 		mPositionStart = mCamera->position;
-	}
-	
-	if ( mCanSelectMultipleUnits ) {
-		std::vector<Unit*>& units = RTSDemo::get()->getUnits();
-		for( auto unit : units ) {
-			if ( unit->factionId == 0 ) {
-				unit->mIsSelected = mSelectionArea.contains( unit->getScreenPosition() );
-			}
-		}
 	}
 	
 	// Apply target values with easing
@@ -126,6 +116,7 @@ void Controls::tapDown( ci::Vec2i position )
 						unit->commandAttackTarget( singleSelectedUnit );
 					}
 				}
+				unselectAllUnits();
 				
 				// Show the enemy unit as 'highlighted', meaning it will appear selected and then unselect after an interval
 				singleSelectedUnit->mIsSelected = true;
@@ -134,10 +125,8 @@ void Controls::tapDown( ci::Vec2i position )
 			}
 		}
 		else {
-			unselectAllUnits();
-			singleSelectedUnit->mIsSelected = true;
+			singleSelectedUnit->mIsSelected = !singleSelectedUnit->mIsSelected;
 			updateSelectedUnits();
-			mCanSelectMultipleUnits = false;
 		}
 	}
 	// If no unit was selected
@@ -152,7 +141,9 @@ void Controls::tapDown( ci::Vec2i position )
 				}
 			}
 		}
-		mCanSelectMultipleUnits = true;
+		else {
+			unselectAllUnits();
+		}
 	}
 }
 
@@ -174,34 +165,18 @@ void Controls::unhighlightUnit( const float deltaTime )
 
 void Controls::tapUp( ci::Vec2i position )
 {
-	mCanSelectMultipleUnits = false;
 }
 
 void Controls::gestureStarted( int fingerCount )
 {
-	Vec2i p = TouchInput::get()->getTouchesCenter();
-	if ( mCanSelectMultipleUnits && fingerCount == 1 ) {
-		mSelectionArea.set( p.x, p.y, p.x, p.y );
-		mCanSelectMultipleUnits = true;
-	}
 }
 
 void Controls::gestureMoved( int fingerCount )
 {
-	Vec2i p = TouchInput::get()->getTouchesCenter();
-	if ( mCanSelectMultipleUnits && fingerCount == 1 ) {
-		mSelectionArea.x2 = p.x;
-		mSelectionArea.y2 = p.y;
-	}
 }
 
 void Controls::gestureEnded( int fingerCount )
 {
-	if ( fingerCount == 1 ) {
-		mSelectionArea.set( 0, 0, 0, 0 );
-		mCanSelectMultipleUnits = false;
-		updateSelectedUnits();
-	}
 }
 
 
